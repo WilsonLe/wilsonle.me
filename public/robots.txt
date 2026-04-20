@@ -1,6 +1,8 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api
 
 # Sitemap
 Sitemap: https://wilsonle.me/sitemap.xml

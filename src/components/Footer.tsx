@@ -1,11 +1,17 @@
+'use client'
+
 import Link from 'next/link'
-import type { SiteSettings } from '@/lib/content'
+import { usePathname } from 'next/navigation'
+import type { SiteSettings } from '@/content/types'
+import { getPathnameBasePath } from '@/lib/i18n'
 
 interface FooterProps {
   siteSettings: SiteSettings
 }
 
 export function Footer({ siteSettings }: FooterProps) {
+  const pathname = usePathname()
+  const basePath = getPathnameBasePath(pathname)
   const currentYear = new Date().getFullYear()
 
   return (
@@ -13,7 +19,7 @@ export function Footer({ siteSettings }: FooterProps) {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-center md:text-left">
-            <Link href="/" className="text-xl font-bold gradient-text">
+            <Link href={basePath || '/'} className="text-xl font-bold gradient-text">
               {siteSettings.name}
             </Link>
             <p className="text-slate-400 text-sm mt-1">{siteSettings.title}</p>

@@ -1,6 +1,10 @@
-import { skillStack } from '@/lib/content'
+import type { SkillStack } from '@/content/types'
 
-export function SkillsSection() {
+interface SkillsSectionProps {
+  skillStack: SkillStack
+}
+
+export function SkillsSection({ skillStack }: SkillsSectionProps) {
   return (
     <section id="skills" className="py-24 bg-slate-900/50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -11,7 +15,18 @@ export function SkillsSection() {
         <div className="space-y-3">
           {/* User Layer */}
           <div className="glass rounded-xl p-4 text-center border-t-4 border-purple-500">
-            <h3 className="text-lg font-bold text-purple-300 mb-2">User</h3>
+            <h3 className="text-lg font-bold text-purple-300 mb-3">AI Developer Tools</h3>
+            <hr className="border-purple-500/30 mb-3" />
+            <div className="flex flex-wrap justify-center gap-2">
+              {skillStack.tools.map((item, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1.5 text-sm bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 rounded-lg transition-colors cursor-default"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* Frontend Layer */}

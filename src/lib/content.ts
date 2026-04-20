@@ -72,7 +72,7 @@ export const about: About = {
   heading: 'About Me',
   content: [
     "I'm a Full Stack Software Engineer with experience spanning enterprise-grade JavaScript/TypeScript applications and fast-paced Python startup environments.",
-    "I specialize in building scalable web applications with modern technologies like React, Next.js, and Node.js, while also delivering AI-powered solutions using Python and FastAPI. I thrive in both structured enterprise settings and agile startup cultures.",
+    'I specialize in building scalable web applications with modern technologies like React, Next.js, and Node.js, while also delivering AI-powered solutions using Python and FastAPI. I thrive in both structured enterprise settings and agile startup cultures.',
   ],
 }
 
@@ -101,7 +101,7 @@ export const experiences: Experience[] = [
     current: false,
     highlights: [
       'Increased user engagement by 40% and reduced bounce rates by 25% by developing a high-performance landing page integrated with Google Analytics, enabling real-time metrics and data-driven optimizations.',
-      'Boosted user adoption by 60% and cut onboarding time by 30% by leading the development of the company\'s core coding portal, offering a streamlined user experience for new sign-ups.',
+      "Boosted user adoption by 60% and cut onboarding time by 30% by leading the development of the company's core coding portal, offering a streamlined user experience for new sign-ups.",
       'Increased deployment speed by 50% by implementing a headless CMS to streamline content management, reducing overhead for developers and content editors.',
       'Maintained 99.9% uptime and reduced incident response time by 40% by establishing a comprehensive telemetry and monitoring system, ensuring rapid detection and resolution of infrastructure issues.',
       'Enhanced security and achieved industry-standard compliance by configuring company-wide SSO with Keycloak, centralizing user authentication and reinforcing data protection.',
@@ -177,8 +177,46 @@ export interface SkillStack {
 
 export const skillStack: SkillStack = {
   frontend: ['HTML', 'CSS', 'ReactJS', 'React Native', 'TailwindCSS', 'Sass', 'Electron'],
-  backend: ['Express.js', 'Next.js', 'FastAPI', 'Flask', 'Django', 'Ansible Playbook', 'Docker', 'Kubernetes', 'Celery', 'RabbitMQ', 'Apache Kafka', 'Redis', 'MongoDB', 'MySQL', 'PostgreSQL', 'SQLite', 'Terraform', 'Pinecone', 'Langchain'],
-  cloud: ['Vercel', 'Serverless Framework', 'Firebase', 'GCP Cloud Storage', 'GCP Cloud SQL', 'AWS ECS', 'AWS EC2', 'AWS Lambda', 'AWS SQS', 'AWS RDS', 'AWS S3', 'AWS SNS', 'AWS SES', 'AWS VPC', 'AWS Cognito', 'AWS IAM', 'AWS EventBridge'],
+  backend: [
+    'Express.js',
+    'Next.js',
+    'FastAPI',
+    'Flask',
+    'Django',
+    'Ansible Playbook',
+    'Docker',
+    'Kubernetes',
+    'Celery',
+    'RabbitMQ',
+    'Apache Kafka',
+    'Redis',
+    'MongoDB',
+    'MySQL',
+    'PostgreSQL',
+    'SQLite',
+    'Terraform',
+    'Pinecone',
+    'Langchain',
+  ],
+  cloud: [
+    'Vercel',
+    'Serverless Framework',
+    'Firebase',
+    'GCP Cloud Storage',
+    'GCP Cloud SQL',
+    'AWS ECS',
+    'AWS EC2',
+    'AWS Lambda',
+    'AWS SQS',
+    'AWS RDS',
+    'AWS S3',
+    'AWS SNS',
+    'AWS SES',
+    'AWS VPC',
+    'AWS Cognito',
+    'AWS IAM',
+    'AWS EventBridge',
+  ],
   languages: ['Java', 'Python', 'TypeScript'],
 }
 
@@ -192,10 +230,7 @@ export const education: Education[] = [
     degree: 'Master of Information System',
     location: 'Queensland, Australia',
     graduationDate: '2027-09-01',
-    coursework: [
-      'Management of Cyber Security',
-      'Systems Analysis and Design',
-    ],
+    coursework: ['Management of Cyber Security', 'Systems Analysis and Design'],
   },
   {
     id: '2',

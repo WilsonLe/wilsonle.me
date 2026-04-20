@@ -1,20 +1,25 @@
-import { test, expect, Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test.describe('Frontend', () => {
-  let page: Page
+  test('renders the default English homepage', async ({ page }) => {
+    await page.goto('/')
 
-  test.beforeAll(async ({ browser }, testInfo) => {
-    const context = await browser.newContext()
-    page = await context.newPage()
+    await expect(page).toHaveTitle(/Anh Minh \| Software Engineer/)
+    await expect(page.getByRole('heading', { level: 1 })).toContainText("Hi, I'm Anh Minh")
+    await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about')
   })
 
-  test('can go on homepage', async ({ page }) => {
-    await page.goto('http://localhost:3000')
+  test('renders the explicit English locale route', async ({ page }) => {
+    await page.goto('/en')
 
-    await expect(page).toHaveTitle(/Payload Blank Template/)
+    await expect(page.getByRole('heading', { level: 1 })).toContainText("Hi, I'm Anh Minh")
+    await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/en#about')
+  })
 
-    const heading = page.locator('h1').first()
+  test('renders the Vietnamese locale route with current fallback content', async ({ page }) => {
+    await page.goto('/vi')
 
-    await expect(heading).toHaveText('Welcome to your new project.')
+    await expect(page.getByRole('heading', { level: 1 })).toContainText("Hi, I'm Anh Minh")
+    await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/vi#about')
   })
 })

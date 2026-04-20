@@ -1,483 +1,141 @@
-# Payload CMS Development Rules
+# Copilot Instructions — wilsonle.me
 
-You are an expert Payload CMS developer. When working with Payload projects, follow these rules:
+These instructions apply to the entire repository. Scoped instruction files under
+[.github/instructions/](instructions/) extend these rules for specific areas of the
+codebase — read the one whose `applyTo` matches the files you are touching before
+making changes.
 
-## Core Principles
+## 1. Purpose of this repo
 
-1. **TypeScript-First**: Always use TypeScript with proper types from Payload
-2. **Security-Critical**: Follow all security patterns, especially access control
-3. **Type Generation**: Run `generate:types` script after schema changes
-4. **Transaction Safety**: Always pass `req` to nested operations in hooks
-5. **Access Control**: Understand Local API bypasses access control by default
-6. **Access Control**: Ensure roles exist when modifying collection or globals with access controls
+`wilsonle.me` is the personal **portfolio + blog** site for Minh (Wilson) Le.
 
-### Code Validation
+- **Portfolio**: resume-style sections (hero, about, experience, skills, education,
+  contact) rendered from typed content modules.
+- **Blog**: authored **in code** as MDX files (see
+  [content.instructions.md](instructions/content.instructions.md)). The blog is
+  not authored through a CMS UI.
+- **Payload CMS is used as a backend only** — a typed data store for dynamic data
+  such as contact-form submissions, media uploads, and future comments/analytics.
+  **Do not** put page copy, blog posts, or portfolio data in Payload collections.
+  **Do not** generate new Payload collections without an explicit request.
+- **i18n**: English (default) and Vietnamese. Routing is path-based:
+  `/` and `/en/...` serve English, `/vi/...` serves Vietnamese. Keep both locales
+  in sync when adding user-facing copy.
 
-- To validate typescript correctness after modifying code run `tsc --noEmit`
-- Generate import maps after creating or modifying components.
+Canonical production URL: `https://wilsonle.me`.
 
-## Project Structure
+## 2. Stack
+
+- **Next.js 15** (App Router, React 19, Server Components by default)
+- **Payload CMS 3** (mounted under `src/app/(payload)/`, admin at `/admin`)
+- **SQLite** via `@payloadcms/db-sqlite` (not MongoDB — ignore any stale README
+  references to Mongo)
+- **Tailwind CSS v4** (utility-first, via `@tailwindcss/postcss`)
+- **TypeScript 5** with path alias `@/*` → `src/*`
+- **Vitest** for integration tests, **Playwright** for e2e
+- **pnpm** as package manager, **Docker** for deployment
+
+## 3. Repository layout (load-bearing)
 
 ```
 src/
-├── app/
-│   ├── (frontend)/          # Frontend routes
-│   └── (payload)/           # Payload admin routes
-├── collections/             # Collection configs
-├── globals/                 # Global configs
-├── components/              # Custom React components
-├── hooks/                   # Hook functions
-├── access/                  # Access control functions
-└── payload.config.ts        # Main config
+  app/
+    (frontend)/          Public site routes, layout, globals.css, sitemap.ts
+    (payload)/           Payload admin + API routes — do not mix with frontend
+  collections/           Payload collections (Users, Media) — add only on request
+  components/            React components; sections/ are the home-page sections
+  lib/content.ts         Current portfolio content source (see content instructions)
+  payload.config.ts      Payload config
+  payload-types.ts       GENERATED — never edit by hand; run `pnpm generate:types`
+tests/
+  int/                   Vitest integration tests
+  e2e/                   Playwright e2e tests
 ```
 
-## Configuration
-
-### Minimal Config Pattern
-
-```typescript
-import { buildConfig } from 'payload'
-import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const filename = fileURLToPath(import.meta.url)
-const dirname = path.dirname(filename)
-
-export default buildConfig({
-  admin: {
-    user: 'users',
-    importMap: {
-      baseDir: path.resolve(dirname),
-    },
-  },
-  collections: [Users, Media],
-  editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET,
-  typescript: {
-    outputFile: path.resolve(dirname, 'payload-types.ts'),
-  },
-  db: mongooseAdapter({
-    url: process.env.DATABASE_URL,
-  }),
-})
-```
-
-## Collections
-
-### Basic Collection
-
-```typescript
-import type { CollectionConfig } from 'payload'
-
-export const Posts: CollectionConfig = {
-  slug: 'posts',
-  admin: {
-    useAsTitle: 'title',
-    defaultColumns: ['title', 'author', 'status', 'createdAt'],
-  },
-  fields: [
-    { name: 'title', type: 'text', required: true },
-    { name: 'slug', type: 'text', unique: true, index: true },
-    { name: 'content', type: 'richText' },
-    { name: 'author', type: 'relationship', relationTo: 'users' },
-  ],
-  timestamps: true,
-}
-```
-
-### Auth Collection with RBAC
-
-```typescript
-export const Users: CollectionConfig = {
-  slug: 'users',
-  auth: true,
-  fields: [
-    {
-      name: 'roles',
-      type: 'select',
-      hasMany: true,
-      options: ['admin', 'editor', 'user'],
-      defaultValue: ['user'],
-      required: true,
-      saveToJWT: true, // Include in JWT for fast access checks
-      access: {
-        update: ({ req: { user } }) => user?.roles?.includes('admin'),
-      },
-    },
-  ],
-}
-```
-
-## Fields
-
-### Common Patterns
-
-```typescript
-// Auto-generate slugs
-import { slugField } from 'payload'
-slugField({ fieldToUse: 'title' })
-
-// Relationship with filtering
-{
-  name: 'category',
-  type: 'relationship',
-  relationTo: 'categories',
-  filterOptions: { active: { equals: true } },
-}
-
-// Conditional field
-{
-  name: 'featuredImage',
-  type: 'upload',
-  relationTo: 'media',
-  admin: {
-    condition: (data) => data.featured === true,
-  },
-}
-
-// Virtual field
-{
-  name: 'fullName',
-  type: 'text',
-  virtual: true,
-  hooks: {
-    afterRead: [({ siblingData }) => `${siblingData.firstName} ${siblingData.lastName}`],
-  },
-}
-```
-
-## CRITICAL SECURITY PATTERNS
-
-### 1. Local API Access Control (MOST IMPORTANT)
-
-```typescript
-// ❌ SECURITY BUG: Access control bypassed
-await payload.find({
-  collection: 'posts',
-  user: someUser, // Ignored! Operation runs with ADMIN privileges
-})
-
-// ✅ SECURE: Enforces user permissions
-await payload.find({
-  collection: 'posts',
-  user: someUser,
-  overrideAccess: false, // REQUIRED
-})
-
-// ✅ Administrative operation (intentional bypass)
-await payload.find({
-  collection: 'posts',
-  // No user, overrideAccess defaults to true
-})
-```
-
-**Rule**: When passing `user` to Local API, ALWAYS set `overrideAccess: false`
-
-### 2. Transaction Safety in Hooks
-
-```typescript
-// ❌ DATA CORRUPTION RISK: Separate transaction
-hooks: {
-  afterChange: [
-    async ({ doc, req }) => {
-      await req.payload.create({
-        collection: 'audit-log',
-        data: { docId: doc.id },
-        // Missing req - runs in separate transaction!
-      })
-    },
-  ],
-}
-
-// ✅ ATOMIC: Same transaction
-hooks: {
-  afterChange: [
-    async ({ doc, req }) => {
-      await req.payload.create({
-        collection: 'audit-log',
-        data: { docId: doc.id },
-        req, // Maintains atomicity
-      })
-    },
-  ],
-}
-```
-
-**Rule**: ALWAYS pass `req` to nested operations in hooks
-
-### 3. Prevent Infinite Hook Loops
-
-```typescript
-// ❌ INFINITE LOOP
-hooks: {
-  afterChange: [
-    async ({ doc, req }) => {
-      await req.payload.update({
-        collection: 'posts',
-        id: doc.id,
-        data: { views: doc.views + 1 },
-        req,
-      }) // Triggers afterChange again!
-    },
-  ],
-}
-
-// ✅ SAFE: Use context flag
-hooks: {
-  afterChange: [
-    async ({ doc, req, context }) => {
-      if (context.skipHooks) return
-
-      await req.payload.update({
-        collection: 'posts',
-        id: doc.id,
-        data: { views: doc.views + 1 },
-        context: { skipHooks: true },
-        req,
-      })
-    },
-  ],
-}
-```
-
-## Access Control
-
-### Collection-Level Access
-
-```typescript
-import type { Access } from 'payload'
-
-// Boolean return
-const authenticated: Access = ({ req: { user } }) => Boolean(user)
-
-// Query constraint (row-level security)
-const ownPostsOnly: Access = ({ req: { user } }) => {
-  if (!user) return false
-  if (user?.roles?.includes('admin')) return true
-
-  return {
-    author: { equals: user.id },
-  }
-}
-```
-
-### Field-Level Access
-
-```typescript
-// Field access ONLY returns boolean (no query constraints)
-{
-  name: 'salary',
-  type: 'number',
-  access: {
-    read: ({ req: { user }, doc }) => {
-      if (user?.id === doc?.id) return true
-      return user?.roles?.includes('admin')
-    },
-    update: ({ req: { user } }) => {
-      return user?.roles?.includes('admin')
-    },
-  },
-}
-```
-
-### Common Access Patterns
-
-```typescript
-export const anyone: Access = () => true
-export const authenticated: Access = ({ req: { user } }) => Boolean(user)
-export const adminOnly: Access = ({ req: { user } }) => user?.roles?.includes('admin')
-export const adminOrSelf: Access = ({ req: { user } }) => {
-  if (user?.roles?.includes('admin')) return true
-  return { id: { equals: user?.id } }
-}
-export const authenticatedOrPublished: Access = ({ req: { user } }) => {
-  if (user) return true
-  return { _status: { equals: 'published' } }
-}
-```
-
-## Hooks
-
-### Common Hook Patterns
-
-```typescript
-export const Posts: CollectionConfig = {
-  slug: 'posts',
-  hooks: {
-    beforeValidate: [
-      async ({ data, operation }) => {
-        if (operation === 'create') {
-          data.slug = slugify(data.title)
-        }
-        return data
-      },
-    ],
-    beforeChange: [
-      async ({ data, req, operation, originalDoc }) => {
-        if (operation === 'update' && data.status === 'published') {
-          data.publishedAt = new Date()
-        }
-        return data
-      },
-    ],
-    afterChange: [
-      async ({ doc, req, operation, previousDoc, context }) => {
-        if (context.skipNotification) return
-        if (operation === 'create') {
-          await sendNotification(doc)
-        }
-        return doc
-      },
-    ],
-    afterRead: [
-      async ({ doc, req }) => {
-        doc.viewCount = await getViewCount(doc.id)
-        return doc
-      },
-    ],
-    beforeDelete: [
-      async ({ req, id }) => {
-        await req.payload.delete({
-          collection: 'comments',
-          where: { post: { equals: id } },
-          req,
-        })
-      },
-    ],
-  },
-}
-```
-
-## Queries
-
-### Local API
-
-```typescript
-const posts = await payload.find({
-  collection: 'posts',
-  where: {
-    and: [{ status: { equals: 'published' } }, { 'author.name': { contains: 'john' } }],
-  },
-  depth: 2,
-  limit: 10,
-  sort: '-createdAt',
-  select: {
-    title: true,
-    author: true,
-  },
-})
-```
-
-### Query Operators
-
-```typescript
-{ status: { equals: 'published' } }
-{ status: { not_equals: 'draft' } }
-{ price: { greater_than: 100 } }
-{ age: { less_than_equal: 65 } }
-{ title: { contains: 'payload' } }
-{ description: { like: 'cms headless' } }
-{ category: { in: ['tech', 'news'] } }
-{ image: { exists: true } }
-{ location: { near: [-122.4194, 37.7749, 10000] } }
-```
-
-## Getting Payload Instance
-
-```typescript
-// In API routes (Next.js)
-import { getPayload } from 'payload'
-import config from '@payload-config'
-
-export async function GET() {
-  const payload = await getPayload({ config })
-  const posts = await payload.find({ collection: 'posts' })
-  return Response.json(posts)
-}
-
-// In Server Components
-import { getPayload } from 'payload'
-import config from '@payload-config'
-
-export default async function Page() {
-  const payload = await getPayload({ config })
-  const { docs } = await payload.find({ collection: 'posts' })
-  return <div>{docs.map(post => <h1 key={post.id}>{post.title}</h1>)}</div>
-}
-```
-
-## Components
-
-Components are defined using **file paths** (not direct imports) in your config:
-
-```typescript
-export default buildConfig({
-  admin: {
-    components: {
-      graphics: {
-        Logo: '/components/Logo',
-        Icon: '/components/Icon',
-      },
-      Nav: '/components/CustomNav',
-      actions: ['/components/ClearCache', '/components/Preview'],
-    },
-  },
-})
-```
-
-**All components are Server Components by default**. Use `'use client'` for Client Components.
-
-## Drafts & Versions
-
-```typescript
-export const Pages: CollectionConfig = {
-  slug: 'pages',
-  versions: {
-    drafts: {
-      autosave: true,
-      schedulePublish: true,
-      validate: false,
-    },
-    maxPerDoc: 100,
-  },
-  access: {
-    read: ({ req: { user } }) => {
-      if (!user) return { _status: { equals: 'published' } }
-      return true
-    },
-  },
-}
-```
-
-## Best Practices
-
-### Security
-1. Always set `overrideAccess: false` when passing `user` to Local API
-2. Field-level access only returns boolean (no query constraints)
-3. Default to restrictive access, gradually add permissions
-
-### Performance
-1. Index frequently queried fields
-2. Use `select` to limit returned fields
-3. Set `maxDepth` on relationships to prevent over-fetching
-
-### Data Integrity
-1. Always pass `req` to nested operations in hooks
-2. Use context flags to prevent infinite hook loops
-3. Use `beforeValidate` for data formatting
-4. Use `beforeChange` for business logic
-
-### Type Safety
-1. Run `generate:types` after schema changes
-2. Import types from generated `payload-types.ts`
-3. Use field type guards for runtime type checking
-
-## Resources
-
-- Docs: https://payloadcms.com/docs
-- LLM Context: https://payloadcms.com/llms-full.txt
-- GitHub: https://github.com/payloadcms/payload
-- Examples: https://github.com/payloadcms/payload/tree/main/examples
-- Templates: https://github.com/payloadcms/payload/tree/main/templates
+> `src/payload-types.ts` and `src/app/(payload)/admin/importMap.js` are generated.
+> Never hand-edit. Regenerate with `pnpm generate:types` and
+> `pnpm generate:importmap`.
+
+## 4. Required checks before declaring a change done
+
+Run these from the repo root. Do not claim completion without them passing for the
+surface you touched.
+
+| Check             | Command                        | When                                      |
+| ----------------- | ------------------------------ | ----------------------------------------- |
+| Lint              | `pnpm lint`                    | Always                                    |
+| Type-check        | `pnpm exec tsc --noEmit`       | Always when TS changed                    |
+| Format            | `pnpm exec prettier --check .` | Always                                    |
+| Integration tests | `pnpm test:int`                | When touching API, collections, lib/      |
+| Production build  | `pnpm build`                   | Before shipping non-trivial changes       |
+| E2E (optional)    | `pnpm test:e2e`                | When changing routes, layout, or sections |
+
+If a check fails, **fix it** rather than suppressing it. Do not add
+`eslint-disable`, `@ts-ignore`, or `@ts-expect-error` without a justifying comment.
+
+## 5. Content rules (summary — see content.instructions.md)
+
+- Content lives **in code**, typed, under `src/content/{en,vi}/...` (target
+  structure) with per-page SEO co-located. `src/lib/content.ts` is the current
+  holding pen and is considered too restrictive — do not add new fields to it;
+  propose the move to `src/content/` instead.
+- **Never fabricate personal data** (names, dates, companies, links). If a value
+  is missing, ask — do not invent.
+- **Never modify resume/bio copy** without explicit user confirmation.
+- **Never fabricate external URLs** (GitHub handles, LinkedIn profiles, company
+  sites). Copy existing links verbatim or leave blank.
+- Keep `en` and `vi` keys in structural sync. If you can't translate, leave a
+  TODO marker; do not machine-translate silently.
+
+## 6. SEO rules (summary — see seo.instructions.md)
+
+- Use the Next.js **Metadata API** (`export const metadata` / `generateMetadata`)
+  in every route segment. No `next/head`.
+- Source defaults from the site settings content module; never hard-code
+  title/description strings inline in components.
+- Every public page must set: `title`, `description`, `openGraph`, `twitter`,
+  `alternates.canonical`, and `alternates.languages` (en/vi).
+- OG image URLs must be **absolute** (built from the canonical base URL).
+- Home page emits **JSON-LD `Person`** schema.
+- `/admin/**` and `/api/**` must be `noindex, nofollow` (via `robots` metadata or
+  `robots.txt`).
+- Update `src/app/(frontend)/sitemap.ts` whenever routes are added or removed.
+
+## 7. Styling & component rules (summary — see styling + frontend instructions)
+
+- Tailwind v4 utilities only. No CSS modules. Global styles stay in
+  `src/app/(frontend)/globals.css` and `styles.css`.
+- **Server Components by default.** Add `'use client'` only when a component uses
+  state, effects, browser APIs, or event handlers.
+- Use semantic HTML (`<header>`, `<main>`, `<section>`, `<nav>`, `<article>`).
+  Every `<img>` needs `alt`; every icon-only button needs `aria-label`.
+- Imports use the `@/*` alias for anything under `src/`.
+
+## 8. Security & safety
+
+- Do not commit secrets. Environment variables belong in `.env` (gitignored) and
+  `test.env` for tests.
+- Payload admin is auth-gated; do not relax access control in `Users.ts` or any
+  collection without explicit request.
+- Treat all form input (contact form, future APIs) as untrusted — validate on the
+  server side.
+- Follow the OWASP Top 10; in particular, never construct raw SQL, never render
+  unsanitized HTML, and keep `dangerouslySetInnerHTML` out of user-facing paths.
+
+## 9. What **not** to do
+
+- Don't add dependencies casually. Propose and justify before installing.
+- Don't introduce a second CSS system (styled-components, CSS modules, vanilla
+  CSS files per component).
+- Don't create new Payload collections, migrations, or admin customizations
+  without explicit request.
+- Don't rewrite `src/payload-types.ts` or the admin import map by hand.
+- Don't add Vercel/Payload-Cloud-specific code paths — deployment target is
+  Docker.
+- Don't add tracking, analytics, or third-party scripts without confirmation.
+
+## 10. Deployment
+
+Deployed via Docker using the provided `Dockerfile` and `docker-compose.yml`.
+Assume a standalone container runtime — do not rely on Vercel-only features
+(edge runtime, `@vercel/*` adapters, ISR-on-demand) unless explicitly asked.

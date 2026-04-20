@@ -1,4 +1,4 @@
-import type { Experience } from '@/lib/content'
+import type { Experience } from '@/content/types'
 
 interface ExperienceSectionProps {
   experiences: Experience[]
@@ -6,7 +6,7 @@ interface ExperienceSectionProps {
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' })
 }
 
 export function ExperienceSection({ experiences }: ExperienceSectionProps) {
@@ -27,10 +27,7 @@ export function ExperienceSection({ experiences }: ExperienceSectionProps) {
 
           <div className="space-y-12">
             {experiences.map((exp) => (
-              <div
-                key={exp.id}
-                className="relative"
-              >
+              <div key={exp.id} className="relative">
                 {/* Timeline dot */}
                 <div className="absolute -left-8 md:-left-12 top-0 w-4 h-4 rounded-full bg-blue-500 -translate-x-1/2" />
 

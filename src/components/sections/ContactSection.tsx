@@ -1,4 +1,4 @@
-import type { SiteSettings } from '@/lib/content'
+import type { SiteSettings } from '@/content/types'
 
 interface ContactSectionProps {
   siteSettings: SiteSettings

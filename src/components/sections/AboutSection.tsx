@@ -1,4 +1,5 @@
-import type { About } from '@/lib/content'
+import Image from 'next/image'
+import type { About } from '@/content/types'
 
 interface AboutSectionProps {
   about: About
@@ -17,13 +18,16 @@ export function AboutSection({ about }: AboutSectionProps) {
           <div className="flex justify-center">
             <div className="relative">
               <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden glass">
-                <img
+                <Image
                   src="https://avatars.githubusercontent.com/u/43991506"
-                  alt="Profile"
+                  alt="Profile portrait"
+                  width={256}
+                  height={256}
+                  sizes="(min-width: 768px) 16rem, 12rem"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="absolute top-1 left-1 w-48 h-48 md:w-64 md:h-64 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full -z-10" />
+              <div className="absolute top-1 left-1 w-48 h-48 md:w-64 md:h-64 bg-linear-to-br from-blue-500/20 to-purple-500/20 rounded-full -z-10" />
             </div>
           </div>
 

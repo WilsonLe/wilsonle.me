@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import type { SiteSettings } from '@/lib/content'
+import type { SiteSettings } from '@/content/types'
+import { getPathnameBasePath } from '@/lib/i18n'
 
 interface HeaderProps {
   siteSettings: SiteSettings
@@ -10,13 +12,15 @@ interface HeaderProps {
 
 export function Header({ siteSettings }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const basePath = getPathnameBasePath(pathname)
 
   const navLinks = [
-    { href: '/#about', label: 'About' },
-    { href: '/#experience', label: 'Experience' },
-    { href: '/#skills', label: 'Skills' },
-    { href: '/#education', label: 'Education' },
-    { href: '/#contact', label: 'Contact' },
+    { href: `${basePath || '/'}#about`, label: 'About' },
+    { href: `${basePath || '/'}#experience`, label: 'Experience' },
+    { href: `${basePath || '/'}#skills`, label: 'Skills' },
+    { href: `${basePath || '/'}#education`, label: 'Education' },
+    { href: `${basePath || '/'}#contact`, label: 'Contact' },
   ]
 
   return (
@@ -24,10 +28,10 @@ export function Header({ siteSettings }: HeaderProps) {
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link
-            href="/"
+            href={basePath || '/'}
             className="text-xl font-bold gradient-text hover:opacity-80 transition-opacity"
           >
-            {siteSettings.name?.split(' ')[0] || 'Portfolio'}
+            {siteSettings.name || 'Portfolio'}
           </Link>
 
           {/* Desktop Navigation */}
@@ -49,12 +53,7 @@ export function Header({ siteSettings }: HeaderProps) {
             className="md:hidden p-2 text-slate-300 hover:text-white"
             aria-label="Toggle menu"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMenuOpen ? (
                 <path
                   strokeLinecap="round"

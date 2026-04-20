@@ -41,6 +41,7 @@ next-env.d.ts
 .env
 
 /media
+/.workspace/
 
 # Playwright
 node_modules/

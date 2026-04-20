@@ -1,4 +1,4 @@
-import type { Education } from '@/lib/content'
+import type { Education } from '@/content/types'
 
 interface EducationSectionProps {
   education: Education[]
@@ -6,7 +6,7 @@ interface EducationSectionProps {
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' })
 }
 
 function isExpectedGraduation(dateString: string): boolean {
@@ -36,7 +36,8 @@ export function EducationSection({ education }: EducationSectionProps) {
                 </div>
                 <div className="text-right">
                   <p className="text-slate-400 text-sm">
-                    {isExpectedGraduation(edu.graduationDate) ? 'Expected Graduation' : 'Graduated'} {formatDate(edu.graduationDate)}
+                    {isExpectedGraduation(edu.graduationDate) ? 'Expected Graduation' : 'Graduated'}{' '}
+                    {formatDate(edu.graduationDate)}
                   </p>
                   {edu.location && <p className="text-slate-500 text-sm">{edu.location}</p>}
                 </div>

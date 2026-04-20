@@ -1,67 +1,134 @@
-# Payload Blank Template
+# wilsonle.me
 
-This template comes configured with the bare minimum to get started on anything you need.
+Personal portfolio and blog for Minh (Wilson) Le. Built with Next.js 15,
+Payload CMS 3, and Tailwind CSS v4.
 
-## Quick start
+Production: <https://wilsonle.me>
 
-This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+## What this repo is
 
-## Quick Start - local setup
+- **Portfolio** — resume-style home page (hero, about, experience, skills,
+  education, contact) rendered from typed content modules.
+- **Blog** — authored **in code** as MDX files under `src/content/blog/<locale>/`.
+  No headless CMS in front of blog posts.
+- **Payload CMS** — used as a **backend data store only** (media, contact-form
+  submissions, auth). Not the authoring surface for site or blog content.
+- **i18n** — English (default) and Vietnamese, path-based routing:
+  `/` and `/en/...` serve English, `/vi/...` serves Vietnamese.
 
-To spin up this template locally, follow these steps:
+Contributor and AI-assistant conventions live in
+[`.github/copilot-instructions.md`](.github/copilot-instructions.md) and the
+scoped files under [`.github/instructions/`](.github/instructions/).
 
-### Clone
+## Stack
 
-After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+| Area            | Choice                                               |
+| --------------- | ---------------------------------------------------- |
+| Framework       | Next.js 15 (App Router, React 19, Server Components) |
+| CMS/backend     | Payload CMS 3 (admin at `/admin`)                    |
+| Database        | SQLite via `@payloadcms/db-sqlite`                   |
+| Styling         | Tailwind CSS v4 (`@tailwindcss/postcss`)             |
+| Language        | TypeScript 5 (path alias `@/*` → `src/*`)            |
+| Tests           | Vitest (integration), Playwright (e2e)               |
+| Package manager | pnpm                                                 |
+| Deployment      | Docker                                               |
 
-### Development
+## Repository layout
 
-1. First [clone the repo](#clone) if you have not done so already
-2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URL` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+```
+src/
+  app/
+    (frontend)/          Public site routes, layout, globals.css, sitemap.ts
+    (payload)/           Payload admin + API routes
+  collections/           Payload collections (Users, Media)
+  components/            React components; sections/ drive the home page
+  content/               Typed content by locale (target structure)
+    en/ vi/              site.ts, home.ts, blog/*.mdx
+  lib/content.ts         Legacy holding pen — being migrated to src/content/
+  payload.config.ts      Payload config
+  payload-types.ts       Generated — do not edit
+tests/
+  int/                   Vitest integration tests
+  e2e/                   Playwright e2e tests
+```
 
-3. `pnpm install && pnpm dev` to install dependencies and start the dev server
-4. open `http://localhost:3000` to open the app in your browser
+`src/payload-types.ts` and `src/app/(payload)/admin/importMap.js` are
+generated. Regenerate via `pnpm generate:types` and
+`pnpm generate:importmap`.
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+## Getting started
 
-#### Docker (Optional)
+Requirements: Node `^18.20.2 || >=20.9.0`, pnpm `^9 || ^10`.
 
-If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+```sh
+pnpm install
+cp .env.example .env   # then fill in secrets (Payload secret, etc.)
+pnpm dev
+```
 
-To do so, follow these steps:
+Open <http://localhost:3000>. The Payload admin lives at
+<http://localhost:3000/admin>.
 
-- Modify the `MONGODB_URL` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
-- Modify the `docker-compose.yml` file's `MONGODB_URL` to match the above `<dbname>`
-- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+### Scripts
 
-## How it works
+| Script                    | Purpose                             |
+| ------------------------- | ----------------------------------- |
+| `pnpm dev`                | Next dev server                     |
+| `pnpm devsafe`            | Wipe `.next/` then start dev        |
+| `pnpm build`              | Production build                    |
+| `pnpm start`              | Run the built app                   |
+| `pnpm lint`               | ESLint                              |
+| `pnpm test:int`           | Vitest integration tests            |
+| `pnpm test:e2e`           | Playwright end-to-end tests         |
+| `pnpm test`               | Integration + e2e                   |
+| `pnpm generate:types`     | Regenerate `src/payload-types.ts`   |
+| `pnpm generate:importmap` | Regenerate Payload admin import map |
 
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+### Before committing
 
-### Collections
+```sh
+pnpm lint
+pnpm exec tsc --noEmit
+pnpm exec prettier --check .
+pnpm test:int
+pnpm build
+```
 
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+## Content model
 
-- #### Users (Authentication)
+- Site content (portfolio copy, SEO strings, socials) lives in code under
+  `src/content/<locale>/` as typed TS modules.
+- Blog posts are MDX files under `src/content/blog/<locale>/<slug>.mdx` with
+  frontmatter (`title`, `description`, `date`, `tags`, optional `ogImage`,
+  optional `draft`).
+- English and Vietnamese must stay structurally in sync.
+- **Never** put site copy or blog posts into Payload collections. See
+  [`.github/instructions/content.instructions.md`](.github/instructions/content.instructions.md).
 
-  Users are auth-enabled collections that have access to the admin panel.
+## SEO
 
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/main/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+- Uses the Next.js Metadata API (no `next/head`).
+- Every public page sets `title`, `description`, `openGraph`, `twitter`,
+  `alternates.canonical`, and `alternates.languages` for en/vi.
+- Home page emits JSON-LD `Person` schema; blog posts emit `BlogPosting`.
+- `sitemap.ts` enumerates all public routes in both locales.
+- `/admin` and `/api` are `noindex, nofollow`.
+- Full rules: [`.github/instructions/seo.instructions.md`](.github/instructions/seo.instructions.md).
 
-- #### Media
+## Deployment
 
-  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
+Deployed via Docker using the provided `Dockerfile` and `docker-compose.yml`.
+There are no assumptions about Vercel or Payload Cloud — the runtime is a
+standalone Node container backed by a SQLite volume.
 
-### Docker
+```sh
+docker compose up --build
+```
 
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
+Environment variables come from `.env` (gitignored). Test runs use
+`test.env`.
 
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
+## License
 
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
-
-## Questions
-
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+MIT — see [LICENSE](LICENSE) if present, otherwise treat as MIT per
+`package.json`.

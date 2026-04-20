@@ -1,4 +1,4 @@
-import type { SiteSettings } from '@/lib/content'
+import type { SiteSettings } from '@/content/types'
 
 interface HeroSectionProps {
   siteSettings: SiteSettings
@@ -8,7 +8,7 @@ export function HeroSection({ siteSettings }: HeroSectionProps) {
   return (
     <section className="min-h-screen flex items-center justify-center pt-16 relative overflow-hidden">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-slate-950 to-purple-900/20" />
+      <div className="absolute inset-0 bg-linear-to-br from-blue-900/20 via-slate-950 to-purple-900/20" />
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
 
@@ -16,7 +16,15 @@ export function HeroSection({ siteSettings }: HeroSectionProps) {
         <h1 className="text-5xl md:text-7xl font-bold mb-6">
           <span className="gradient-text">Hi, I&apos;m {siteSettings.name}</span>
         </h1>
-        <h2 className="text-2xl md:text-3xl text-slate-300 mb-8">{siteSettings.title}</h2>
+        <h2 className="text-2xl md:text-3xl text-slate-300">{siteSettings.title}</h2>
+        {siteSettings.tagline && (
+          <p className="text-lg md:text-xl text-slate-400 mt-4">{siteSettings.tagline}</p>
+        )}
+        {siteSettings.location && (
+          <p className="text-sm md:text-base text-slate-500 mt-3">
+            <span aria-hidden="true">🇦🇺</span> {siteSettings.location}
+          </p>
+        )}
 
         {/* Social Links */}
         <div className="flex items-center justify-center gap-6 mt-12">

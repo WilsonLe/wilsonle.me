@@ -1,0 +1,195 @@
+import type { About, Education, Experience, HomeContent, SkillStack } from '@/content/types'
+import { siteSettings } from '@/content/en/site'
+
+const about: About = {
+  heading: 'About Me',
+  content: [
+    "I'm a software engineer who enjoys building end-to-end products, from user-facing experiences to the backend systems and infrastructure that keep them running.",
+    'My work spans startups, freelance projects, and production systems at scale, with a focus on turning ideas into reliable software that teams can ship, operate, and grow with confidence.',
+  ],
+}
+
+const experiences: Experience[] = [
+  {
+    id: '1',
+    title: 'Software Engineer',
+    company: 'Pangea Chat',
+    location: 'Remote',
+    startDate: '2023-05-01',
+    endDate: '2026-04-30',
+    current: false,
+    highlights: [
+      'Architected an event-driven AI assistant for app.pangea.chat that handled 1,000+ requests per second and increased first-time user engagement by 50%.',
+      'Designed and maintained FastAPI-based backend services for LLM workflows and core business logic, improving scalability and reducing latency by 30%.',
+      'Built CI/CD pipelines across the chatbot stack, cutting deployment time by 90% and reducing release overhead for dependent services.',
+      'Established telemetry, alerting, and monitoring across production services, reducing incident response delay by 90%.',
+      'Improved developer efficiency by 100% by spearheading AI-assisted workflows through spec-driven development and setting up an agent-centric codebase documentation system.',
+    ],
+  },
+  {
+    id: '2',
+    title: 'Software Engineer',
+    company: 'CYOBot',
+    location: 'Dover, Delaware',
+    startDate: '2023-12-01',
+    endDate: '2024-05-01',
+    current: false,
+    highlights: [
+      'Built a high-performance landing page with Google Analytics instrumentation, increasing user engagement by 40% and reducing bounce rate by 25%.',
+      "Led development of the company's core coding portal, increasing user adoption by 60% and cutting onboarding time by 30%.",
+      'Implemented a CMS that streamlined publishing workflows and improved deployment speed by 50%.',
+      'Configured company-wide SSO with Keycloak, centralizing authentication and strengthening security compliance.',
+    ],
+  },
+  {
+    id: '3',
+    title: 'Software Engineer',
+    company: 'Vulcan Augmetics',
+    location: 'Ho Chi Minh, Vietnam',
+    startDate: '2023-09-01',
+    endDate: '2023-12-01',
+    current: false,
+    highlights: [
+      'Integrated a CMS that improved content management efficiency by 50% and simplified collaboration across teams.',
+      'Implemented OAuth2 login flows to improve authentication security and simplify user access.',
+      'Built a custom identity and access management system that improved administrator productivity when managing authorization flows.',
+      'Added telemetry, alerting, monitoring, and an on-call system for production usage, reducing incident response time by 35% while maintaining 99.9% uptime.',
+    ],
+  },
+  {
+    id: '4',
+    title: 'Software Engineer',
+    company: 'Century International Development Investment',
+    location: 'Ho Chi Minh, Vietnam',
+    startDate: '2022-12-01',
+    endDate: '2023-05-01',
+    current: false,
+    highlights: [
+      'Architected and set up an end-to-end encrypted messaging service used by 50+ high-profile employees for secure internal communication.',
+      'Implemented a calendar service integrated with chat, improving employee productivity by an estimated 20 hours per week.',
+      'Developed a notification service connected to chat and calendar workflows, increasing timely response to company updates by 40%.',
+      'Built an admin dashboard over existing databases, improving front-end developer productivity by 50%.',
+    ],
+  },
+  {
+    id: '5',
+    title: 'Cloud Application Engineer Intern',
+    company: 'Designer Brands Inc.',
+    location: 'Columbus, Ohio',
+    startDate: '2022-05-01',
+    endDate: '2022-12-01',
+    current: false,
+    highlights: [
+      'Owned primary development of key features across 3 cloud-based microservices supporting dsw.com, which handled 10M+ requests per day.',
+      'Spearheaded data migration of 5,000 entries from Oracle legacy systems to internal apps running on PostgreSQL and Kubernetes, improving landing page load time by 10%.',
+      'Reduced microservices outbound traffic by 2% by filtering out internal metadata emitted by microservices to end-users.',
+    ],
+  },
+  {
+    id: '6',
+    title: 'Assistant Network Engineer',
+    company: 'Denison University',
+    location: 'Granville, Ohio',
+    startDate: '2021-05-01',
+    endDate: '2022-05-01',
+    current: false,
+    highlights: [
+      'Resolved 200+ network-related tickets with a 95% first-call resolution rate, including device patching and network troubleshooting for office and dormitory clients.',
+      'Supported a campus network migration by configuring and installing 50+ replacement devices, contributing to a 30% improvement in network reliability.',
+      'Documented upgraded network test procedures and connection setup processes, reducing future troubleshooting time by 20%.',
+      'Managed inventory for 1,000+ network assets and compiled monthly reports to support infrastructure planning.',
+    ],
+  },
+  {
+    id: '7',
+    title: 'Co-Founder, Full-Stack Engineer',
+    company: 'DeerX',
+    location: 'Columbus, Ohio',
+    startDate: '2021-08-01',
+    endDate: '2024-05-01',
+    current: false,
+    highlights: [
+      'Founded an open-source community for Denison students to get started with open-source contributions.',
+      'Led a team of 7 engineers building a full-stack mobile application using Agile sprint management.',
+      'Built an open marketplace that reduced campus-wide used-item waste by 25%.',
+      'Integrated built-in chat and notification services into the marketplace, doubling transaction rates and supporting 100K+ messages and notifications daily.',
+    ],
+  },
+]
+
+const education: Education[] = [
+  {
+    id: '1',
+    institution: 'University of Southern Queensland',
+    degree: 'Master of Information Systems',
+    location: 'Queensland, Australia',
+    graduationDate: '2027-08-01',
+    coursework: ['Management of Cyber Security', 'Systems Analysis and Design'],
+  },
+  {
+    id: '2',
+    institution: 'Denison University',
+    degree: 'Bachelor of Science in Computer Science',
+    location: 'Granville, Ohio',
+    graduationDate: '2024-05-01',
+    gpa: '3.52/4.00',
+    coursework: [
+      'Data Structures',
+      'Algorithm Design and Analysis',
+      'Data Systems',
+      'Computer Systems',
+      'Operating Systems',
+      'Parallel Computing',
+      'Quantum Computing',
+      'Artificial Intelligence',
+      'Statistics',
+    ],
+  },
+]
+
+const skillStack: SkillStack = {
+  frontend: ['HTML', 'CSS', 'React', 'React Native', 'Tailwind CSS', 'Sass', 'Electron'],
+  backend: [
+    'Express.js',
+    'Next.js',
+    'FastAPI',
+    'Flask',
+    'Django',
+    'Ansible',
+    'Docker',
+    'Kubernetes',
+    'Celery',
+    'RabbitMQ',
+    'Apache Kafka',
+    'Redis',
+    'PostgreSQL',
+    'MySQL',
+    'MongoDB',
+    'SQLite',
+    'Terraform',
+    'Pinecone',
+    'LangChain',
+    'LangGraph',
+  ],
+  cloud: [
+    'Amazon Web Services (ECS, EC2, Lambda, SQS, RDS, S3, SNS, SES, VPC, Cognito, IAM, EventBridge)',
+    'Google Cloud Platform (Firebase, Cloud Storage, Cloud SQL)',
+    'Vercel',
+    'Serverless Framework',
+  ],
+  languages: ['Java', 'Python', 'TypeScript'],
+  tools: ['Claude Code', 'VSCode Copilot Chat'],
+}
+
+export const homeContent: HomeContent = {
+  locale: 'en',
+  siteSettings,
+  about,
+  experiences,
+  education,
+  skillStack,
+  seo: {
+    title: siteSettings.seo?.metaTitle || `${siteSettings.name} | ${siteSettings.title}`,
+    description: siteSettings.seo?.metaDescription || 'Portfolio website',
+  },
+}
