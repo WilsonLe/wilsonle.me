@@ -3,6 +3,7 @@ import { ContactSection } from '@/components/sections/ContactSection'
 import { EducationSection } from '@/components/sections/EducationSection'
 import { ExperienceSection } from '@/components/sections/ExperienceSection'
 import { HeroSection } from '@/components/sections/HeroSection'
+import { ProjectsSection } from '@/components/sections/ProjectsSection'
 import { SkillsSection } from '@/components/sections/SkillsSection'
 import type { HomeContent } from '@/content/types'
 import { buildAbsoluteUrl, getSocialLinks } from '@/site-config'
@@ -31,6 +32,7 @@ export function HomePageView({ canonicalPath, content }: HomePageViewProps) {
       />
       <HeroSection siteSettings={content.siteSettings} />
       <AboutSection about={content.about} />
+      <ProjectsSection projects={content.projects} />
       <ExperienceSection experiences={content.experiences} />
       <SkillsSection skillStack={content.skillStack} />
       <EducationSection education={content.education} />

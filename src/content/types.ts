@@ -23,6 +23,17 @@ export interface About {
   content: string[]
 }
 
+export interface Project {
+  id: string
+  name: string
+  visibility: string
+  summary: string
+  contribution: string
+  technologies: string[]
+  url?: string
+  linkLabel?: string
+}
+
 export interface Experience {
   id: string
   title: string
@@ -61,6 +72,7 @@ export interface HomeContent {
   locale: Locale
   siteSettings: SiteSettings
   about: About
+  projects: Project[]
   experiences: Experience[]
   education: Education[]
   skillStack: SkillStack

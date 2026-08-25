@@ -17,6 +17,7 @@ export function Header({ siteSettings }: HeaderProps) {
 
   const navLinks = [
     { href: `${basePath || '/'}#about`, label: 'About' },
+    { href: `${basePath || '/'}#projects`, label: 'Projects' },
     { href: `${basePath || '/'}#experience`, label: 'Experience' },
     { href: `${basePath || '/'}#skills`, label: 'Skills' },
     { href: `${basePath || '/'}#education`, label: 'Education' },
