@@ -60,11 +60,11 @@ const experiences: Experience[] = [
     endDate: '2026-04-30',
     current: false,
     highlights: [
-      'Architected an event-driven AI assistant for app.pangea.chat that handled 1,000+ requests per second and increased first-time user engagement by 50%.',
-      'Designed and maintained FastAPI-based backend services for LLM workflows and core business logic, improving scalability and reducing latency by 30%.',
-      'Built CI/CD pipelines across the chatbot stack, cutting deployment time by 90% and reducing release overhead for dependent services.',
-      'Established telemetry, alerting, and monitoring across production services, reducing incident response delay by 90%.',
-      'Improved developer efficiency by 100% by spearheading AI-assisted workflows through spec-driven development and setting up an agent-centric codebase documentation system.',
+      'Owned frontend work for app.pangea.chat and built an event-driven AI assistant for LLM-enabled product features.',
+      'Designed and maintained FastAPI services for LLM workflows and core business logic, including performance and reliability work across the stack.',
+      'Built CI/CD pipelines for the chatbot stack, making releases faster and easier to operate.',
+      'Put telemetry, alerting, and monitoring in place for production services and supported incident response.',
+      'Introduced spec-driven, AI-assisted workflows and maintained codebase documentation for agent-based development.',
     ],
   },
   {
@@ -76,10 +76,9 @@ const experiences: Experience[] = [
     endDate: '2024-05-01',
     current: false,
     highlights: [
-      'Built a high-performance landing page with Google Analytics instrumentation, increasing user engagement by 40% and reducing bounce rate by 25%.',
-      "Led development of the company's core coding portal, increasing user adoption by 60% and cutting onboarding time by 30%.",
-      'Implemented a CMS that streamlined publishing workflows and improved deployment speed by 50%.',
-      'Configured company-wide SSO with Keycloak, centralizing authentication and strengthening security compliance.',
+      'Built the product landing page and added analytics to understand how people were using it.',
+      'Led development of the core coding portal and implemented its CMS for publishing and deployment.',
+      'Configured Keycloak SSO across the company, centralizing authentication and strengthening access controls.',
     ],
   },
   {
@@ -91,10 +90,9 @@ const experiences: Experience[] = [
     endDate: '2023-12-01',
     current: false,
     highlights: [
-      'Integrated a CMS that improved content management efficiency by 50% and simplified collaboration across teams.',
-      'Implemented OAuth2 login flows to improve authentication security and simplify user access.',
-      'Built a custom identity and access management system that improved administrator productivity when managing authorization flows.',
-      'Added telemetry, alerting, monitoring, and an on-call system for production usage, reducing incident response time by 35% while maintaining 99.9% uptime.',
+      'Implemented the CMS used for internal content management and team workflows.',
+      'Built OAuth2 login flows and a custom admin interface for identity and access management.',
+      'Added telemetry, alerting, monitoring, and an on-call process for production services.',
     ],
   },
   {
@@ -106,10 +104,9 @@ const experiences: Experience[] = [
     endDate: '2023-05-01',
     current: false,
     highlights: [
-      'Architected and set up an end-to-end encrypted messaging service used by 50+ high-profile employees for secure internal communication.',
-      'Implemented a calendar service integrated with chat, improving employee productivity by an estimated 20 hours per week.',
-      'Developed a notification service connected to chat and calendar workflows, increasing timely response to company updates by 40%.',
-      'Built an admin dashboard over existing databases, improving front-end developer productivity by 50%.',
+      'Built an end-to-end encrypted messaging service for internal company use.',
+      'Integrated calendar and notification services and built an admin dashboard over existing databases.',
+      'Developed notification workflows for time-sensitive company updates.',
     ],
   },
   {
@@ -121,9 +118,9 @@ const experiences: Experience[] = [
     endDate: '2022-12-01',
     current: false,
     highlights: [
-      'Owned primary development of key features across 3 cloud-based microservices supporting dsw.com, which handled 10M+ requests per day.',
-      'Spearheaded data migration of 5,000 entries from Oracle legacy systems to internal apps running on PostgreSQL and Kubernetes, improving landing page load time by 10%.',
-      'Reduced microservices outbound traffic by 2% by filtering out internal metadata emitted by microservices to end-users.',
+      'Developed features across cloud microservices supporting dsw.com.',
+      'Migrated legacy Oracle data to PostgreSQL applications running on Kubernetes.',
+      'Reduced unnecessary outbound traffic by filtering internal metadata before responses reached end users.',
     ],
   },
   {
@@ -135,10 +132,9 @@ const experiences: Experience[] = [
     endDate: '2022-05-01',
     current: false,
     highlights: [
-      'Resolved 200+ network-related tickets with a 95% first-call resolution rate, including device patching and network troubleshooting for office and dormitory clients.',
-      'Supported a campus network migration by configuring and installing 50+ replacement devices, contributing to a 30% improvement in network reliability.',
-      'Documented upgraded network test procedures and connection setup processes, reducing future troubleshooting time by 20%.',
-      'Managed inventory for 1,000+ network assets and compiled monthly reports to support infrastructure planning.',
+      'Resolved campus network tickets covering device, office, and dormitory connectivity issues.',
+      'Configured and installed replacement devices during a campus network migration.',
+      'Documented network test and connection procedures and managed the network asset inventory.',
     ],
   },
   {
@@ -151,9 +147,9 @@ const experiences: Experience[] = [
     current: false,
     highlights: [
       'Founded an open-source community for Denison students to get started with open-source contributions.',
-      'Led a team of 7 engineers building a full-stack mobile application using Agile sprint management.',
-      'Built an open marketplace that reduced campus-wide used-item waste by 25%.',
-      'Integrated built-in chat and notification services into the marketplace, doubling transaction rates and supporting 100K+ messages and notifications daily.',
+      'Led an engineering team building a full-stack mobile marketplace.',
+      'Integrated chat and notification services into the marketplace.',
+      'Built features that made it easier for students to exchange used items on campus.',
     ],
   },
 ]

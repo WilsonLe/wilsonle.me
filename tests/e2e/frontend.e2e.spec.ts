@@ -13,6 +13,8 @@ test.describe('Frontend', () => {
       'href',
       'https://app.pangea.chat/',
     )
+    await expect(page.getByText('Owned frontend work for app.pangea.chat')).toBeVisible()
+    await expect(page.getByText('1,000+ requests per second')).toHaveCount(0)
     await expect(page.getByText('Vulcan internal platform')).toBeVisible()
     await expect(
       page.getByText("I don't publish its URL, screenshots, or operational data."),
