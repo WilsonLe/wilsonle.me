@@ -74,5 +74,7 @@ export default async function LocaleHomePage({ params }: LocalePageProps) {
   const content = getHomeContent(locale)
   const canonicalPath = locale === DEFAULT_LOCALE ? '/' : getLocalizedHref(locale)
 
-  return <HomePageView canonicalPath={canonicalPath} content={content} />
+  return (
+    <HomePageView canonicalPath={canonicalPath} content={content} routeBasePath={`/${locale}`} />
+  )
 }

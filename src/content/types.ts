@@ -2,6 +2,7 @@ import type { Locale } from '@/lib/i18n'
 
 export interface SiteSettings {
   name: string
+  alternateName?: string
   title: string
   tagline?: string
   location?: string
@@ -16,6 +17,25 @@ export interface SiteSettings {
     metaTitle?: string
     metaDescription?: string
   }
+  navigation: {
+    work: string
+    approach: string
+    now: string
+    about: string
+    resume: string
+    contact: string
+  }
+}
+
+export interface Hero {
+  identity: string
+  heading: string
+  introduction: string
+  workCta: string
+  resumeCta: string
+  skipToWorkLabel: string
+  locationLabel: string
+  socialLabel: string
 }
 
 export interface About {
@@ -32,6 +52,31 @@ export interface Project {
   technologies: string[]
   url?: string
   linkLabel?: string
+}
+
+export interface Principle {
+  id: string
+  title: string
+  description: string
+}
+
+export interface Principles {
+  eyebrow: string
+  heading: string
+  introduction: string
+  items: Principle[]
+}
+
+export interface NowItem {
+  label: string
+  value: string
+}
+
+export interface Now {
+  eyebrow: string
+  heading: string
+  updatedLabel: string
+  items: NowItem[]
 }
 
 export interface Experience {
@@ -88,10 +133,10 @@ export interface ResumeContent {
 export interface HomeContent {
   locale: Locale
   siteSettings: SiteSettings
+  hero: Hero
   about: About
   projects: Project[]
-  experiences: Experience[]
-  education: Education[]
-  skillStack: SkillStack
+  principles: Principles
+  now: Now
   seo: PageSeo
 }

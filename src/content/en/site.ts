@@ -2,6 +2,7 @@ import type { SiteSettings } from '@/content/types'
 
 export const siteSettings: SiteSettings = {
   name: 'Anh Minh',
+  alternateName: 'Wilson',
   title: 'Software Engineer',
   tagline: 'I build software systems',
   location: 'Brisbane, Queensland',
@@ -15,5 +16,13 @@ export const siteSettings: SiteSettings = {
     metaTitle: 'Anh Minh | Software Engineer',
     metaDescription:
       'Software engineer building end-to-end products from user experience to infrastructure across startups, freelance projects, and production-scale systems.',
+  },
+  navigation: {
+    work: 'Work',
+    approach: 'Approach',
+    now: 'Now',
+    about: 'About',
+    resume: 'Résumé',
+    contact: 'Contact',
   },
 }

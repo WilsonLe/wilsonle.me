@@ -43,5 +43,5 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
-  return <HomePageView canonicalPath="/" content={homeContent} />
+  return <HomePageView canonicalPath="/" content={homeContent} routeBasePath="" />
 }

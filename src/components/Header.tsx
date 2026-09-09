@@ -14,15 +14,16 @@ export function Header({ siteSettings }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname()
   const basePath = getPathnameBasePath(pathname)
+  const homepagePath = basePath || '/'
+  const navigation = siteSettings.navigation
 
   const navLinks = [
-    { href: `${basePath || '/'}#about`, label: 'About' },
-    { href: `${basePath || '/'}#projects`, label: 'Projects' },
-    { href: `${basePath || '/'}#experience`, label: 'Experience' },
-    { href: `${basePath || '/'}#skills`, label: 'Skills' },
-    { href: `${basePath || '/'}#education`, label: 'Education' },
-    { href: `${basePath}/resume`, label: 'Résumé' },
-    { href: `${basePath || '/'}#contact`, label: 'Contact' },
+    { href: `${homepagePath}#work`, label: navigation.work },
+    { href: `${homepagePath}#approach`, label: navigation.approach },
+    { href: `${homepagePath}#now`, label: navigation.now },
+    { href: `${homepagePath}#about`, label: navigation.about },
+    { href: `${basePath}/resume`, label: navigation.resume },
+    { href: `${homepagePath}#contact`, label: navigation.contact },
   ]
 
   return (
@@ -31,7 +32,7 @@ export function Header({ siteSettings }: HeaderProps) {
         <div className="flex items-center justify-between h-16">
           <Link
             href={basePath || '/'}
-            className="text-xl font-bold gradient-text hover:opacity-80 transition-opacity"
+            className="text-xl font-bold gradient-text transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-300"
           >
             {siteSettings.name || 'Portfolio'}
           </Link>
@@ -42,7 +43,7 @@ export function Header({ siteSettings }: HeaderProps) {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                className="text-sm font-medium text-slate-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-300"
               >
                 {link.label}
               </Link>
@@ -52,8 +53,10 @@ export function Header({ siteSettings }: HeaderProps) {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-slate-300 hover:text-white"
+            className="p-2 text-slate-300 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-300 md:hidden"
             aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-navigation"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMenuOpen ? (
@@ -77,14 +80,14 @@ export function Header({ siteSettings }: HeaderProps) {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-slate-800">
+          <div id="mobile-navigation" className="border-t border-slate-800 py-4 md:hidden">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                  className="text-sm font-medium text-slate-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-300"
                 >
                   {link.label}
                 </Link>
