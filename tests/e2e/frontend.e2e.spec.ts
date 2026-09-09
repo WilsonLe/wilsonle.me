@@ -8,6 +8,7 @@ test.describe('Frontend', () => {
     await expect(page.getByRole('heading', { level: 1 })).toContainText("Hi, I'm Anh Minh")
     await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about')
     await expect(page.getByRole('link', { name: 'Projects' })).toHaveAttribute('href', '/#projects')
+    await expect(page.getByRole('link', { name: 'Résumé' })).toHaveAttribute('href', '/resume')
     await expect(page.getByRole('heading', { name: 'Selected Projects' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Open Pangea Chat' })).toHaveAttribute(
       'href',
@@ -26,6 +27,7 @@ test.describe('Frontend', () => {
 
     await expect(page.getByRole('heading', { level: 1 })).toContainText("Hi, I'm Anh Minh")
     await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/en#about')
+    await expect(page.getByRole('link', { name: 'Résumé' })).toHaveAttribute('href', '/en/resume')
   })
 
   test('renders the Vietnamese locale route with current fallback content', async ({ page }) => {
@@ -33,5 +35,63 @@ test.describe('Frontend', () => {
 
     await expect(page.getByRole('heading', { level: 1 })).toContainText("Hi, I'm Anh Minh")
     await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/vi#about')
+    await expect(page.getByRole('link', { name: 'Résumé' })).toHaveAttribute('href', '/vi/resume')
+  })
+
+  test('renders the complete default English résumé route', async ({ page }) => {
+    await page.goto('/resume')
+
+    await expect(page).toHaveTitle('Résumé | Anh Minh')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://wilsonle.me/resume',
+    )
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      'Experience, skills, and education.',
+    )
+    await expect(page.locator('#experience h3')).toHaveCount(7)
+    await expect(page.getByText('Pangea Chat', { exact: true })).toBeVisible()
+    await expect(page.getByText('DeerX', { exact: true })).toBeVisible()
+    await expect(page.locator('#education h3')).toHaveCount(2)
+    await expect(page.getByText('University of Southern Queensland', { exact: true })).toBeVisible()
+    await expect(page.locator('#education').getByText('Denison University', { exact: true })).toBeVisible()
+    await expect(page.locator('#education').getByText('3.52/4.00')).toBeVisible()
+    await expect(page.getByText('LangGraph', { exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about')
+    await expect(page.getByRole('link', { name: 'Résumé' })).toHaveAttribute('href', '/resume')
+  })
+
+  test('renders explicit localized résumé routes', async ({ page }) => {
+    await page.goto('/en/resume')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://wilsonle.me/resume',
+    )
+    await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/en#about')
+    await expect(page.getByRole('link', { name: 'Résumé' })).toHaveAttribute('href', '/en/resume')
+
+    await page.goto('/vi/resume')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'vi')
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      'href',
+      'https://wilsonle.me/vi/resume',
+    )
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      'Experience, skills, and education.',
+    )
+    await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/vi#about')
+    await expect(page.getByRole('link', { name: 'Résumé' })).toHaveAttribute('href', '/vi/resume')
+  })
+
+  test('lists localized résumé routes in the sitemap', async ({ request }) => {
+    const response = await request.get('/sitemap.xml')
+
+    expect(response.ok()).toBeTruthy()
+    const sitemap = await response.text()
+    expect(sitemap).toContain('<loc>https://wilsonle.me/resume</loc>')
+    expect(sitemap).toContain('<loc>https://wilsonle.me/en/resume</loc>')
+    expect(sitemap).toContain('<loc>https://wilsonle.me/vi/resume</loc>')
   })
 })

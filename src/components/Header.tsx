@@ -21,6 +21,7 @@ export function Header({ siteSettings }: HeaderProps) {
     { href: `${basePath || '/'}#experience`, label: 'Experience' },
     { href: `${basePath || '/'}#skills`, label: 'Skills' },
     { href: `${basePath || '/'}#education`, label: 'Education' },
+    { href: `${basePath}/resume`, label: 'Résumé' },
     { href: `${basePath || '/'}#contact`, label: 'Contact' },
   ]
 

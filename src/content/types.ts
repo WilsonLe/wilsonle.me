@@ -68,6 +68,23 @@ export interface PageSeo {
   description: string
 }
 
+export interface ResumeIntro {
+  eyebrow: string
+  heading: string
+  summary: string
+  backLabel: string
+}
+
+export interface ResumeContent {
+  locale: Locale
+  siteSettings: SiteSettings
+  intro: ResumeIntro
+  experiences: Experience[]
+  education: Education[]
+  skillStack: SkillStack
+  seo: PageSeo
+}
+
 export interface HomeContent {
   locale: Locale
   siteSettings: SiteSettings
