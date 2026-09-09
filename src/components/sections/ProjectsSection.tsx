@@ -12,40 +12,49 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
   return (
     <section
       id="work"
-      className="scroll-mt-20 bg-slate-900/50 px-4 py-24 sm:px-6 lg:px-8"
+      className="paper-grid bg-paper px-4 py-24 text-ink sm:px-6 lg:px-8 lg:py-32"
       aria-labelledby="work-heading"
     >
-      <div className="mx-auto max-w-6xl">
-        <div className="grid gap-6 md:grid-cols-[0.8fr_1.2fr] md:gap-16">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-20">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-400">
+            <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-signal-deep">
+              <span aria-hidden="true">02 / </span>
               {projects.eyebrow}
             </p>
-            <h2 id="work-heading" className="mt-4 text-3xl font-bold text-white md:text-5xl">
+            <h2
+              id="work-heading"
+              className="font-display mt-5 max-w-xl text-4xl font-medium leading-[0.95] tracking-[-0.035em] sm:text-5xl lg:text-7xl"
+            >
               {projects.heading}
             </h2>
           </div>
-          <p className="max-w-2xl text-lg leading-8 text-slate-300">{projects.introduction}</p>
+          <p className="max-w-2xl self-end text-lg leading-8 text-ink/75">
+            {projects.introduction}
+          </p>
         </div>
 
-        <ol className="mt-14 space-y-6">
+        <ol className="mt-16 border-t border-ink lg:mt-20">
           {projects.items.map((project, index) => (
-            <li key={project.id}>
+            <li key={project.id} className="border-b border-ink">
               <article
-                className={`glass grid gap-8 rounded-xl p-6 transition-colors hover:bg-slate-800/60 md:p-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-14 ${
-                  index === 0 ? 'border-blue-500/50' : ''
+                className={`grid min-w-0 gap-9 px-0 py-10 transition-colors sm:px-5 lg:grid-cols-[minmax(13rem,0.65fr)_minmax(0,1.35fr)] lg:gap-16 lg:px-8 lg:py-14 ${
+                  index === 0 ? 'bg-blueprint/35' : 'hover:bg-paper-muted/35'
                 }`}
               >
-                <header className="flex flex-col items-start">
-                  <div className="flex w-full items-center justify-between gap-4">
-                    <span className="text-sm font-semibold text-blue-400" aria-hidden="true">
+                <header className="min-w-0">
+                  <div className="flex items-start justify-between gap-5">
+                    <span
+                      className="font-label text-xs font-bold tracking-[0.14em] text-signal-deep"
+                      aria-hidden="true"
+                    >
                       {String(index + 1).padStart(2, '0')}
                     </span>
-                    <span className="rounded-full border border-slate-600 px-3 py-1 text-xs font-medium text-slate-300">
+                    <span className="font-label max-w-44 border border-ink/35 px-3 py-1.5 text-right text-[0.65rem] font-semibold uppercase leading-4 tracking-[0.1em] text-ink/70">
                       {project.visibility}
                     </span>
                   </div>
-                  <h3 className="mt-8 text-2xl font-semibold text-white md:text-3xl">
+                  <h3 className="font-display mt-8 break-words text-3xl font-medium leading-tight sm:text-4xl">
                     {project.name}
                   </h3>
 
@@ -54,7 +63,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                       href={project.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-blue-400 transition-colors hover:text-blue-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-300"
+                      className="font-label mt-7 inline-flex items-center gap-2 border-b-2 border-signal-deep pb-1 text-xs font-bold uppercase tracking-[0.1em] text-ink transition-colors hover:text-signal-deep"
                     >
                       {project.linkLabel}
                       <span aria-hidden="true">↗</span>
@@ -62,32 +71,32 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                   ) : null}
                 </header>
 
-                <dl className="space-y-7">
-                  <div>
-                    <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <dl className="min-w-0 space-y-8">
+                  <div className="grid gap-2 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-6">
+                    <dt className="font-label text-[0.68rem] font-bold uppercase tracking-[0.13em] text-ink/60">
                       {projects.productLabel}
                     </dt>
-                    <dd className="mt-2 text-lg leading-8 text-slate-100">{project.summary}</dd>
+                    <dd className="text-lg leading-8 text-ink">{project.summary}</dd>
                   </div>
-                  <div>
-                    <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  <div className="grid gap-2 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-6">
+                    <dt className="font-label text-[0.68rem] font-bold uppercase tracking-[0.13em] text-ink/60">
                       {projects.contributionLabel}
                     </dt>
-                    <dd className="mt-2 leading-7 text-slate-300">{project.contribution}</dd>
+                    <dd className="leading-7 text-ink/75">{project.contribution}</dd>
                   </div>
-                  <div>
-                    <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  <div className="grid gap-3 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-6">
+                    <dt className="font-label text-[0.68rem] font-bold uppercase tracking-[0.13em] text-ink/60">
                       {projects.technologiesLabel}
                     </dt>
-                    <dd className="mt-3">
+                    <dd className="min-w-0">
                       <ul
-                        className="flex flex-wrap gap-2"
-                        aria-label={`${project.name} technologies`}
+                        className="flex min-w-0 flex-wrap gap-2"
+                        aria-label={`${project.name}: ${projects.technologiesLabel}`}
                       >
                         {project.technologies.map((technology) => (
                           <li
                             key={technology}
-                            className="rounded-md bg-slate-800 px-2.5 py-1 text-xs text-blue-300"
+                            className="font-label max-w-full break-words border border-ink/25 bg-paper/70 px-2.5 py-1.5 text-[0.68rem] leading-4 text-ink"
                           >
                             {technology}
                           </li>

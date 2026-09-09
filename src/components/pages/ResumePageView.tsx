@@ -13,28 +13,41 @@ interface ResumePageViewProps {
 export function ResumePageView({ content }: ResumePageViewProps) {
   return (
     <>
-      <section className="px-4 pb-12 pt-32 sm:px-6 lg:px-8" aria-labelledby="resume-heading">
-        <div className="mx-auto max-w-4xl">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-blue-400">
+      <section
+        className="field-grid border-b border-rule px-4 pb-20 pt-32 sm:px-6 sm:pt-40 lg:px-8 lg:pb-28"
+        aria-labelledby="resume-heading"
+      >
+        <div className="mx-auto max-w-7xl">
+          <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-signal">
+            <span aria-hidden="true">R00 / </span>
             {content.intro.eyebrow}
           </p>
-          <h1 id="resume-heading" className="text-4xl font-bold text-white md:text-6xl">
+          <h1
+            id="resume-heading"
+            className="font-display mt-7 max-w-5xl text-[clamp(3.5rem,9vw,8rem)] font-medium leading-[0.88] tracking-[-0.05em] text-paper"
+          >
             {content.intro.heading}
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">{content.intro.summary}</p>
-          <Link
-            href={getLocalizedHref(content.locale)}
-            className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-blue-400 transition-colors hover:text-blue-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-400"
-          >
-            <span aria-hidden="true">←</span>
-            {content.intro.backLabel}
-          </Link>
+          <div className="mt-9 grid gap-8 border-t border-rule pt-7 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+            <p className="max-w-2xl text-lg leading-8 text-paper-muted">{content.intro.summary}</p>
+            <Link
+              href={getLocalizedHref(content.locale)}
+              className="font-label inline-flex w-fit items-center gap-3 border-b-2 border-blueprint pb-1 text-xs font-bold uppercase tracking-[0.11em] text-paper transition-colors hover:text-blueprint"
+            >
+              <span aria-hidden="true">←</span>
+              {content.intro.backLabel}
+            </Link>
+          </div>
         </div>
       </section>
 
-      <ExperienceSection experiences={content.experiences} />
-      <SkillsSection skillStack={content.skillStack} />
-      <EducationSection education={content.education} />
+      <ExperienceSection
+        experiences={content.experiences}
+        heading={content.labels.experienceHeading}
+        presentLabel={content.labels.presentLabel}
+      />
+      <SkillsSection skillStack={content.skillStack} labels={content.labels} />
+      <EducationSection education={content.education} labels={content.labels} />
       <ContactSection siteSettings={content.siteSettings} />
     </>
   )

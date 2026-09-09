@@ -8,27 +8,36 @@ export function NowSection({ now }: NowSectionProps) {
   return (
     <section
       id="now"
-      className="scroll-mt-20 bg-slate-900/50 px-4 py-24 sm:px-6 lg:px-8"
+      className="paper-grid bg-blueprint px-4 py-24 text-ink sm:px-6 lg:px-8 lg:py-32"
       aria-labelledby="now-heading"
     >
-      <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.8fr_1.2fr] md:gap-16">
+      <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-20">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-400">
+          <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-ink/70">
+            <span aria-hidden="true">04 / </span>
             {now.eyebrow}
           </p>
-          <h2 id="now-heading" className="mt-4 text-3xl font-bold text-white md:text-5xl">
+          <h2
+            id="now-heading"
+            className="font-display mt-5 max-w-xl text-4xl font-medium leading-[0.95] tracking-[-0.035em] sm:text-5xl lg:text-7xl"
+          >
             {now.heading}
           </h2>
-          <p className="mt-5 text-sm text-slate-400">{now.updatedLabel}</p>
+          <p className="font-label mt-6 w-fit border-l-2 border-signal-deep pl-3 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-ink/70">
+            {now.updatedLabel}
+          </p>
         </div>
 
-        <dl className="divide-y divide-slate-700 border-y border-slate-700">
+        <dl className="border-y border-ink">
           {now.items.map((item) => (
-            <div key={item.label} className="grid gap-2 py-5 sm:grid-cols-[8rem_1fr] sm:gap-6">
-              <dt className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+            <div
+              key={item.label}
+              className="grid min-w-0 gap-3 border-b border-ink/35 py-6 last:border-b-0 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-7"
+            >
+              <dt className="font-label text-[0.68rem] font-bold uppercase tracking-[0.13em] text-ink/65">
                 {item.label}
               </dt>
-              <dd className="leading-7 text-slate-200">{item.value}</dd>
+              <dd className="min-w-0 break-words text-lg leading-8 text-ink">{item.value}</dd>
             </div>
           ))}
         </dl>

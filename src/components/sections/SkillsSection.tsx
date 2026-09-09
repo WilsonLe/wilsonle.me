@@ -1,100 +1,85 @@
-import type { SkillStack } from '@/content/types'
+import type { ResumeLabels, SkillStack } from '@/content/types'
 
 interface SkillsSectionProps {
   skillStack: SkillStack
+  labels: ResumeLabels
 }
 
-export function SkillsSection({ skillStack }: SkillsSectionProps) {
+export function SkillsSection({ skillStack, labels }: SkillsSectionProps) {
+  const groups = [
+    { id: 'tools', heading: labels.toolsHeading, items: skillStack.tools, accent: 'signal' },
+    {
+      id: 'frontend',
+      heading: labels.frontendHeading,
+      items: skillStack.frontend,
+      accent: 'blueprint',
+    },
+    {
+      id: 'backend',
+      heading: labels.backendHeading,
+      items: skillStack.backend,
+      accent: 'signal',
+    },
+    { id: 'cloud', heading: labels.cloudHeading, items: skillStack.cloud, accent: 'blueprint' },
+    {
+      id: 'languages',
+      heading: labels.languagesHeading,
+      items: skillStack.languages,
+      accent: 'signal',
+    },
+  ]
+
   return (
-    <section id="skills" className="py-24 bg-slate-900/50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-          <span className="gradient-text">Tech Stack</span>
-        </h2>
+    <section
+      id="skills"
+      className="field-grid border-b border-rule bg-ink px-4 py-24 sm:px-6 lg:px-8 lg:py-32"
+      aria-labelledby="skills-heading"
+    >
+      <div className="mx-auto max-w-7xl">
+        <div className="flex items-end justify-between gap-8 border-b border-rule pb-8">
+          <h2
+            id="skills-heading"
+            className="font-display text-5xl font-medium leading-none tracking-[-0.04em] text-paper sm:text-7xl"
+          >
+            {labels.skillsHeading}
+          </h2>
+          <span
+            aria-hidden="true"
+            className="font-label hidden text-xs font-bold tracking-[0.14em] text-blueprint sm:block"
+          >
+            R02
+          </span>
+        </div>
 
-        <div className="space-y-3">
-          {/* User Layer */}
-          <div className="glass rounded-xl p-4 text-center border-t-4 border-purple-500">
-            <h3 className="text-lg font-bold text-purple-300 mb-3">AI Developer Tools</h3>
-            <hr className="border-purple-500/30 mb-3" />
-            <div className="flex flex-wrap justify-center gap-2">
-              {skillStack.tools.map((item, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1.5 text-sm bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 rounded-lg transition-colors cursor-default"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Frontend Layer */}
-          <div className="glass rounded-xl p-4 border-t-4 border-cyan-500">
-            <h3 className="text-lg font-bold text-cyan-300 mb-3">Frontend Technologies</h3>
-            <hr className="border-cyan-500/30 mb-3" />
-            <div className="flex flex-wrap justify-center gap-2">
-              {skillStack.frontend.map((item, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1.5 text-sm bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 rounded-lg transition-colors cursor-default"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Backend + Cloud Layer (50/50 split) */}
-          <div className="grid md:grid-cols-2 gap-3">
-            {/* Backend */}
-            <div className="glass rounded-xl p-4 border-t-4 border-green-500">
-              <h3 className="text-lg font-bold text-green-300 mb-3">Backend Technologies</h3>
-              <hr className="border-green-500/30 mb-3" />
-              <div className="flex flex-wrap justify-center gap-2">
-                {skillStack.backend.map((item, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1.5 text-sm bg-green-500/10 hover:bg-green-500/20 text-green-300 rounded-lg transition-colors cursor-default"
+        <div className="grid border-l border-t border-rule md:grid-cols-2 lg:grid-cols-6">
+          {groups.map((group, index) => (
+            <article
+              key={group.id}
+              className={`min-w-0 border-b border-r border-rule p-6 sm:p-8 ${
+                index === 2 || index === 3 ? 'lg:col-span-3' : 'lg:col-span-2'
+              }`}
+            >
+              <h3
+                className={`font-label border-l-2 pl-3 text-xs font-bold uppercase leading-5 tracking-[0.12em] ${
+                  group.accent === 'signal'
+                    ? 'border-signal text-signal'
+                    : 'border-blueprint text-blueprint'
+                }`}
+              >
+                {group.heading}
+              </h3>
+              <ul className="mt-7 flex min-w-0 flex-wrap gap-2">
+                {group.items.map((item) => (
+                  <li
+                    key={item}
+                    className="font-label max-w-full break-words border border-rule bg-ink-raised px-2.5 py-1.5 text-[0.68rem] leading-5 text-paper-muted"
                   >
                     {item}
-                  </span>
+                  </li>
                 ))}
-              </div>
-            </div>
-
-            {/* Cloud */}
-            <div className="glass rounded-xl p-4 border-t-4 border-orange-500">
-              <h3 className="text-lg font-bold text-orange-300 mb-3">Cloud Technologies</h3>
-              <hr className="border-orange-500/30 mb-3" />
-              <div className="flex flex-wrap justify-center gap-2">
-                {skillStack.cloud.map((item, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1.5 text-sm bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 rounded-lg transition-colors cursor-default"
-                  >
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Programming Languages Layer */}
-          <div className="glass rounded-xl p-4 border-t-4 border-blue-500">
-            <h3 className="text-lg font-bold text-blue-300 mb-3">Programming Languages</h3>
-            <hr className="border-blue-500/30 mb-3" />
-            <div className="flex flex-wrap justify-center gap-2">
-              {skillStack.languages.map((item, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1.5 text-sm bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 rounded-lg transition-colors cursor-default"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
+              </ul>
+            </article>
+          ))}
         </div>
       </div>
     </section>

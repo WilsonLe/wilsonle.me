@@ -13,6 +13,11 @@ export interface SiteSettings {
     linkedin?: string
     twitter?: string
   }
+  socialLabels: {
+    github: string
+    linkedin: string
+    twitter: string
+  }
   seo?: {
     metaTitle?: string
     metaDescription?: string
@@ -24,6 +29,12 @@ export interface SiteSettings {
     about: string
     resume: string
     contact: string
+    menuLabel: string
+  }
+  contact: {
+    eyebrow: string
+    heading: string
+    emailLabel: string
   }
 }
 
@@ -40,6 +51,10 @@ export interface Hero {
 
 export interface About {
   heading: string
+  portrait: {
+    src: string
+    alt: string
+  }
   content: string[]
 }
 
@@ -130,10 +145,27 @@ export interface ResumeIntro {
   backLabel: string
 }
 
+export interface ResumeLabels {
+  experienceHeading: string
+  skillsHeading: string
+  toolsHeading: string
+  frontendHeading: string
+  backendHeading: string
+  cloudHeading: string
+  languagesHeading: string
+  educationHeading: string
+  presentLabel: string
+  expectedGraduationLabel: string
+  graduatedLabel: string
+  gpaLabel: string
+  courseworkLabel: string
+}
+
 export interface ResumeContent {
   locale: Locale
   siteSettings: SiteSettings
   intro: ResumeIntro
+  labels: ResumeLabels
   experiences: Experience[]
   education: Education[]
   skillStack: SkillStack

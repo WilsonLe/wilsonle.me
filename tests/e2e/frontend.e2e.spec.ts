@@ -1,5 +1,30 @@
 import { expect, test } from '@playwright/test'
 
+function relativeLuminance(hexColor: string): number {
+  const channels = hexColor
+    .replace('#', '')
+    .match(/.{2}/g)
+    ?.map((channel) => Number.parseInt(channel, 16) / 255)
+
+  if (!channels || channels.length !== 3) {
+    throw new Error(`Expected a six-digit hex color, received ${hexColor}`)
+  }
+
+  const [red, green, blue] = channels.map((channel) =>
+    channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
+  )
+
+  return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+}
+
+function contrastRatio(firstColor: string, secondColor: string): number {
+  const luminances = [relativeLuminance(firstColor), relativeLuminance(secondColor)].sort(
+    (first, second) => second - first,
+  )
+
+  return (luminances[0] + 0.05) / (luminances[1] + 0.05)
+}
+
 test.describe('Frontend', () => {
   test('renders the default English homepage', async ({ page }) => {
     await page.goto('/')
@@ -104,6 +129,121 @@ test.describe('Frontend', () => {
     expect(person.alternateName).toBe('Wilson')
   })
 
+  test('keeps the responsive layouts within the viewport and anchor targets below the header', async ({
+    page,
+  }) => {
+    for (const width of [375, 768, 1440]) {
+      for (const route of ['/', '/resume']) {
+        await test.step(`${route} at ${width}px`, async () => {
+          await page.setViewportSize({ width, height: 900 })
+          await page.goto(route)
+          await expect(page.locator('main h1')).toHaveCount(1)
+
+          const geometry = await page.evaluate(() => ({
+            clientWidth: document.documentElement.clientWidth,
+            scrollWidth: document.documentElement.scrollWidth,
+          }))
+
+          expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth)
+
+          if (route === '/') {
+            await page.getByRole('link', { name: 'Explore selected work' }).click()
+            await expect(page).toHaveURL(/#work$/)
+            await page.waitForFunction(() => {
+              const work = document.querySelector('#work')
+              return work instanceof HTMLElement && work.getBoundingClientRect().top >= 79
+            })
+            const workTop = await page
+              .locator('#work')
+              .evaluate((element) => Math.round(element.getBoundingClientRect().top))
+            expect(workTop).toBeGreaterThanOrEqual(79)
+          }
+        })
+      }
+    }
+  })
+
+  test('opens and closes the mobile navigation from the keyboard', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('/')
+
+    const menuButton = page.getByRole('button', { name: 'Toggle navigation' })
+    await menuButton.focus()
+    await expect(menuButton).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(menuButton).toHaveAttribute('aria-expanded', 'true')
+    await expect(page.locator('#mobile-navigation')).toBeVisible()
+
+    await page.keyboard.press('Tab')
+    await expect(
+      page.locator('#mobile-navigation').getByRole('link', { name: 'Work' }),
+    ).toBeFocused()
+    await page.keyboard.press('Shift+Tab')
+    await expect(menuButton).toBeFocused()
+    await page.keyboard.press('Space')
+    await expect(menuButton).toHaveAttribute('aria-expanded', 'false')
+    await expect(page.locator('#mobile-navigation')).toHaveCount(0)
+  })
+
+  test('uses WCAG AA palette pairs and disables smooth scrolling for reduced motion', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.goto('/')
+
+    const palette = await page.evaluate(() => {
+      const styles = getComputedStyle(document.documentElement)
+      const value = (name: string) => styles.getPropertyValue(name).trim()
+
+      return {
+        ink: value('--color-ink'),
+        paper: value('--color-paper'),
+        paperMuted: value('--color-paper-muted'),
+        signal: value('--color-signal'),
+        signalDeep: value('--color-signal-deep'),
+        blueprint: value('--color-blueprint'),
+        blueprintDeep: value('--color-blueprint-deep'),
+      }
+    })
+
+    const normalTextPairs = [
+      [palette.paper, palette.ink],
+      [palette.paperMuted, palette.ink],
+      [palette.signal, palette.ink],
+      [palette.blueprint, palette.ink],
+      [palette.signalDeep, palette.paper],
+      [palette.blueprintDeep, palette.paper],
+      [palette.ink, palette.blueprint],
+      [palette.ink, palette.signal],
+    ]
+
+    for (const [foreground, background] of normalTextPairs) {
+      expect(
+        contrastRatio(foreground, background),
+        `${foreground} on ${background} should meet WCAG AA`,
+      ).toBeGreaterThanOrEqual(4.5)
+    }
+
+    const scrollBehavior = await page
+      .locator('html')
+      .evaluate((element) => getComputedStyle(element).getPropertyValue('scroll-behavior'))
+    expect(scrollBehavior).toBe('auto')
+  })
+
+  test('loads the portrait without blocking the personal introduction', async ({ page }) => {
+    await page.goto('/')
+
+    const portrait = page.getByAltText('Portrait of Anh Minh (Wilson)')
+    await portrait.scrollIntoViewIfNeeded()
+    await expect(portrait).toBeVisible()
+    await expect
+      .poll(() =>
+        portrait.evaluate((image) => image instanceof HTMLImageElement && image.naturalWidth),
+      )
+      .toBeGreaterThan(0)
+    await expect(page.locator('#about').getByText('Anh Minh is my name')).toBeVisible()
+  })
+
   test('renders the complete default English résumé route', async ({ page }) => {
     await page.goto('/resume')
 
@@ -170,5 +310,69 @@ test.describe('Frontend', () => {
     expect(sitemap).toContain('<loc>https://wilsonle.me/resume</loc>')
     expect(sitemap).toContain('<loc>https://wilsonle.me/en/resume</loc>')
     expect(sitemap).toContain('<loc>https://wilsonle.me/vi/resume</loc>')
+  })
+
+  test('uses the inspected social card across home and résumé metadata', async ({
+    page,
+    request,
+  }) => {
+    for (const route of ['/', '/en', '/vi', '/resume', '/en/resume', '/vi/resume']) {
+      await test.step(route, async () => {
+        await page.goto(route)
+        await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+          'content',
+          'https://wilsonle.me/og.png',
+        )
+        await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+          'content',
+          'https://wilsonle.me/og.png',
+        )
+      })
+    }
+
+    const response = await request.get('/og.png')
+    expect(response.ok()).toBeTruthy()
+    expect(response.headers()['content-type']).toContain('image/png')
+
+    const image = await response.body()
+    expect(image.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a')
+    expect(image.readUInt32BE(16)).toBe(1200)
+    expect(image.readUInt32BE(20)).toBe(630)
+  })
+
+  test('captures rendered visual evidence for the approved layouts', async ({ page }, testInfo) => {
+    for (const viewport of [
+      { name: 'desktop', width: 1440, height: 1000 },
+      { name: 'mobile', width: 375, height: 812 },
+    ]) {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height })
+
+      for (const route of [
+        { name: 'home', path: '/' },
+        { name: 'resume', path: '/resume' },
+      ]) {
+        await page.goto(route.path)
+
+        if (route.name === 'home') {
+          const portrait = page.getByAltText('Portrait of Anh Minh (Wilson)')
+          await portrait.scrollIntoViewIfNeeded()
+          await expect
+            .poll(() =>
+              portrait.evaluate((image) => image instanceof HTMLImageElement && image.naturalWidth),
+            )
+            .toBeGreaterThan(0)
+          await page.evaluate(() => {
+            document.documentElement.style.scrollBehavior = 'auto'
+            window.scrollTo(0, 0)
+          })
+          await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+        }
+
+        await testInfo.attach(`${route.name}-${viewport.name}`, {
+          body: await page.screenshot({ fullPage: true }),
+          contentType: 'image/png',
+        })
+      }
+    }
   })
 })

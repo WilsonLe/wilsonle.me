@@ -12,6 +12,11 @@ export const siteSettings: SiteSettings = {
     github: 'https://github.com/WilsonLe',
     linkedin: 'https://linkedin.com/in/wilsonle02',
   },
+  socialLabels: {
+    github: 'GitHub',
+    linkedin: 'LinkedIn',
+    twitter: 'X',
+  },
   seo: {
     metaTitle: 'Anh Minh | Software Engineer',
     metaDescription:
@@ -24,5 +29,11 @@ export const siteSettings: SiteSettings = {
     about: 'About',
     resume: 'Résumé',
     contact: 'Contact',
+    menuLabel: 'Toggle navigation',
+  },
+  contact: {
+    eyebrow: 'Contact',
+    heading: 'Get In Touch',
+    emailLabel: 'Email',
   },
 }

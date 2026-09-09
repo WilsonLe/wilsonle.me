@@ -8,92 +8,124 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ basePath, hero, siteSettings }: HeroSectionProps) {
-  const workHref = `${basePath || '/'}#work`
-  const resumeHref = `${basePath}/resume`
+  const homepagePath = basePath || '/'
+  const socialProfiles = [
+    {
+      id: 'github',
+      label: siteSettings.socialLabels.github,
+      url: siteSettings.social?.github,
+    },
+    {
+      id: 'linkedin',
+      label: siteSettings.socialLabels.linkedin,
+      url: siteSettings.social?.linkedin,
+    },
+    {
+      id: 'twitter',
+      label: siteSettings.socialLabels.twitter,
+      url: siteSettings.social?.twitter,
+    },
+  ].filter((profile): profile is { id: string; label: string; url: string } => Boolean(profile.url))
 
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden px-4 pb-20 pt-28 sm:px-6 lg:px-8">
-      <div className="absolute inset-0 bg-linear-to-br from-blue-900/20 via-slate-950 to-purple-900/20" />
-      <div className="absolute left-1/4 top-1/4 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-purple-500/10 blur-3xl" />
+    <section
+      className="field-grid relative min-h-[min(58rem,100svh)] overflow-hidden border-b border-rule px-4 pb-10 pt-28 sm:px-6 sm:pt-32 lg:px-8"
+      aria-labelledby="hero-heading"
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-[8%] hidden w-px bg-blueprint/15 lg:block"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute right-[8%] top-20 hidden h-36 w-px border-l border-dashed border-blueprint/35 lg:block"
+      />
 
-      <div className="relative z-10 mx-auto w-full max-w-6xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-300">
-          {hero.identity}
-        </p>
-        <h1 className="mt-6 max-w-5xl text-5xl font-bold leading-[1.05] md:text-7xl">
-          <span className="gradient-text">{hero.heading}</span>
-        </h1>
-        <div className="mt-8 grid max-w-4xl gap-5 md:grid-cols-[auto_1fr] md:items-start md:gap-10">
-          <p className="text-lg font-medium text-white md:text-xl">{siteSettings.title}</p>
-          <p className="max-w-2xl text-lg leading-8 text-slate-300">{hero.introduction}</p>
-        </div>
-
-        <div className="mt-10 flex flex-wrap items-center gap-4">
-          <Link
-            href={workHref}
-            className="inline-flex min-h-12 items-center rounded-full bg-blue-500 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-400 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-300"
-          >
-            {hero.workCta}
-          </Link>
-          <Link
-            href={resumeHref}
-            className="inline-flex min-h-12 items-center rounded-full border border-slate-600 px-6 py-3 font-semibold text-slate-100 transition-colors hover:border-slate-400 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-300"
-          >
-            {hero.resumeCta}
-          </Link>
-        </div>
-
-        {siteSettings.location && (
-          <p className="mt-8 text-sm text-slate-400">
-            {hero.locationLabel} {siteSettings.location}
-          </p>
-        )}
-
-        <div className="mt-8 flex items-center gap-6" aria-label={hero.socialLabel}>
-          {siteSettings.social?.github && (
-            <a
-              href={siteSettings.social.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium text-slate-300 underline decoration-slate-600 underline-offset-4 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-300"
+      <div className="relative mx-auto flex min-h-[calc(min(58rem,100svh)-9.5rem)] max-w-7xl flex-col justify-between">
+        <div className="grid flex-1 items-center gap-12 py-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(16rem,0.5fr)] lg:gap-16 lg:py-12">
+          <div className="min-w-0">
+            <p className="font-label mb-8 text-xs font-semibold uppercase tracking-[0.16em] text-signal sm:text-sm">
+              {hero.identity}
+            </p>
+            <h1
+              id="hero-heading"
+              className="font-display max-w-5xl text-[clamp(3.25rem,9vw,8.5rem)] font-medium leading-[0.88] tracking-[-0.055em] text-paper"
             >
-              GitHub <span aria-hidden="true">↗</span>
-            </a>
-          )}
-          {siteSettings.social?.linkedin && (
-            <a
-              href={siteSettings.social.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium text-slate-300 underline decoration-slate-600 underline-offset-4 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-300"
-            >
-              LinkedIn <span aria-hidden="true">↗</span>
-            </a>
-          )}
-        </div>
-      </div>
+              {hero.heading}
+            </h1>
+            <p className="mt-8 max-w-2xl text-base leading-7 text-paper-muted sm:text-lg sm:leading-8">
+              {hero.introduction}
+            </p>
 
-      <Link
-        href={workHref}
-        aria-label={hero.skipToWorkLabel}
-        className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-slate-400 motion-safe:animate-bounce focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-300"
-      >
-        <svg
-          aria-hidden="true"
-          className="h-6 w-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link
+                href={`${homepagePath}#work`}
+                className="font-label inline-flex min-h-12 items-center justify-center border border-signal bg-signal px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-ink transition-colors hover:bg-paper hover:text-ink"
+              >
+                {hero.workCta}
+                <span className="ml-3" aria-hidden="true">
+                  ↓
+                </span>
+              </Link>
+              <Link
+                href={`${basePath}/resume`}
+                className="font-label inline-flex min-h-12 items-center justify-center border border-rule px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-paper transition-colors hover:border-blueprint hover:text-blueprint"
+              >
+                {hero.resumeCta}
+                <span className="ml-3" aria-hidden="true">
+                  →
+                </span>
+              </Link>
+            </div>
+          </div>
+
+          <aside className="min-w-0 border-t border-rule pt-7 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+            <p className="font-label text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-blueprint">
+              <span aria-hidden="true">01 / </span>
+              {siteSettings.title}
+            </p>
+            <dl className="mt-8 space-y-7">
+              {siteSettings.location ? (
+                <div>
+                  <dt className="font-label text-[0.68rem] uppercase tracking-[0.14em] text-paper-muted">
+                    {hero.locationLabel}
+                  </dt>
+                  <dd className="font-display mt-2 text-2xl text-paper">{siteSettings.location}</dd>
+                </div>
+              ) : null}
+              {socialProfiles.length > 0 ? (
+                <div>
+                  <dt className="font-label text-[0.68rem] uppercase tracking-[0.14em] text-paper-muted">
+                    {hero.socialLabel}
+                  </dt>
+                  <dd className="mt-3 flex flex-wrap gap-x-5 gap-y-3">
+                    {socialProfiles.map((profile) => (
+                      <a
+                        key={profile.id}
+                        href={profile.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-label text-xs font-semibold uppercase tracking-[0.1em] text-paper decoration-signal decoration-2 underline-offset-4 hover:underline"
+                      >
+                        {profile.label} <span aria-hidden="true">↗</span>
+                      </a>
+                    ))}
+                  </dd>
+                </div>
+              ) : null}
+            </dl>
+          </aside>
+        </div>
+
+        <Link
+          href={`${homepagePath}#work`}
+          aria-label={hero.skipToWorkLabel}
+          className="font-label inline-flex w-fit items-center gap-3 border-l border-blueprint pl-4 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-paper-muted transition-colors hover:text-paper"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 14l-7 7m0 0l-7-7m7 7V3"
-          />
-        </svg>
-      </Link>
+          <span aria-hidden="true">↓</span>
+          {hero.skipToWorkLabel}
+        </Link>
+      </div>
     </section>
   )
 }

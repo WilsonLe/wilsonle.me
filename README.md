@@ -7,8 +7,9 @@ Production: <https://wilsonle.me>
 
 ## What this repo is
 
-- **Portfolio** — resume-style home page (hero, about, experience, skills,
-  education, contact) rendered from typed content modules.
+- **Portfolio** — identity-led home page (selected work, working principles,
+  current focus, about, contact) plus a dedicated résumé, rendered from typed
+  content modules.
 - **Blog** — authored **in code** as MDX files under `src/content/blog/<locale>/`.
   No headless CMS in front of blog posts.
 - **Payload CMS** — used as a **backend data store only** (media, contact-form
@@ -43,7 +44,7 @@ src/
   collections/           Payload collections (Users, Media)
   components/            React components; sections/ drive the home page
   content/               Typed content by locale (target structure)
-    en/ vi/              site.ts, home.ts, blog/*.mdx
+    en/ vi/              site.ts, home.ts, resume.ts, blog/*.mdx
   lib/content.ts         Legacy holding pen — being migrated to src/content/
   payload.config.ts      Payload config
   payload-types.ts       Generated — do not edit

@@ -7,39 +7,43 @@ interface AboutSectionProps {
 
 export function AboutSection({ about }: AboutSectionProps) {
   return (
-    <section id="about" className="scroll-mt-20 py-24" aria-labelledby="about-heading">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 id="about-heading" className="text-3xl md:text-4xl font-bold mb-12 text-center">
-          <span className="gradient-text">{about.heading || 'About Me'}</span>
-        </h2>
+    <section
+      id="about"
+      className="bg-paper px-4 py-24 text-ink sm:px-6 lg:px-8 lg:py-32"
+      aria-labelledby="about-heading"
+    >
+      <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[minmax(16rem,0.68fr)_minmax(0,1.32fr)] lg:gap-24">
+        <div className="relative max-w-md border border-ink bg-blueprint p-3 sm:p-5">
+          <div
+            aria-hidden="true"
+            className="absolute -bottom-4 -right-4 h-full w-full border border-signal-deep"
+          />
+          <Image
+            src={about.portrait.src}
+            alt={about.portrait.alt}
+            width={640}
+            height={640}
+            sizes="(min-width: 1024px) 32rem, calc(100vw - 3rem)"
+            className="relative aspect-square h-auto w-full border border-ink object-cover grayscale"
+          />
+        </div>
 
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Image - Left on desktop, top on mobile */}
-          <div className="flex justify-center">
-            <div className="relative">
-              <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden glass">
-                <Image
-                  src="https://avatars.githubusercontent.com/u/43991506"
-                  alt="Profile portrait"
-                  width={256}
-                  height={256}
-                  sizes="(min-width: 768px) 16rem, 12rem"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="absolute top-1 left-1 w-48 h-48 md:w-64 md:h-64 bg-linear-to-br from-blue-500/20 to-purple-500/20 rounded-full -z-10" />
-            </div>
-          </div>
+        <div className="min-w-0">
+          <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-signal-deep">
+            <span aria-hidden="true">05 / </span>
+            {about.heading}
+          </p>
+          <h2
+            id="about-heading"
+            className="font-display mt-5 text-5xl font-medium leading-[0.95] tracking-[-0.035em] sm:text-6xl lg:text-8xl"
+          >
+            {about.heading}
+          </h2>
 
-          {/* Content - Right on desktop, bottom on mobile */}
-          <div className="order-2">
-            {about.content && (
-              <div className="prose prose-invert prose-lg max-w-none space-y-4">
-                {about.content.map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
-              </div>
-            )}
+          <div className="mt-10 max-w-3xl space-y-5 border-l border-ink/30 pl-5 text-base leading-8 text-ink/80 sm:pl-8 sm:text-lg">
+            {about.content.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
         </div>
       </div>
