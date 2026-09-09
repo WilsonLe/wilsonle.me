@@ -1,4 +1,4 @@
-import type { About, Hero, HomeContent, Now, Principles, Project } from '@/content/types'
+import type { About, Hero, HomeContent, Now, Principles, Project, Projects } from '@/content/types'
 import { siteSettings } from '@/content/en/site'
 
 const hero: Hero = {
@@ -22,7 +22,7 @@ const about: About = {
   ],
 }
 
-const projects: Project[] = [
+const projectItems: Project[] = [
   {
     id: 'pangea-chat',
     name: 'Pangea Chat',
@@ -55,6 +55,17 @@ const projects: Project[] = [
     technologies: ['CMS', 'OAuth2', 'Identity and access management', 'Observability'],
   },
 ]
+
+const projects: Projects = {
+  eyebrow: 'Selected work',
+  heading: 'Selected work, with context.',
+  introduction:
+    'Three products that show how I move between user experience, platform foundations, and the work of running software.',
+  productLabel: 'The product',
+  contributionLabel: 'My part',
+  technologiesLabel: 'Across the stack',
+  items: projectItems,
+}
 
 const principles: Principles = {
   eyebrow: 'How I work',

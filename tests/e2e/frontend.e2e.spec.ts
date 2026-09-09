@@ -28,7 +28,13 @@ test.describe('Frontend', () => {
       '/#work',
     )
     await expect(page.getByRole('link', { name: 'View résumé' })).toHaveAttribute('href', '/resume')
-    await expect(page.getByRole('heading', { name: 'Selected Projects' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Selected work, with context.' })).toBeVisible()
+    await expect(page.locator('#work article')).toHaveCount(3)
+    await expect(page.locator('#work').getByText('The product', { exact: true })).toHaveCount(3)
+    await expect(page.locator('#work').getByText('My part', { exact: true })).toHaveCount(3)
+    await expect(page.locator('#work').getByText('Across the stack', { exact: true })).toHaveCount(
+      3,
+    )
     await expect(
       page.getByRole('heading', { name: 'The principles behind the build.' }),
     ).toBeVisible()
@@ -47,6 +53,10 @@ test.describe('Frontend', () => {
     await expect(
       page.getByText("I don't publish its URL, screenshots, or operational data."),
     ).toBeVisible()
+    const privateProject = page
+      .locator('#work article')
+      .filter({ hasText: 'Vulcan internal platform' })
+    await expect(privateProject.getByRole('link')).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Experience', exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Tech Stack', exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Education', exact: true })).toHaveCount(0)

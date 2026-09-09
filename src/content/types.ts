@@ -54,6 +54,16 @@ export interface Project {
   linkLabel?: string
 }
 
+export interface Projects {
+  eyebrow: string
+  heading: string
+  introduction: string
+  productLabel: string
+  contributionLabel: string
+  technologiesLabel: string
+  items: Project[]
+}
+
 export interface Principle {
   id: string
   title: string
@@ -135,7 +145,7 @@ export interface HomeContent {
   siteSettings: SiteSettings
   hero: Hero
   about: About
-  projects: Project[]
+  projects: Projects
   principles: Principles
   now: Now
   seo: PageSeo
