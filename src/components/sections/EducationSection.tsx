@@ -1,7 +1,8 @@
-import type { Education } from '@/content/types'
+import type { Education, ResumeLabels } from '@/content/types'
 
 interface EducationSectionProps {
   education: Education[]
+  labels: ResumeLabels
 }
 
 function formatDate(dateString: string): string {
@@ -10,61 +11,78 @@ function formatDate(dateString: string): string {
 }
 
 function isExpectedGraduation(dateString: string): boolean {
-  const date = new Date(dateString)
-  return date > new Date()
+  return new Date(dateString) > new Date()
 }
 
-export function EducationSection({ education }: EducationSectionProps) {
-  if (!education || education.length === 0) {
+export function EducationSection({ education, labels }: EducationSectionProps) {
+  if (education.length === 0) {
     return null
   }
 
   return (
-    <section id="education" className="py-24">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-          <span className="gradient-text">Education</span>
-        </h2>
+    <section
+      id="education"
+      className="paper-grid bg-blueprint px-4 py-24 text-ink sm:px-6 lg:px-8 lg:py-32"
+      aria-labelledby="education-heading"
+    >
+      <div className="mx-auto max-w-7xl">
+        <div className="flex items-end justify-between gap-8 border-b border-ink pb-8">
+          <h2
+            id="education-heading"
+            className="font-display text-5xl font-medium leading-none tracking-[-0.04em] sm:text-7xl"
+          >
+            {labels.educationHeading}
+          </h2>
+          <span
+            aria-hidden="true"
+            className="font-label hidden text-xs font-bold tracking-[0.14em] text-ink/65 sm:block"
+          >
+            R03
+          </span>
+        </div>
 
-        <div className="space-y-8">
-          {education.map((edu) => (
-            <div key={edu.id} className="glass rounded-xl p-6">
-              <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-                <div>
-                  <h3 className="text-xl font-semibold text-white">{edu.institution}</h3>
-                  <p className="text-blue-400">{edu.degree}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-slate-400 text-sm">
-                    {isExpectedGraduation(edu.graduationDate) ? 'Expected Graduation' : 'Graduated'}{' '}
-                    {formatDate(edu.graduationDate)}
-                  </p>
-                  {edu.location && <p className="text-slate-500 text-sm">{edu.location}</p>}
-                </div>
-              </div>
+        <div className="grid border-l border-t border-ink lg:grid-cols-2">
+          {education.map((item) => (
+            <article key={item.id} className="min-w-0 border-b border-r border-ink p-6 sm:p-9">
+              <p className="font-label text-[0.68rem] font-bold uppercase leading-5 tracking-[0.11em] text-ink/65">
+                {isExpectedGraduation(item.graduationDate)
+                  ? labels.expectedGraduationLabel
+                  : labels.graduatedLabel}{' '}
+                · {formatDate(item.graduationDate)}
+              </p>
+              <h3 className="font-display mt-7 break-words text-3xl font-medium leading-tight sm:text-4xl">
+                {item.institution}
+              </h3>
+              <p className="mt-3 text-base font-semibold">{item.degree}</p>
+              {item.location ? <p className="mt-2 text-sm text-ink/65">{item.location}</p> : null}
 
-              {edu.gpa && (
-                <p className="text-slate-300 mb-4">
-                  <span className="text-slate-400">GPA:</span> {edu.gpa}
+              {item.gpa ? (
+                <p className="mt-6 text-sm text-ink/75">
+                  <span className="font-label text-[0.68rem] font-bold uppercase tracking-[0.11em]">
+                    {labels.gpaLabel}:
+                  </span>{' '}
+                  {item.gpa}
                 </p>
-              )}
+              ) : null}
 
-              {edu.coursework && edu.coursework.length > 0 && (
-                <div>
-                  <p className="text-slate-400 text-sm mb-2">Relevant Coursework:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {edu.coursework.map((course, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 text-xs text-slate-300 bg-slate-800 rounded-full"
+              {item.coursework && item.coursework.length > 0 ? (
+                <div className="mt-7 border-t border-ink/30 pt-5">
+                  <p className="font-label text-[0.68rem] font-bold uppercase tracking-[0.11em] text-ink/65">
+                    {labels.courseworkLabel}
+                  </p>
+                  <ul className="mt-4 flex min-w-0 flex-wrap gap-2">
+                    {item.coursework.map((course) => (
+                      <li
+                        key={course}
+                        className="font-label max-w-full break-words border border-ink/30 bg-blueprint/50 px-2.5 py-1.5 text-[0.68rem] leading-5"
                       >
                         {course}
-                      </span>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
-              )}
-            </div>
+              ) : null}
+            </article>
           ))}
         </div>
       </div>

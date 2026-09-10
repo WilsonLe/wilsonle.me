@@ -39,5 +39,41 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
       },
     },
+    {
+      url: new URL('/resume', SITE_URL).toString(),
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+      alternates: {
+        languages: {
+          en: new URL('/en/resume', SITE_URL).toString(),
+          vi: new URL('/vi/resume', SITE_URL).toString(),
+        },
+      },
+    },
+    {
+      url: new URL('/en/resume', SITE_URL).toString(),
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      alternates: {
+        languages: {
+          en: new URL('/en/resume', SITE_URL).toString(),
+          vi: new URL('/vi/resume', SITE_URL).toString(),
+        },
+      },
+    },
+    {
+      url: new URL('/vi/resume', SITE_URL).toString(),
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      alternates: {
+        languages: {
+          en: new URL('/en/resume', SITE_URL).toString(),
+          vi: new URL('/vi/resume', SITE_URL).toString(),
+        },
+      },
+    },
   ]
 }

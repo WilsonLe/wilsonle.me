@@ -1,22 +1,32 @@
-import type {
-  About,
-  Education,
-  Experience,
-  HomeContent,
-  Project,
-  SkillStack,
-} from '@/content/types'
+import type { About, Hero, HomeContent, Now, Principles, Project, Projects } from '@/content/types'
 import { siteSettings } from '@/content/en/site'
+
+const hero: Hero = {
+  identity: 'Anh Minh · Wilson online',
+  heading: 'I build the whole path from idea to reliable software.',
+  introduction:
+    "I'm a Brisbane-based software engineer working across product interfaces, backend systems, and the infrastructure that keeps them running.",
+  workCta: 'Explore selected work',
+  resumeCta: 'View résumé',
+  skipToWorkLabel: 'Skip to selected work',
+  locationLabel: 'Based in',
+  socialLabel: 'Social profiles',
+}
 
 const about: About = {
   heading: 'About Me',
+  portrait: {
+    src: 'https://avatars.githubusercontent.com/u/43991506',
+    alt: 'Portrait of Anh Minh (Wilson)',
+  },
   content: [
-    "I'm a software engineer who enjoys building end-to-end products, from user-facing experiences to the backend systems and infrastructure that keep them running.",
-    'My work spans startups, freelance projects, and production systems at scale, with a focus on turning ideas into reliable software that teams can ship, operate, and grow with confidence.',
+    "Anh Minh is my name; Wilson is the name I use around the internet. I'm a software engineer based in Brisbane, Queensland.",
+    "I'm happiest working across the whole product path—from the interface people use to the services, delivery pipelines, and monitoring that keep it dependable.",
+    'That range has taken me through language learning, robotics education, internal platforms, and infrastructure work. The common thread is making complex systems easier to ship, operate, and understand.',
   ],
 }
 
-const projects: Project[] = [
+const projectItems: Project[] = [
   {
     id: 'pangea-chat',
     name: 'Pangea Chat',
@@ -50,182 +60,74 @@ const projects: Project[] = [
   },
 ]
 
-const experiences: Experience[] = [
-  {
-    id: '1',
-    title: 'Software Engineer',
-    company: 'Pangea Chat',
-    location: 'Remote',
-    startDate: '2023-05-01',
-    endDate: '2026-04-30',
-    current: false,
-    highlights: [
-      'Owned frontend work for app.pangea.chat and built an event-driven AI assistant for LLM-enabled product features.',
-      'Designed and maintained FastAPI services for LLM workflows and core business logic, including performance and reliability work across the stack.',
-      'Built CI/CD pipelines for the chatbot stack, making releases faster and easier to operate.',
-      'Put telemetry, alerting, and monitoring in place for production services and supported incident response.',
-      'Introduced spec-driven, AI-assisted workflows and maintained codebase documentation for agent-based development.',
-    ],
-  },
-  {
-    id: '2',
-    title: 'Software Engineer',
-    company: 'CYOBot',
-    location: 'Dover, Delaware',
-    startDate: '2023-12-01',
-    endDate: '2024-05-01',
-    current: false,
-    highlights: [
-      'Built the product landing page and added analytics to understand how people were using it.',
-      'Led development of the core coding portal and implemented its CMS for publishing and deployment.',
-      'Configured Keycloak SSO across the company, centralizing authentication and strengthening access controls.',
-    ],
-  },
-  {
-    id: '3',
-    title: 'Software Engineer',
-    company: 'Vulcan Augmetics',
-    location: 'Ho Chi Minh, Vietnam',
-    startDate: '2023-09-01',
-    endDate: '2023-12-01',
-    current: false,
-    highlights: [
-      'Implemented the CMS used for internal content management and team workflows.',
-      'Built OAuth2 login flows and a custom admin interface for identity and access management.',
-      'Added telemetry, alerting, monitoring, and an on-call process for production services.',
-    ],
-  },
-  {
-    id: '4',
-    title: 'Software Engineer',
-    company: 'Century International Development Investment',
-    location: 'Ho Chi Minh, Vietnam',
-    startDate: '2022-12-01',
-    endDate: '2023-05-01',
-    current: false,
-    highlights: [
-      'Built an end-to-end encrypted messaging service for internal company use.',
-      'Integrated calendar and notification services and built an admin dashboard over existing databases.',
-      'Developed notification workflows for time-sensitive company updates.',
-    ],
-  },
-  {
-    id: '5',
-    title: 'Cloud Application Engineer Intern',
-    company: 'Designer Brands Inc.',
-    location: 'Columbus, Ohio',
-    startDate: '2022-05-01',
-    endDate: '2022-12-01',
-    current: false,
-    highlights: [
-      'Developed features across cloud microservices supporting dsw.com.',
-      'Migrated legacy Oracle data to PostgreSQL applications running on Kubernetes.',
-      'Reduced unnecessary outbound traffic by filtering internal metadata before responses reached end users.',
-    ],
-  },
-  {
-    id: '6',
-    title: 'Assistant Network Engineer',
-    company: 'Denison University',
-    location: 'Granville, Ohio',
-    startDate: '2021-05-01',
-    endDate: '2022-05-01',
-    current: false,
-    highlights: [
-      'Resolved campus network tickets covering device, office, and dormitory connectivity issues.',
-      'Configured and installed replacement devices during a campus network migration.',
-      'Documented network test and connection procedures and managed the network asset inventory.',
-    ],
-  },
-  {
-    id: '7',
-    title: 'Co-Founder, Full-Stack Engineer',
-    company: 'DeerX',
-    location: 'Columbus, Ohio',
-    startDate: '2021-08-01',
-    endDate: '2024-05-01',
-    current: false,
-    highlights: [
-      'Founded an open-source community for Denison students to get started with open-source contributions.',
-      'Led an engineering team building a full-stack mobile marketplace.',
-      'Integrated chat and notification services into the marketplace.',
-      'Built features that made it easier for students to exchange used items on campus.',
-    ],
-  },
-]
+const projects: Projects = {
+  eyebrow: 'Selected work',
+  heading: 'Selected work, with context.',
+  introduction:
+    'Three products that show how I move between user experience, platform foundations, and the work of running software.',
+  productLabel: 'The product',
+  contributionLabel: 'My part',
+  technologiesLabel: 'Across the stack',
+  items: projectItems,
+}
 
-const education: Education[] = [
-  {
-    id: '1',
-    institution: 'University of Southern Queensland',
-    degree: 'Master of Information Systems',
-    location: 'Queensland, Australia',
-    graduationDate: '2027-08-01',
-    coursework: ['Management of Cyber Security', 'Systems Analysis and Design'],
-  },
-  {
-    id: '2',
-    institution: 'Denison University',
-    degree: 'Bachelor of Science in Computer Science',
-    location: 'Granville, Ohio',
-    graduationDate: '2024-05-01',
-    gpa: '3.52/4.00',
-    coursework: [
-      'Data Structures',
-      'Algorithm Design and Analysis',
-      'Data Systems',
-      'Computer Systems',
-      'Operating Systems',
-      'Parallel Computing',
-      'Quantum Computing',
-      'Artificial Intelligence',
-      'Statistics',
-    ],
-  },
-]
+const principles: Principles = {
+  eyebrow: 'How I work',
+  heading: 'The principles behind the build.',
+  introduction:
+    'The most useful engineering choices hold up across the interface, the deployment, and the day after launch.',
+  items: [
+    {
+      id: 'whole-path',
+      title: 'Follow the whole path',
+      description:
+        'The seams between interface, backend, delivery, and infrastructure shape the experience, so I work across them.',
+    },
+    {
+      id: 'built-to-run',
+      title: 'Build it to run',
+      description:
+        'Releases, monitoring, and operating clarity are part of the product—not chores left for later.',
+    },
+    {
+      id: 'leave-a-map',
+      title: 'Leave a map',
+      description:
+        'Documentation and shared workflows should make a system easier for the next person, including future me.',
+    },
+  ],
+}
 
-const skillStack: SkillStack = {
-  frontend: ['HTML', 'CSS', 'React', 'React Native', 'Tailwind CSS', 'Sass', 'Electron'],
-  backend: [
-    'Express.js',
-    'Next.js',
-    'FastAPI',
-    'Flask',
-    'Django',
-    'Ansible',
-    'Docker',
-    'Kubernetes',
-    'Celery',
-    'RabbitMQ',
-    'Apache Kafka',
-    'Redis',
-    'PostgreSQL',
-    'MySQL',
-    'MongoDB',
-    'SQLite',
-    'Terraform',
-    'Pinecone',
-    'LangChain',
-    'LangGraph',
+const now: Now = {
+  eyebrow: 'Now',
+  heading: 'Currently in Brisbane.',
+  updatedLabel: 'Updated September 2026',
+  items: [
+    {
+      label: 'Based',
+      value: 'Brisbane, Queensland',
+    },
+    {
+      label: 'Studying',
+      value:
+        'Master of Information Systems at the University of Southern Queensland · expected August 2027',
+    },
+    {
+      label: 'Focused on',
+      value:
+        'End-to-end products, dependable delivery, and the operating details that keep software useful.',
+    },
   ],
-  cloud: [
-    'Amazon Web Services (ECS, EC2, Lambda, SQS, RDS, S3, SNS, SES, VPC, Cognito, IAM, EventBridge)',
-    'Google Cloud Platform (Firebase, Cloud Storage, Cloud SQL)',
-    'Vercel',
-    'Serverless Framework',
-  ],
-  languages: ['Java', 'Python', 'TypeScript'],
-  tools: ['Claude Code', 'VSCode Copilot Chat'],
 }
 
 export const homeContent: HomeContent = {
   locale: 'en',
   siteSettings,
+  hero,
   about,
   projects,
-  experiences,
-  education,
-  skillStack,
+  principles,
+  now,
   seo: {
     title: siteSettings.seo?.metaTitle || `${siteSettings.name} | ${siteSettings.title}`,
     description: siteSettings.seo?.metaDescription || 'Portfolio website',

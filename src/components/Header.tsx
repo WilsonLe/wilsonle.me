@@ -14,76 +14,95 @@ export function Header({ siteSettings }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname()
   const basePath = getPathnameBasePath(pathname)
+  const homepagePath = basePath || '/'
+  const navigation = siteSettings.navigation
 
   const navLinks = [
-    { href: `${basePath || '/'}#about`, label: 'About' },
-    { href: `${basePath || '/'}#projects`, label: 'Projects' },
-    { href: `${basePath || '/'}#experience`, label: 'Experience' },
-    { href: `${basePath || '/'}#skills`, label: 'Skills' },
-    { href: `${basePath || '/'}#education`, label: 'Education' },
-    { href: `${basePath || '/'}#contact`, label: 'Contact' },
+    { href: `${homepagePath}#work`, label: navigation.work },
+    { href: `${homepagePath}#approach`, label: navigation.approach },
+    { href: `${homepagePath}#now`, label: navigation.now },
+    { href: `${homepagePath}#about`, label: navigation.about },
+    { href: `${basePath}/resume`, label: navigation.resume, featured: true },
+    { href: `${homepagePath}#contact`, label: navigation.contact },
   ]
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass">
-      <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link
-            href={basePath || '/'}
-            className="text-xl font-bold gradient-text hover:opacity-80 transition-opacity"
-          >
-            {siteSettings.name || 'Portfolio'}
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-rule bg-ink text-paper">
+      <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-20 items-center justify-between gap-6">
+          <Link href={homepagePath} className="group flex shrink-0 items-center gap-3">
+            <span
+              aria-hidden="true"
+              className="font-label grid h-9 w-12 place-items-center bg-signal text-xs font-bold tracking-tight text-ink transition-transform group-hover:-rotate-2"
+            >
+              AM/W
+            </span>
+            <span className="hidden text-sm font-semibold tracking-wide text-paper sm:inline">
+              {siteSettings.name}
+            </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden items-center gap-5 md:flex lg:gap-7">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                className={`font-label text-[0.7rem] font-semibold uppercase tracking-[0.12em] transition-colors ${
+                  link.featured
+                    ? 'border border-signal px-3 py-2 text-signal hover:bg-signal hover:text-ink'
+                    : 'text-paper-muted hover:text-paper'
+                }`}
               >
                 {link.label}
               </Link>
             ))}
           </div>
 
-          {/* Mobile Menu Button */}
           <button
+            type="button"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-slate-300 hover:text-white"
-            aria-label="Toggle menu"
+            className="grid h-11 w-11 place-items-center border border-rule text-paper-muted hover:border-paper-muted hover:text-paper md:hidden"
+            aria-label={navigation.menuLabel}
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-navigation"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
               {isMenuOpen ? (
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
+                  strokeWidth={1.8}
                   d="M6 18L18 6M6 6l12 12"
                 />
               ) : (
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
+                  strokeWidth={1.8}
+                  d="M4 7h16M4 12h16M4 17h16"
                 />
               )}
             </svg>
           </button>
         </div>
 
-        {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-slate-800">
-            <div className="flex flex-col gap-4">
+          <div id="mobile-navigation" className="border-t border-rule pb-5 pt-3 md:hidden">
+            <div className="grid grid-cols-2 gap-px bg-rule">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="text-slate-300 hover:text-white transition-colors text-sm font-medium"
+                  className={`font-label bg-ink px-4 py-4 text-xs font-semibold uppercase tracking-[0.12em] transition-colors hover:bg-ink-raised ${
+                    link.featured ? 'text-signal' : 'text-paper-muted hover:text-paper'
+                  }`}
                 >
                   {link.label}
                 </Link>

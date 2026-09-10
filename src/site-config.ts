@@ -10,7 +10,7 @@ export const DEFAULT_META_TITLE =
 export const DEFAULT_META_DESCRIPTION =
   siteSettings.seo?.metaDescription || siteSettings.tagline || 'Portfolio website'
 
-export const OG_IMAGE_PATH = '/og-image.svg'
+export const OG_IMAGE_PATH = '/og.png'
 
 export const OG_IMAGE_URL = new URL(OG_IMAGE_PATH, SITE_URL).toString()
 

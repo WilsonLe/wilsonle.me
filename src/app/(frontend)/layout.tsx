@@ -83,8 +83,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className={`${inter.className} bg-slate-950 text-slate-100 antialiased`}>
+    <html lang="en">
+      <body className={`${inter.className} bg-ink text-paper antialiased`}>
         <HtmlLangSync />
         <Header siteSettings={siteSettings} />
         <main className="min-h-screen">{children}</main>
