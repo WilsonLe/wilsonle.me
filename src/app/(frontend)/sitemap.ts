@@ -75,5 +75,41 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
       },
     },
+    {
+      url: new URL('/notes/shop-floor-systems', SITE_URL).toString(),
+      lastModified: new Date('2026-09-11'),
+      changeFrequency: 'yearly',
+      priority: 0.7,
+      alternates: {
+        languages: {
+          en: new URL('/en/notes/shop-floor-systems', SITE_URL).toString(),
+          vi: new URL('/vi/notes/shop-floor-systems', SITE_URL).toString(),
+        },
+      },
+    },
+    {
+      url: new URL('/en/notes/shop-floor-systems', SITE_URL).toString(),
+      lastModified: new Date('2026-09-11'),
+      changeFrequency: 'yearly',
+      priority: 0.6,
+      alternates: {
+        languages: {
+          en: new URL('/en/notes/shop-floor-systems', SITE_URL).toString(),
+          vi: new URL('/vi/notes/shop-floor-systems', SITE_URL).toString(),
+        },
+      },
+    },
+    {
+      url: new URL('/vi/notes/shop-floor-systems', SITE_URL).toString(),
+      lastModified: new Date('2026-09-11'),
+      changeFrequency: 'yearly',
+      priority: 0.6,
+      alternates: {
+        languages: {
+          en: new URL('/en/notes/shop-floor-systems', SITE_URL).toString(),
+          vi: new URL('/vi/notes/shop-floor-systems', SITE_URL).toString(),
+        },
+      },
+    },
   ]
 }

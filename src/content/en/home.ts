@@ -14,15 +14,108 @@ const hero: Hero = {
 }
 
 const about: About = {
-  heading: 'About Me',
+  eyebrow: 'Professional journey',
+  heading: "The work has changed. The throughline hasn't.",
+  introduction:
+    'My professional story has moved across places and roles: from learning how systems hold together in Ohio, to building an AI product remotely from Richmond, to studying and working in Brisbane. Each chapter has pulled me closer to the same question—how do we make complex systems genuinely useful to the people inside them?',
   portrait: {
     src: 'https://avatars.githubusercontent.com/u/43991506',
     alt: 'Portrait of Anh Minh (Wilson)',
+    width: 640,
+    height: 640,
   },
-  content: [
-    "Anh Minh is my name; Wilson is the name I use around the internet. I'm a software engineer based in Brisbane, Queensland.",
-    "I'm happiest working across the whole product path—from the interface people use to the services, delivery pipelines, and monitoring that keep it dependable.",
-    'That range has taken me through language learning, robotics education, internal platforms, and infrastructure work. The common thread is making complex systems easier to ship, operate, and understand.',
+  timelineLabel: 'Professional journey',
+  illustrationLabel: 'Editorial illustration',
+  chapters: [
+    {
+      id: 'ohio-foundations',
+      sequence: '01',
+      period: '2020–2024',
+      place: 'Granville + Columbus, Ohio',
+      heading: 'From campus networks to cloud applications.',
+      body: [
+        'At Denison University, I studied Computer Science and worked as an Assistant Network Engineer. I resolved connectivity issues across campus devices, offices, and dormitories, installed replacement equipment during a network migration, and documented the tests, procedures, and inventory behind the work.',
+        'I then interned as a Cloud Application Engineer at Designer Brands in Columbus. I developed features across cloud microservices supporting dsw.com and helped move legacy Oracle data into PostgreSQL applications running on Kubernetes. Together, those roles showed me both sides of a dependable product: the foundations people rely on and the application layers built above them.',
+      ],
+      image: {
+        src: '/images/journey/ohio-foundations.webp',
+        alt: 'Editorial illustration moving from a campus network workspace into cloud application layers',
+        width: 1120,
+        height: 1400,
+      },
+    },
+    {
+      id: 'richmond-remote',
+      sequence: '02',
+      period: '2023–2026',
+      place: 'Richmond, Virginia · Remote',
+      heading: 'Building remotely, across the stack.',
+      body: [
+        'Richmond became my next base while I worked remotely as a Software Engineer at Pangea Chat. I owned frontend work for app.pangea.chat and built FastAPI services for its AI assistant and LLM workflows.',
+        'I also built delivery pipelines and put telemetry, alerting, and monitoring around the production services. That experience made reliability feel less like a separate backend concern and more like part of the product experience itself.',
+      ],
+      image: {
+        src: '/images/journey/richmond-remote.webp',
+        alt: 'Editorial illustration of a remote software workspace connected to layered product systems in Richmond',
+        width: 1120,
+        height: 1400,
+      },
+    },
+    {
+      id: 'brisbane-transition',
+      sequence: '03',
+      period: '2025–Now',
+      place: 'Brisbane, Australia',
+      heading: 'Starting again with a wider lens.',
+      body: [
+        'Moving to Brisbane opened a new professional and academic chapter. I am studying a Master of Information Systems at UniSQ, with an expected completion date of August 2027, while continuing to build software and refine the way I deliver it.',
+        'Starting again in a new country has made me more deliberate about context: learning the environment, understanding the people inside it, and resisting the urge to assume that a familiar solution automatically fits a new setting.',
+      ],
+      image: {
+        src: '/images/journey/brisbane-shop-floor.webp',
+        alt: 'Editorial illustration blending subtropical Brisbane with an orderly retail environment',
+        width: 1120,
+        height: 1400,
+      },
+    },
+    {
+      id: 'david-jones',
+      sequence: '04',
+      period: 'July 2026–Now',
+      place: 'Indooroopilly, Queensland',
+      heading: 'Learning from the shop floor.',
+      body: [
+        'I currently work part-time as a Sales Professional at David Jones Indooroopilly, serving customers who come into the store and replenishing stock.',
+        'The work is different from engineering, and that is what makes it valuable to me. It keeps requests, handoffs, exceptions, and operating details tangible—the same things that often decide whether a software system is genuinely useful once it meets the real world.',
+      ],
+      image: {
+        src: '/images/journey/brisbane-shop-floor.webp',
+        alt: 'Editorial illustration blending subtropical Brisbane with an orderly retail environment',
+        width: 1120,
+        height: 1400,
+      },
+      link: {
+        path: '/notes/shop-floor-systems',
+        label: 'Read the field note',
+      },
+    },
+    {
+      id: 'agentic-delivery',
+      sequence: '05',
+      period: 'Current practice',
+      place: 'Agentic software development',
+      heading: 'Making agentic delivery deliberate.',
+      body: [
+        'Right now, I am sharpening an agentic software-development workflow built around clear specifications, isolated implementation, explicit validation, reviewable evidence, and human approval at consequential steps.',
+        'The goal is not to ask an agent to write more code. It is to make complex work easier to direct, verify, resume, and trust.',
+      ],
+      image: {
+        src: '/images/journey/agentic-delivery.webp',
+        alt: 'Editorial illustration of specifications, branching work, validation checkpoints, and evidence',
+        width: 1120,
+        height: 1400,
+      },
+    },
   ],
 }
 

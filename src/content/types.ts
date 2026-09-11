@@ -49,13 +49,35 @@ export interface Hero {
   socialLabel: string
 }
 
-export interface About {
+export interface ContentImage {
+  src: string
+  alt: string
+  width: number
+  height: number
+}
+
+export interface JourneyChapter {
+  id: string
+  sequence: string
+  period: string
+  place: string
   heading: string
-  portrait: {
-    src: string
-    alt: string
+  body: string[]
+  image: ContentImage
+  link?: {
+    path: string
+    label: string
   }
-  content: string[]
+}
+
+export interface About {
+  eyebrow: string
+  heading: string
+  introduction: string
+  portrait: ContentImage
+  timelineLabel: string
+  illustrationLabel: string
+  chapters: JourneyChapter[]
 }
 
 export interface Project {
@@ -136,6 +158,28 @@ export interface SkillStack {
 export interface PageSeo {
   title: string
   description: string
+}
+
+export interface FieldNoteSection {
+  id: string
+  heading: string
+  paragraphs: string[]
+}
+
+export interface FieldNoteContent {
+  locale: Locale
+  siteSettings: SiteSettings
+  slug: string
+  eyebrow: string
+  title: string
+  standfirst: string
+  authorLabel: string
+  publishedDate: string
+  publishedLabel: string
+  hero: ContentImage
+  sections: FieldNoteSection[]
+  backLabel: string
+  seo: PageSeo
 }
 
 export interface ResumeIntro {
