@@ -98,9 +98,14 @@ test.describe('Frontend', () => {
     await expect(page.locator('#journey-ohio-foundations')).toContainText(
       'Cloud Application Engineer at Designer Brands',
     )
-    await expect(page.locator('#journey-richmond-remote')).toContainText(
-      'Richmond became my next base while I worked remotely',
+    const pangeaJourney = page.locator('#journey-richmond-office')
+    await expect(pangeaJourney).toContainText('remote intern before moving to Richmond')
+    await expect(pangeaJourney).toContainText('where I worked in the office')
+    await expect(pangeaJourney).toContainText(
+      'After moving to Brisbane, I continued working with Pangea Chat remotely',
     )
+    await expect(pangeaJourney).toContainText('Richmond, Virginia · In office')
+    await expect(pangeaJourney).not.toContainText('worked remotely from Richmond')
     await expect(page.locator('#journey-david-jones')).toContainText(
       'Sales Professional at David Jones Indooroopilly',
     )
@@ -283,7 +288,9 @@ test.describe('Frontend', () => {
       )
       .toBeGreaterThan(0)
     await expect(
-      page.locator('#about').getByText('My professional story has moved across places and roles'),
+      page
+        .locator('#about')
+        .getByText('My professional story has moved across places and ways of working'),
     ).toBeVisible()
   })
 
@@ -293,7 +300,7 @@ test.describe('Frontend', () => {
 
     const timeline = page.getByRole('navigation', { name: 'Professional journey' })
     const firstLink = timeline.locator('a[href="#journey-ohio-foundations"]')
-    const richmondLink = timeline.locator('a[href="#journey-richmond-remote"]')
+    const richmondLink = timeline.locator('a[href="#journey-richmond-office"]')
     const brisbaneLink = timeline.locator('a[href="#journey-brisbane-transition"]')
     const finalLink = timeline.locator('a[href="#journey-agentic-delivery"]')
 
@@ -304,11 +311,11 @@ test.describe('Frontend', () => {
     await richmondLink.focus()
     await expect(richmondLink).toBeFocused()
     await page.keyboard.press('Enter')
-    await expect(page).toHaveURL(/#journey-richmond-remote$/)
+    await expect(page).toHaveURL(/#journey-richmond-office$/)
     await expect.poll(() => richmondLink.getAttribute('aria-current')).toBe('step')
 
     const richmondTop = await page
-      .locator('#journey-richmond-remote')
+      .locator('#journey-richmond-office')
       .evaluate((element) => Math.round(element.getBoundingClientRect().top))
     expect(richmondTop).toBeGreaterThanOrEqual(79)
 
@@ -401,7 +408,7 @@ test.describe('Frontend', () => {
   }) => {
     const imagePaths = [
       '/images/journey/ohio-foundations.webp',
-      '/images/journey/richmond-remote.webp',
+      '/images/journey/richmond-office.webp',
       '/images/journey/brisbane-shop-floor.webp',
       '/images/journey/agentic-delivery.webp',
     ]

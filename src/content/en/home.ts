@@ -17,7 +17,7 @@ const about: About = {
   eyebrow: 'Professional journey',
   heading: "The work has changed. The throughline hasn't.",
   introduction:
-    'My professional story has moved across places and roles: from learning how systems hold together in Ohio, to building an AI product remotely from Richmond, to studying and working in Brisbane. Each chapter has pulled me closer to the same question—how do we make complex systems genuinely useful to the people inside them?',
+    'My professional story has moved across places and ways of working: from learning how systems hold together in Ohio, to beginning as a remote intern at Pangea Chat and moving to Richmond for in-office work, to continuing remotely while studying and working in Brisbane. Each chapter has pulled me closer to the same question—how do we make complex systems genuinely useful to the people inside them?',
   portrait: {
     src: 'https://avatars.githubusercontent.com/u/43991506',
     alt: 'Portrait of Anh Minh (Wilson)',
@@ -45,18 +45,18 @@ const about: About = {
       },
     },
     {
-      id: 'richmond-remote',
+      id: 'richmond-office',
       sequence: '02',
       period: '2023–2026',
-      place: 'Richmond, Virginia · Remote',
-      heading: 'Building remotely, across the stack.',
+      place: 'Richmond, Virginia · In office',
+      heading: 'Building from the office, across the stack.',
       body: [
-        'Richmond became my next base while I worked remotely as a Software Engineer at Pangea Chat. I owned frontend work for app.pangea.chat and built FastAPI services for its AI assistant and LLM workflows.',
+        'I began with Pangea Chat as a remote intern before moving to Richmond, where I worked in the office. After moving to Brisbane, I continued working with Pangea Chat remotely. Across those settings, I owned frontend work for app.pangea.chat and built FastAPI services for its AI assistant and LLM workflows.',
         'I also built delivery pipelines and put telemetry, alerting, and monitoring around the production services. That experience made reliability feel less like a separate backend concern and more like part of the product experience itself.',
       ],
       image: {
-        src: '/images/journey/richmond-remote.webp',
-        alt: 'Editorial illustration of a remote software workspace connected to layered product systems in Richmond',
+        src: '/images/journey/richmond-office.webp',
+        alt: 'Editorial illustration of a software journey moving from remote internship to a Richmond office and back to remote work',
         width: 1120,
         height: 1400,
       },
