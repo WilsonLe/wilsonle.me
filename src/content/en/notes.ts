@@ -13,8 +13,8 @@ export const shopFloorSystemsNote: FieldNoteContent = {
   publishedDate: '2026-09-11',
   publishedLabel: 'September 2026',
   hero: {
-    src: '/images/journey/brisbane-shop-floor.webp',
-    alt: 'Editorial illustration blending subtropical Brisbane with an orderly retail environment',
+    src: '/images/journey/placeholder.svg',
+    alt: 'Placeholder image for the shop-floor systems field note',
     width: 1120,
     height: 1400,
   },

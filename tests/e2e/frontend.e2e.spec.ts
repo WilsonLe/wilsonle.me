@@ -327,7 +327,7 @@ test.describe('Frontend', () => {
     await expect.poll(() => finalLink.getAttribute('aria-current')).toBe('step')
   })
 
-  test('progressively animates journey artwork without making motion a content dependency', async ({
+  test('progressively animates journey visuals without making motion a content dependency', async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 })
@@ -402,29 +402,19 @@ test.describe('Frontend', () => {
     await context.close()
   })
 
-  test('serves all journey illustrations as local, decodable WebP assets', async ({
-    page,
-    request,
-  }) => {
-    const imagePaths = [
-      '/images/journey/ohio-foundations.webp',
-      '/images/journey/richmond-office.webp',
-      '/images/journey/brisbane-shop-floor.webp',
-      '/images/journey/agentic-delivery.webp',
-    ]
-
-    for (const imagePath of imagePaths) {
-      const response = await request.get(imagePath)
-      expect(response.ok(), imagePath).toBeTruthy()
-      expect(response.headers()['content-type']).toContain('image/webp')
-      expect((await response.body()).byteLength).toBeGreaterThan(100_000)
-    }
+  test('uses a local, decodable placeholder for every journey node', async ({ page, request }) => {
+    const placeholderPath = '/images/journey/placeholder.svg'
+    const response = await request.get(placeholderPath)
+    expect(response.ok(), placeholderPath).toBeTruthy()
+    expect(response.headers()['content-type']).toContain('image/svg+xml')
+    expect((await response.body()).byteLength).toBeGreaterThan(500)
 
     await page.goto('/')
-    const journeyImages = page.locator('#about img[alt^="Editorial illustration"]')
+    const journeyImages = page.locator('#about img[alt^="Placeholder image"]')
     await expect(journeyImages).toHaveCount(5)
 
     for (const image of await journeyImages.all()) {
+      await expect(image).toHaveAttribute('src', /\/images\/journey\/placeholder\.svg/)
       await image.scrollIntoViewIfNeeded()
       await expect
         .poll(() =>
@@ -474,11 +464,11 @@ test.describe('Frontend', () => {
         await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article')
         await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
           'content',
-          'https://wilsonle.me/images/journey/brisbane-shop-floor.webp',
+          'https://wilsonle.me/images/journey/placeholder.svg',
         )
         await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
           'content',
-          'https://wilsonle.me/images/journey/brisbane-shop-floor.webp',
+          'https://wilsonle.me/images/journey/placeholder.svg',
         )
         await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
           'href',
@@ -646,9 +636,7 @@ test.describe('Frontend', () => {
         }
 
         if (route.name === 'field-note') {
-          const hero = page.getByAltText(
-            'Editorial illustration blending subtropical Brisbane with an orderly retail environment',
-          )
+          const hero = page.getByAltText('Placeholder image for the shop-floor systems field note')
           await expect
             .poll(() =>
               hero.evaluate((image) =>

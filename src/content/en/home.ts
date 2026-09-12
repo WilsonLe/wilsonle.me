@@ -25,7 +25,7 @@ const about: About = {
     height: 640,
   },
   timelineLabel: 'Professional journey',
-  illustrationLabel: 'Editorial illustration',
+  illustrationLabel: 'Image placeholder',
   chapters: [
     {
       id: 'ohio-foundations',
@@ -38,8 +38,8 @@ const about: About = {
         'I then interned as a Cloud Application Engineer at Designer Brands in Columbus. I developed features across cloud microservices supporting dsw.com and helped move legacy Oracle data into PostgreSQL applications running on Kubernetes. Together, those roles showed me both sides of a dependable product: the foundations people rely on and the application layers built above them.',
       ],
       image: {
-        src: '/images/journey/ohio-foundations.webp',
-        alt: 'Editorial illustration moving from a campus network workspace into cloud application layers',
+        src: '/images/journey/placeholder.svg',
+        alt: 'Placeholder image for the Ohio professional journey chapter',
         width: 1120,
         height: 1400,
       },
@@ -55,8 +55,8 @@ const about: About = {
         'I also built delivery pipelines and put telemetry, alerting, and monitoring around the production services. That experience made reliability feel less like a separate backend concern and more like part of the product experience itself.',
       ],
       image: {
-        src: '/images/journey/richmond-office.webp',
-        alt: 'Editorial illustration of a software journey moving from remote internship to a Richmond office and back to remote work',
+        src: '/images/journey/placeholder.svg',
+        alt: 'Placeholder image for the Pangea professional journey chapter',
         width: 1120,
         height: 1400,
       },
@@ -72,8 +72,8 @@ const about: About = {
         'Starting again in a new country has made me more deliberate about context: learning the environment, understanding the people inside it, and resisting the urge to assume that a familiar solution automatically fits a new setting.',
       ],
       image: {
-        src: '/images/journey/brisbane-shop-floor.webp',
-        alt: 'Editorial illustration blending subtropical Brisbane with an orderly retail environment',
+        src: '/images/journey/placeholder.svg',
+        alt: 'Placeholder image for the Brisbane professional journey chapter',
         width: 1120,
         height: 1400,
       },
@@ -89,8 +89,8 @@ const about: About = {
         'The work is different from engineering, and that is what makes it valuable to me. It keeps requests, handoffs, exceptions, and operating details tangible—the same things that often decide whether a software system is genuinely useful once it meets the real world.',
       ],
       image: {
-        src: '/images/journey/brisbane-shop-floor.webp',
-        alt: 'Editorial illustration blending subtropical Brisbane with an orderly retail environment',
+        src: '/images/journey/placeholder.svg',
+        alt: 'Placeholder image for the David Jones professional journey chapter',
         width: 1120,
         height: 1400,
       },
@@ -110,8 +110,8 @@ const about: About = {
         'The goal is not to ask an agent to write more code. It is to make complex work easier to direct, verify, resume, and trust.',
       ],
       image: {
-        src: '/images/journey/agentic-delivery.webp',
-        alt: 'Editorial illustration of specifications, branching work, validation checkpoints, and evidence',
+        src: '/images/journey/placeholder.svg',
+        alt: 'Placeholder image for the agentic software delivery chapter',
         width: 1120,
         height: 1400,
       },
