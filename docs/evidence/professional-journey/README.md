@@ -2,7 +2,7 @@
 
 These captures document the review draft of the professional-journey About
 redesign and shop-floor field note from the production Next.js build. The
-captured source tree is implementation commit `a6920e6`.
+captured source tree is implementation commit `f94113e`.
 
 | Route                         | 1440px viewport                      | 375px viewport                     |
 | ----------------------------- | ------------------------------------ | ---------------------------------- |
