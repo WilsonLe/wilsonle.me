@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 1400" role="img" aria-labelledby="title description">
+  <title id="title">Image placeholder</title>
+  <desc id="description">A neutral blueprint grid reserved for future professional journey artwork.</desc>
+  <defs>
+    <pattern id="minor-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#315f9f" stroke-opacity="0.16" stroke-width="2" />
+    </pattern>
+    <pattern id="major-grid" width="200" height="200" patternUnits="userSpaceOnUse">
+      <rect width="200" height="200" fill="url(#minor-grid)" />
+      <path d="M 200 0 L 0 0 0 200" fill="none" stroke="#315f9f" stroke-opacity="0.28" stroke-width="3" />
+    </pattern>
+  </defs>
+  <rect width="1120" height="1400" fill="#a8caff" />
+  <rect width="1120" height="1400" fill="url(#major-grid)" />
+  <rect x="120" y="190" width="880" height="1020" fill="#f4eddd" fill-opacity="0.72" stroke="#10130f" stroke-width="4" />
+  <path d="M120 310H1000M240 190V1210" fill="none" stroke="#10130f" stroke-opacity="0.28" stroke-width="3" />
+  <rect x="305" y="375" width="510" height="650" fill="none" stroke="#10130f" stroke-width="5" />
+  <path d="M305 375L815 1025M815 375L305 1025" fill="none" stroke="#b63e1e" stroke-width="5" />
+  <circle cx="560" cy="700" r="68" fill="#ff8052" stroke="#10130f" stroke-width="5" />
+  <path d="M120 190H208M120 190V278M1000 190H912M1000 190V278M120 1210H208M120 1210V1122M1000 1210H912M1000 1210V1122" fill="none" stroke="#10130f" stroke-width="8" />
+</svg>

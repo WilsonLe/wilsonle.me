@@ -39,7 +39,7 @@ export function HomePageView({ canonicalPath, content, routeBasePath }: HomePage
       <ProjectsSection projects={content.projects} />
       <PrinciplesSection principles={content.principles} />
       <NowSection now={content.now} />
-      <AboutSection about={content.about} />
+      <AboutSection about={content.about} routeBasePath={routeBasePath} />
       <ContactSection siteSettings={content.siteSettings} />
     </>
   )

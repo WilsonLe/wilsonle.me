@@ -72,6 +72,56 @@
       linear-gradient(90deg, rgb(16 19 15 / 0.07) 1px, transparent 1px);
     background-size: 2rem 2rem;
   }
+
+  .journey-index {
+    position: sticky;
+  }
+
+  .journey-media {
+    position: relative;
+  }
+}
+
+@media (min-width: 64rem) {
+  .journey-chapter {
+    view-timeline-name: --journey-chapter;
+    view-timeline-axis: block;
+  }
+
+  .journey-media {
+    position: sticky;
+  }
+
+  @supports (animation-timeline: view()) {
+    .journey-parallax-image {
+      animation: journey-image-drift linear both;
+      animation-timeline: --journey-chapter;
+      animation-range: entry 0% exit 100%;
+      will-change: transform;
+    }
+  }
+}
+
+@media (min-width: 64rem) and (max-height: 44rem) {
+  .journey-index,
+  .journey-media {
+    position: relative;
+    top: auto;
+  }
+
+  .journey-chapter {
+    min-height: auto;
+  }
+}
+
+@keyframes journey-image-drift {
+  from {
+    transform: translate3d(0, -8%, 0) scale(1.06);
+  }
+
+  to {
+    transform: translate3d(0, 1%, 0) scale(1.02);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -85,6 +135,12 @@
     animation-duration: 0.01ms;
     animation-iteration-count: 1;
     transition-duration: 0.01ms;
+  }
+
+  .journey-parallax-image {
+    animation: none;
+    transform: translateY(-6%);
+    will-change: auto;
   }
 }
 

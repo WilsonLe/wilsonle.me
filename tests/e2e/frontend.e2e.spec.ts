@@ -85,6 +85,32 @@ test.describe('Frontend', () => {
     await expect(page.getByRole('heading', { name: 'Experience', exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Tech Stack', exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Education', exact: true })).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'My professional journey' })).toBeVisible()
+    await expect(page.locator('#about article')).toHaveCount(5)
+    await expect(
+      page.getByRole('heading', { name: 'From campus networks to cloud applications.' }),
+    ).toBeVisible()
+    await expect(page.locator('#journey-ohio-foundations')).toContainText(
+      'Assistant Network Engineer',
+    )
+    await expect(page.locator('#journey-ohio-foundations')).toContainText(
+      'Cloud Application Engineer at Designer Brands',
+    )
+    const pangeaJourney = page.locator('#journey-richmond-office')
+    await expect(pangeaJourney).toContainText('remote intern before moving to Richmond')
+    await expect(pangeaJourney).toContainText('where I worked in the office')
+    await expect(pangeaJourney).toContainText(
+      'After moving to Brisbane, I continued working with Pangea Chat remotely',
+    )
+    await expect(pangeaJourney).toContainText('Richmond, Virginia · In office')
+    await expect(pangeaJourney).not.toContainText('worked remotely from Richmond')
+    await expect(page.locator('#journey-david-jones')).toContainText(
+      'Sales Professional at David Jones Indooroopilly',
+    )
+    await expect(page.locator('#journey-agentic-delivery')).toContainText(
+      'clear specifications, isolated implementation, explicit validation, reviewable evidence',
+    )
+    await expect(page.getByText(/road[ -]?trips?/i)).toHaveCount(0)
   })
 
   test('renders the explicit English locale route', async ({ page }) => {
@@ -102,6 +128,9 @@ test.describe('Frontend', () => {
       'href',
       '/en/resume',
     )
+    await expect(
+      page.locator('#journey-david-jones').getByRole('link', { name: 'Read the field note' }),
+    ).toHaveAttribute('href', '/en/notes/shop-floor-systems')
   })
 
   test('renders the Vietnamese locale route with current fallback content', async ({ page }) => {
@@ -115,6 +144,9 @@ test.describe('Frontend', () => {
       'href',
       '/vi/resume',
     )
+    await expect(
+      page.locator('#journey-david-jones').getByRole('link', { name: 'Read the field note' }),
+    ).toHaveAttribute('href', '/vi/notes/shop-floor-systems')
   })
 
   test('exposes Wilson as an alternate name in Person structured data', async ({ page }) => {
@@ -133,7 +165,7 @@ test.describe('Frontend', () => {
     page,
   }) => {
     for (const width of [375, 768, 1440]) {
-      for (const route of ['/', '/resume']) {
+      for (const route of ['/', '/resume', '/notes/shop-floor-systems']) {
         await test.step(`${route} at ${width}px`, async () => {
           await page.setViewportSize({ width, height: 900 })
           await page.goto(route)
@@ -228,6 +260,18 @@ test.describe('Frontend', () => {
       .locator('html')
       .evaluate((element) => getComputedStyle(element).getPropertyValue('scroll-behavior'))
     expect(scrollBehavior).toBe('auto')
+
+    const journeyImage = page.locator('.journey-parallax-image').first()
+    await journeyImage.scrollIntoViewIfNeeded()
+    const motionStyles = await journeyImage.evaluate((element) => {
+      const styles = getComputedStyle(element)
+
+      return {
+        animationName: styles.animationName,
+        transform: styles.transform,
+      }
+    })
+    expect(motionStyles.animationName).toBe('none')
   })
 
   test('loads the portrait without blocking the personal introduction', async ({ page }) => {
@@ -241,7 +285,216 @@ test.describe('Frontend', () => {
         portrait.evaluate((image) => image instanceof HTMLImageElement && image.naturalWidth),
       )
       .toBeGreaterThan(0)
-    await expect(page.locator('#about').getByText('Anh Minh is my name')).toBeVisible()
+    await expect(
+      page.locator('#about').getByText('I started in Ohio, joined Pangea Chat as a remote intern'),
+    ).toBeVisible()
+  })
+
+  test('navigates the professional journey and tracks its active chapter', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto('/')
+
+    const timeline = page.getByRole('navigation', { name: 'Professional journey' })
+    const firstLink = timeline.locator('a[href="#journey-ohio-foundations"]')
+    const richmondLink = timeline.locator('a[href="#journey-richmond-office"]')
+    const brisbaneLink = timeline.locator('a[href="#journey-brisbane-transition"]')
+    const finalLink = timeline.locator('a[href="#journey-agentic-delivery"]')
+
+    await expect(page.locator('.journey-layout')).toHaveAttribute('data-enhanced', 'true')
+    await expect(firstLink).toHaveAttribute('aria-current', 'step')
+
+    await timeline.scrollIntoViewIfNeeded()
+    await richmondLink.focus()
+    await expect(richmondLink).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/#journey-richmond-office$/)
+    await expect.poll(() => richmondLink.getAttribute('aria-current')).toBe('step')
+
+    const richmondTop = await page
+      .locator('#journey-richmond-office')
+      .evaluate((element) => Math.round(element.getBoundingClientRect().top))
+    expect(richmondTop).toBeGreaterThanOrEqual(79)
+
+    await page.locator('#journey-brisbane-transition').scrollIntoViewIfNeeded()
+    await expect.poll(() => brisbaneLink.getAttribute('aria-current')).toBe('step')
+
+    await finalLink.click()
+    await expect(page).toHaveURL(/#journey-agentic-delivery$/)
+    await expect.poll(() => finalLink.getAttribute('aria-current')).toBe('step')
+  })
+
+  test('progressively animates journey visuals without making motion a content dependency', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto('/')
+
+    const journeyImage = page.locator('.journey-parallax-image').first()
+    await journeyImage.scrollIntoViewIfNeeded()
+
+    const supportsScrollTimeline = await page.evaluate(() =>
+      CSS.supports('animation-timeline', 'view()'),
+    )
+
+    if (supportsScrollTimeline) {
+      const initialTransform = await journeyImage.evaluate(
+        (element) => getComputedStyle(element).transform,
+      )
+      await page.evaluate(() => window.scrollBy({ top: 420 }))
+      await page.waitForTimeout(100)
+      const laterTransform = await journeyImage.evaluate(
+        (element) => getComputedStyle(element).transform,
+      )
+
+      expect(initialTransform).not.toBe(laterTransform)
+    }
+
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('/')
+    const mobileImage = page.locator('.journey-parallax-image').first()
+    await mobileImage.scrollIntoViewIfNeeded()
+    await expect
+      .poll(() => mobileImage.evaluate((element) => getComputedStyle(element).animationName))
+      .toBe('none')
+  })
+
+  test('uses static journey positioning on short desktop viewports', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 650 })
+    await page.goto('/')
+
+    const journeyMedia = page.locator('.journey-media').first()
+    await journeyMedia.scrollIntoViewIfNeeded()
+
+    await expect
+      .poll(() => journeyMedia.evaluate((element) => getComputedStyle(element).position))
+      .toBe('relative')
+    await expect
+      .poll(() =>
+        page
+          .getByRole('navigation', { name: 'Professional journey' })
+          .evaluate((element) => getComputedStyle(element).position),
+      )
+      .toBe('relative')
+  })
+
+  test('keeps the complete professional journey readable without JavaScript', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false })
+    const page = await context.newPage()
+
+    await page.goto('/')
+    await expect(page.locator('#about article')).toHaveCount(5)
+    await expect(
+      page.getByRole('heading', { name: 'From campus networks to cloud applications.' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Making agentic delivery deliberate.' }),
+    ).toBeVisible()
+    await expect(
+      page.locator('#journey-david-jones').getByRole('link', { name: 'Read the field note' }),
+    ).toHaveAttribute('href', '/notes/shop-floor-systems')
+
+    await context.close()
+  })
+
+  test('uses a local, decodable placeholder for every journey node', async ({ page, request }) => {
+    const placeholderPath = '/images/journey/placeholder.svg'
+    const response = await request.get(placeholderPath)
+    expect(response.ok(), placeholderPath).toBeTruthy()
+    expect(response.headers()['content-type']).toContain('image/svg+xml')
+    expect((await response.body()).byteLength).toBeGreaterThan(500)
+
+    await page.goto('/')
+    const journeyImages = page.locator('#about img[alt^="Placeholder image"]')
+    await expect(journeyImages).toHaveCount(5)
+
+    for (const image of await journeyImages.all()) {
+      await expect(image).toHaveAttribute('src', /\/images\/journey\/placeholder\.svg/)
+      await image.scrollIntoViewIfNeeded()
+      await expect
+        .poll(() =>
+          image.evaluate((element) =>
+            element instanceof HTMLImageElement ? element.naturalWidth : 0,
+          ),
+        )
+        .toBeGreaterThan(0)
+    }
+  })
+
+  test('renders the shop-floor field note across localized routes', async ({ page }) => {
+    const routes = [
+      {
+        path: '/notes/shop-floor-systems',
+        language: 'en',
+        canonical: 'https://wilsonle.me/notes/shop-floor-systems',
+        backHref: '/#about',
+      },
+      {
+        path: '/en/notes/shop-floor-systems',
+        language: 'en',
+        canonical: 'https://wilsonle.me/notes/shop-floor-systems',
+        backHref: '/en#about',
+      },
+      {
+        path: '/vi/notes/shop-floor-systems',
+        language: 'vi',
+        canonical: 'https://wilsonle.me/vi/notes/shop-floor-systems',
+        backHref: '/vi#about',
+      },
+    ]
+
+    for (const route of routes) {
+      await test.step(route.path, async () => {
+        await page.goto(route.path)
+        await expect(page.locator('html')).toHaveAttribute('lang', route.language)
+        await expect(page.locator('main h1')).toHaveText(
+          'What the shop floor is teaching me about software',
+        )
+        await expect(page.locator('article section h2')).toHaveCount(6)
+        await expect(
+          page.getByText('Sales Professional at David Jones Indooroopilly'),
+        ).toBeVisible()
+        await expect(page.getByText('Bringing it back to agentic development')).toBeVisible()
+        await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', route.canonical)
+        await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article')
+        await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+          'content',
+          'https://wilsonle.me/images/journey/placeholder.svg',
+        )
+        await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+          'content',
+          'https://wilsonle.me/images/journey/placeholder.svg',
+        )
+        await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
+          'href',
+          'https://wilsonle.me/en/notes/shop-floor-systems',
+        )
+        await expect(page.locator('link[rel="alternate"][hreflang="vi"]')).toHaveAttribute(
+          'href',
+          'https://wilsonle.me/vi/notes/shop-floor-systems',
+        )
+        await expect(
+          page.getByRole('link', { name: 'Back to professional journey' }).first(),
+        ).toHaveAttribute('href', route.backHref)
+      })
+    }
+  })
+
+  test('emits no console errors on the professional journey or field note', async ({ page }) => {
+    const consoleErrors: string[] = []
+    page.on('console', (message) => {
+      if (message.type() === 'error') {
+        consoleErrors.push(message.text())
+      }
+    })
+
+    await page.goto('/')
+    await page.locator('#journey-agentic-delivery').scrollIntoViewIfNeeded()
+    await page.goto('/notes/shop-floor-systems')
+    await page.locator('article section').last().scrollIntoViewIfNeeded()
+
+    expect(consoleErrors).toEqual([])
   })
 
   test('renders the complete default English résumé route', async ({ page }) => {
@@ -302,7 +555,7 @@ test.describe('Frontend', () => {
     )
   })
 
-  test('lists localized résumé routes in the sitemap', async ({ request }) => {
+  test('lists localized résumé and field-note routes in the sitemap', async ({ request }) => {
     const response = await request.get('/sitemap.xml')
 
     expect(response.ok()).toBeTruthy()
@@ -310,6 +563,9 @@ test.describe('Frontend', () => {
     expect(sitemap).toContain('<loc>https://wilsonle.me/resume</loc>')
     expect(sitemap).toContain('<loc>https://wilsonle.me/en/resume</loc>')
     expect(sitemap).toContain('<loc>https://wilsonle.me/vi/resume</loc>')
+    expect(sitemap).toContain('<loc>https://wilsonle.me/notes/shop-floor-systems</loc>')
+    expect(sitemap).toContain('<loc>https://wilsonle.me/en/notes/shop-floor-systems</loc>')
+    expect(sitemap).toContain('<loc>https://wilsonle.me/vi/notes/shop-floor-systems</loc>')
   })
 
   test('uses the inspected social card across home and résumé metadata', async ({
@@ -350,22 +606,40 @@ test.describe('Frontend', () => {
       for (const route of [
         { name: 'home', path: '/' },
         { name: 'resume', path: '/resume' },
+        { name: 'field-note', path: '/notes/shop-floor-systems' },
       ]) {
         await page.goto(route.path)
 
         if (route.name === 'home') {
-          const portrait = page.getByAltText('Portrait of Anh Minh (Wilson)')
-          await portrait.scrollIntoViewIfNeeded()
-          await expect
-            .poll(() =>
-              portrait.evaluate((image) => image instanceof HTMLImageElement && image.naturalWidth),
-            )
-            .toBeGreaterThan(0)
+          const storyImages = page.locator('#about img')
+
+          for (const storyImage of await storyImages.all()) {
+            await storyImage.scrollIntoViewIfNeeded()
+            await expect
+              .poll(() =>
+                storyImage.evaluate((image) =>
+                  image instanceof HTMLImageElement ? image.naturalWidth : 0,
+                ),
+              )
+              .toBeGreaterThan(0)
+          }
+
           await page.evaluate(() => {
             document.documentElement.style.scrollBehavior = 'auto'
             window.scrollTo(0, 0)
           })
           await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+        }
+
+        if (route.name === 'field-note') {
+          const hero = page.getByAltText('Placeholder image for the shop-floor systems field note')
+          await expect
+            .poll(() =>
+              hero.evaluate((image) =>
+                image instanceof HTMLImageElement ? image.naturalWidth : 0,
+              ),
+            )
+            .toBeGreaterThan(0)
         }
 
         await testInfo.attach(`${route.name}-${viewport.name}`, {

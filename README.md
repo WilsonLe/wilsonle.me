@@ -1,6 +1,6 @@
 # wilsonle.me
 
-Personal portfolio and blog for Minh (Wilson) Le. Built with Next.js 15,
+Personal portfolio and field notes for Minh (Wilson) Le. Built with Next.js 15,
 Payload CMS 3, and Tailwind CSS v4.
 
 Production: <https://wilsonle.me>
@@ -10,8 +10,10 @@ Production: <https://wilsonle.me>
 - **Portfolio** — identity-led home page (selected work, working principles,
   current focus, about, contact) plus a dedicated résumé, rendered from typed
   content modules.
-- **Blog** — authored **in code** as MDX files under `src/content/blog/<locale>/`.
-  No headless CMS in front of blog posts.
+- **Field notes** — authored **in code** as typed modules under
+  `src/content/<locale>/notes.ts`. The current note is available at
+  `/notes/shop-floor-systems`, `/en/notes/shop-floor-systems`, and
+  `/vi/notes/shop-floor-systems`; there is not yet a general MDX blog engine.
 - **Payload CMS** — used as a **backend data store only** (media, contact-form
   submissions, auth). Not the authoring surface for site or blog content.
 - **i18n** — English (default) and Vietnamese, path-based routing:
@@ -43,8 +45,8 @@ src/
     (payload)/           Payload admin + API routes
   collections/           Payload collections (Users, Media)
   components/            React components; sections/ drive the home page
-  content/               Typed content by locale (target structure)
-    en/ vi/              site.ts, home.ts, resume.ts, blog/*.mdx
+  content/               Typed content by locale
+    en/ vi/              site.ts, home.ts, resume.ts, notes.ts
   lib/content.ts         Legacy holding pen — being migrated to src/content/
   payload.config.ts      Payload config
   payload-types.ts       Generated — do not edit
@@ -99,11 +101,11 @@ pnpm build
 
 - Site content (portfolio copy, SEO strings, socials) lives in code under
   `src/content/<locale>/` as typed TS modules.
-- Blog posts are MDX files under `src/content/blog/<locale>/<slug>.mdx` with
-  frontmatter (`title`, `description`, `date`, `tags`, optional `ogImage`,
-  optional `draft`).
+- Field notes currently live in `src/content/<locale>/notes.ts` as typed TS
+  modules and are rendered by explicit routes under `src/app/(frontend)/`.
+- A general blog index or MDX content pipeline has not been introduced yet.
 - English and Vietnamese must stay structurally in sync.
-- **Never** put site copy or blog posts into Payload collections. See
+- **Never** put site copy or field notes into Payload collections. See
   [`.github/instructions/content.instructions.md`](.github/instructions/content.instructions.md).
 
 ## SEO
@@ -111,7 +113,7 @@ pnpm build
 - Uses the Next.js Metadata API (no `next/head`).
 - Every public page sets `title`, `description`, `openGraph`, `twitter`,
   `alternates.canonical`, and `alternates.languages` for en/vi.
-- Home page emits JSON-LD `Person` schema; blog posts emit `BlogPosting`.
+- Home page emits JSON-LD `Person` schema; field notes emit `BlogPosting`.
 - `sitemap.ts` enumerates all public routes in both locales.
 - `/admin` and `/api` are `noindex, nofollow`.
 - Full rules: [`.github/instructions/seo.instructions.md`](.github/instructions/seo.instructions.md).
