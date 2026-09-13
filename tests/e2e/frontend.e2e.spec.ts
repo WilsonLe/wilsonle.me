@@ -85,9 +85,7 @@ test.describe('Frontend', () => {
     await expect(page.getByRole('heading', { name: 'Experience', exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Tech Stack', exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Education', exact: true })).toHaveCount(0)
-    await expect(
-      page.getByRole('heading', { name: "The work has changed. The throughline hasn't." }),
-    ).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'My professional journey' })).toBeVisible()
     await expect(page.locator('#about article')).toHaveCount(5)
     await expect(
       page.getByRole('heading', { name: 'From campus networks to cloud applications.' }),
@@ -288,9 +286,7 @@ test.describe('Frontend', () => {
       )
       .toBeGreaterThan(0)
     await expect(
-      page
-        .locator('#about')
-        .getByText('My professional story has moved across places and ways of working'),
+      page.locator('#about').getByText('I started in Ohio, joined Pangea Chat as a remote intern'),
     ).toBeVisible()
   })
 

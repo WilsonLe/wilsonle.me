@@ -14,10 +14,10 @@ const hero: Hero = {
 }
 
 const about: About = {
-  eyebrow: 'Professional journey',
-  heading: "The work has changed. The throughline hasn't.",
+  eyebrow: 'About',
+  heading: 'My professional journey',
   introduction:
-    'My professional story has moved across places and ways of working: from learning how systems hold together in Ohio, to beginning as a remote intern at Pangea Chat and moving to Richmond for in-office work, to continuing remotely while studying and working in Brisbane. Each chapter has pulled me closer to the same question—how do we make complex systems genuinely useful to the people inside them?',
+    'I started in Ohio, joined Pangea Chat as a remote intern, moved to Richmond for in-office work, and later continued remotely from Brisbane. Today, I am studying, working at David Jones, and refining how I build software.',
   portrait: {
     src: 'https://avatars.githubusercontent.com/u/43991506',
     alt: 'Portrait of Anh Minh (Wilson)',
