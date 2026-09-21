@@ -196,6 +196,7 @@ export interface WebsiteTemplatesContent {
     category: string
     description: string
     previewTitle: string
+    standalonePreview?: boolean
     path: string
     features: string[]
   }[]

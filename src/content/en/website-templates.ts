@@ -3,12 +3,12 @@ import type { WebsiteTemplatesContent } from '@/content/types'
 export const websiteTemplatesContent: WebsiteTemplatesContent = {
   seo: {
     title: 'Website templates | Anh Minh',
-    description:
-      'Explore website templates, starting with the current wilsonle.me portfolio design.',
+    description: 'Explore portfolio, digital agency, and restaurant website templates.',
   },
   eyebrow: 'Templates',
   heading: 'Website templates',
-  introduction: 'A collection of website designs. Starting with the one you’re browsing now.',
+  introduction:
+    'Three website designs to explore: a personal portfolio, a digital agency, and a neighbourhood restaurant.',
   previewLabel: 'Open full preview',
   items: [
     {
@@ -20,6 +20,28 @@ export const websiteTemplatesContent: WebsiteTemplatesContent = {
       previewTitle: 'wilsonle.me website template preview',
       path: '/',
       features: ['Responsive layout', 'Project showcase', 'Dedicated résumé'],
+    },
+    {
+      id: 'digital-agency',
+      name: 'Digital agency',
+      category: 'Agency & services',
+      description:
+        'A bold agency website with a dark gradient hero, service cards, and a clear path through the offer. Previewed with fictional branding and sample copy.',
+      previewTitle: 'Digital agency website template preview',
+      path: '/template-previews/en/agency',
+      standalonePreview: true,
+      features: ['Gradient hero', 'Service showcase', 'Expandable FAQs'],
+    },
+    {
+      id: 'neighbourhood-restaurant',
+      name: 'Neighbourhood restaurant',
+      category: 'Food & hospitality',
+      description:
+        'A warm restaurant website with generous food photography, a menu grid, and space for your story. Previewed with fictional branding and sample copy.',
+      previewTitle: 'Neighbourhood restaurant website template preview',
+      path: '/template-previews/en/restaurant',
+      standalonePreview: true,
+      features: ['Food photography', 'Menu showcase', 'Visit section'],
     },
   ],
 }

@@ -16,6 +16,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...templatePages,
+    ...['en', 'vi'].flatMap((locale) =>
+      ['agency', 'restaurant'].map((template) => ({
+        url: new URL(`/template-previews/${locale}/${template}`, SITE_URL).toString(),
+        alternates: {
+          languages: {
+            en: new URL(`/template-previews/en/${template}`, SITE_URL).toString(),
+            vi: new URL(`/template-previews/vi/${template}`, SITE_URL).toString(),
+          },
+        },
+      })),
+    ),
     {
       url: SITE_URL,
       lastModified: new Date(),

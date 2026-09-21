@@ -33,7 +33,9 @@ export function WebsiteTemplatesPageView({
       <div className="paper-grid bg-paper px-4 py-16 text-ink sm:px-6 lg:px-8 lg:py-24">
         <ul className="mx-auto grid max-w-7xl gap-12">
           {content.items.map((template) => {
-            const previewPath = `${routeBasePath}${template.path}`
+            const previewPath = template.standalonePreview
+              ? template.path
+              : `${routeBasePath}${template.path}`
             return (
               <li key={template.id}>
                 <article
