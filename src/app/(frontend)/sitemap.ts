@@ -2,7 +2,31 @@ import type { MetadataRoute } from 'next'
 import { SITE_URL } from '@/site-config'
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const templatePages: MetadataRoute.Sitemap = ['', '/en', '/vi'].map((basePath) => ({
+    url: new URL(`${basePath}/website-templates`, SITE_URL).toString(),
+    changeFrequency: 'monthly',
+    priority: 0.7,
+    alternates: {
+      languages: {
+        en: new URL('/en/website-templates', SITE_URL).toString(),
+        vi: new URL('/vi/website-templates', SITE_URL).toString(),
+      },
+    },
+  }))
+
   return [
+    ...templatePages,
+    ...['en', 'vi'].flatMap((locale) =>
+      ['agency', 'restaurant'].map((template) => ({
+        url: new URL(`/template-previews/${locale}/${template}`, SITE_URL).toString(),
+        alternates: {
+          languages: {
+            en: new URL(`/template-previews/en/${template}`, SITE_URL).toString(),
+            vi: new URL(`/template-previews/vi/${template}`, SITE_URL).toString(),
+          },
+        },
+      })),
+    ),
     {
       url: SITE_URL,
       lastModified: new Date(),

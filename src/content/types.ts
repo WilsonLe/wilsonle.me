@@ -28,6 +28,7 @@ export interface SiteSettings {
     now: string
     about: string
     resume: string
+    templates: string
     contact: string
     menuLabel: string
   }
@@ -181,4 +182,22 @@ export interface HomeContent {
   principles: Principles
   now: Now
   seo: PageSeo
+}
+
+export interface WebsiteTemplatesContent {
+  seo: PageSeo
+  eyebrow: string
+  heading: string
+  introduction: string
+  previewLabel: string
+  items: {
+    id: string
+    name: string
+    category: string
+    description: string
+    previewTitle: string
+    standalonePreview?: boolean
+    path: string
+    features: string[]
+  }[]
 }

@@ -28,6 +28,7 @@ export const siteSettings: SiteSettings = {
     now: 'Now',
     about: 'About',
     resume: 'Résumé',
+    templates: 'Website templates',
     contact: 'Contact',
     menuLabel: 'Toggle navigation',
   },

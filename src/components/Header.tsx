@@ -23,6 +23,7 @@ export function Header({ siteSettings }: HeaderProps) {
     { href: `${homepagePath}#now`, label: navigation.now },
     { href: `${homepagePath}#about`, label: navigation.about },
     { href: `${basePath}/resume`, label: navigation.resume, featured: true },
+    { href: `${basePath}/website-templates`, label: navigation.templates },
     { href: `${homepagePath}#contact`, label: navigation.contact },
   ]
 
@@ -42,7 +43,7 @@ export function Header({ siteSettings }: HeaderProps) {
             </span>
           </Link>
 
-          <div className="hidden items-center gap-5 md:flex lg:gap-7">
+          <div className="hidden items-center gap-5 lg:flex lg:gap-5 xl:gap-7">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -61,7 +62,7 @@ export function Header({ siteSettings }: HeaderProps) {
           <button
             type="button"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="grid h-11 w-11 place-items-center border border-rule text-paper-muted hover:border-paper-muted hover:text-paper md:hidden"
+            className="grid h-11 w-11 place-items-center border border-rule text-paper-muted hover:border-paper-muted hover:text-paper lg:hidden"
             aria-label={navigation.menuLabel}
             aria-expanded={isMenuOpen}
             aria-controls="mobile-navigation"
@@ -93,7 +94,7 @@ export function Header({ siteSettings }: HeaderProps) {
         </div>
 
         {isMenuOpen && (
-          <div id="mobile-navigation" className="border-t border-rule pb-5 pt-3 md:hidden">
+          <div id="mobile-navigation" className="border-t border-rule pb-5 pt-3 lg:hidden">
             <div className="grid grid-cols-2 gap-px bg-rule">
               {navLinks.map((link) => (
                 <Link
