@@ -65,7 +65,6 @@ export interface Project {
   visibility: string
   summary: string
   contribution: string
-  technologies: string[]
   url?: string
   linkLabel?: string
 }
@@ -76,7 +75,6 @@ export interface Projects {
   introduction: string
   productLabel: string
   contributionLabel: string
-  technologiesLabel: string
   items: Project[]
 }
 
@@ -109,12 +107,13 @@ export interface Experience {
   id: string
   title: string
   company: string
-  summary: string
+  employmentType: string
+  duration: string
+  summary?: string
   location?: string
   startDate: string
   endDate?: string
   current: boolean
-  highlights: string[]
 }
 
 export interface Education {
@@ -125,14 +124,6 @@ export interface Education {
   graduationDate: string
   gpa?: string
   coursework?: string[]
-}
-
-export interface SkillStack {
-  frontend: string[]
-  backend: string[]
-  cloud: string[]
-  languages: string[]
-  tools: string[]
 }
 
 export interface PageSeo {
@@ -149,12 +140,6 @@ export interface ResumeIntro {
 
 export interface ResumeLabels {
   experienceHeading: string
-  skillsHeading: string
-  toolsHeading: string
-  frontendHeading: string
-  backendHeading: string
-  cloudHeading: string
-  languagesHeading: string
   educationHeading: string
   presentLabel: string
   expectedGraduationLabel: string
@@ -170,7 +155,6 @@ export interface ResumeContent {
   labels: ResumeLabels
   experiences: Experience[]
   education: Education[]
-  skillStack: SkillStack
   seo: PageSeo
 }
 

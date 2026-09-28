@@ -84,26 +84,6 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                     </dt>
                     <dd className="leading-7 text-ink/75">{project.contribution}</dd>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-6">
-                    <dt className="font-label text-[0.68rem] font-bold uppercase tracking-[0.13em] text-ink/60">
-                      {projects.technologiesLabel}
-                    </dt>
-                    <dd className="min-w-0">
-                      <ul
-                        className="flex min-w-0 flex-wrap gap-2"
-                        aria-label={`${project.name}: ${projects.technologiesLabel}`}
-                      >
-                        {project.technologies.map((technology) => (
-                          <li
-                            key={technology}
-                            className="font-label max-w-full break-words border border-ink/25 bg-paper/70 px-2.5 py-1.5 text-[0.68rem] leading-4 text-ink"
-                          >
-                            {technology}
-                          </li>
-                        ))}
-                      </ul>
-                    </dd>
-                  </div>
                 </dl>
               </article>
             </li>

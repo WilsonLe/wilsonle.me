@@ -42,26 +42,35 @@ export function ExperienceSection({ experiences, heading, presentLabel }: Experi
             <article className="flex min-w-0 gap-3 py-4 sm:gap-4">
               <span
                 aria-hidden="true"
-                className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-[#edf1f6] text-sm font-semibold tracking-[-0.03em] text-[#364f70]"
+                className={`grid h-12 w-12 shrink-0 place-items-center rounded-md text-sm font-semibold tracking-[-0.03em] ${
+                  experience.company === 'Lyra'
+                    ? 'bg-gradient-to-br from-[#713cff] to-[#2257ff]'
+                    : 'bg-[#edf1f6] text-[#364f70]'
+                }`}
               >
-                {getInitials(experience.company)}
+                {experience.company === 'Lyra' ? null : getInitials(experience.company)}
               </span>
 
               <div className="min-w-0 text-sm leading-[1.45]">
                 <h2 className="font-semibold text-[#202124]">{experience.title}</h2>
-                <p className="text-[#33363a]">{experience.company}</p>
+                <p className="text-[#33363a]">
+                  {experience.company} · {experience.employmentType}
+                </p>
                 <p className="mt-0.5 text-[#686b70]">
                   {formatDate(experience.startDate)} –{' '}
                   {experience.current
                     ? presentLabel
                     : experience.endDate
                       ? formatDate(experience.endDate)
-                      : ''}
+                      : ''}{' '}
+                  · {experience.duration}
                 </p>
                 {experience.location ? (
                   <p className="mt-0.5 text-[#686b70]">{experience.location}</p>
                 ) : null}
-                <p className="mt-2 text-[#33363a]">{experience.summary}</p>
+                {experience.summary ? (
+                  <p className="mt-2 text-[#33363a]">{experience.summary}</p>
+                ) : null}
               </div>
             </article>
           </li>
