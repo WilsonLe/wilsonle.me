@@ -3,9 +3,8 @@ import { siteSettings } from '@/content/en/site'
 
 const hero: Hero = {
   identity: 'Wilson Le',
-  heading: 'I build the whole path from idea to reliable software.',
-  introduction:
-    "I'm a Brisbane-based software engineer working across product interfaces, backend systems, and the infrastructure that keeps them running.",
+  heading: 'I build software that people can use and teams can trust.',
+  introduction: 'I work at Lyra in Brisbane, building products close to real users.',
   workCta: 'Explore selected work',
   resumeCta: 'View résumé',
   skipToWorkLabel: 'Skip to selected work',
@@ -20,9 +19,8 @@ const about: About = {
     alt: 'Portrait of Wilson Le',
   },
   content: [
-    "I'm Wilson Le, a software engineer based in Brisbane, Queensland.",
-    "I'm happiest working across the whole product path—from the interface people use to the services, delivery pipelines, and monitoring that keep it dependable.",
-    'That range has taken me through language learning, robotics education, internal platforms, and infrastructure work. The common thread is making complex systems easier to ship, operate, and understand.',
+    "I'm Wilson Le, a forward deployed engineer based in Brisbane, Queensland.",
+    'I build useful products and keep them dependable after launch.',
   ],
 }
 
@@ -31,10 +29,9 @@ const projectItems: Project[] = [
     id: 'pangea-chat',
     name: 'Pangea Chat',
     visibility: 'Public product',
-    summary: 'A language-learning chat app where people practise while messaging friends.',
-    contribution:
-      'I owned frontend work on the product and built FastAPI services for its AI assistant and LLM workflows. I also set up delivery pipelines and the monitoring needed to run it in production.',
-    technologies: ['Frontend', 'FastAPI', 'Python', 'LLM workflows', 'CI/CD', 'Observability'],
+    summary:
+      'Friends practise new languages together through AI-powered conversations in Pangea Chat.',
+    contribution: 'I built the frontend, AI services, and delivery systems behind the product.',
     url: 'https://app.pangea.chat/',
     linkLabel: 'Open Pangea Chat',
   },
@@ -42,10 +39,8 @@ const projectItems: Project[] = [
     id: 'cyobot-robotics-quest',
     name: 'CYOBot Robotics Quest',
     visibility: 'Public product',
-    summary: 'A browser-based learning portal for coding and robotics.',
-    contribution:
-      'I led work on the core coding portal, implemented its CMS, and configured Keycloak SSO so authentication was managed consistently across the product.',
-    technologies: ['Full-stack development', 'CMS', 'Keycloak', 'SSO'],
+    summary: 'Students learn coding and robotics through a browser-based learning platform.',
+    contribution: 'I built its coding portal, content system, and shared sign-in flow.',
     url: 'https://dashboard.cyobot.com/',
     linkLabel: 'Open Robotics Quest',
   },
@@ -53,47 +48,41 @@ const projectItems: Project[] = [
     id: 'vulcan-internal-platform',
     name: 'Vulcan internal platform',
     visibility: 'Private internal system',
-    summary: 'An internal platform for managing content, access, and production operations.',
-    contribution:
-      "I built the CMS, OAuth2 login flows, and a custom admin interface for identity and access management. I also added telemetry, alerting, and on-call support. Because the system is internal, I don't publish its URL, screenshots, or operational data.",
-    technologies: ['CMS', 'OAuth2', 'Identity and access management', 'Observability'],
+    summary: 'An internal platform helped teams manage content, access, and production services.',
+    contribution: 'I built content and access workflows, then added monitoring for production.',
   },
 ]
 
 const projects: Projects = {
   eyebrow: 'Selected work',
   heading: 'Selected work, with context.',
-  introduction:
-    'Three products that show how I move between user experience, platform foundations, and the work of running software.',
+  introduction: 'Selected products show how I turn complex problems into useful software.',
   productLabel: 'The product',
   contributionLabel: 'My part',
-  technologiesLabel: 'Across the stack',
   items: projectItems,
 }
 
 const principles: Principles = {
   eyebrow: 'How I work',
   heading: 'The principles behind the build.',
-  introduction:
-    'The most useful engineering choices hold up across the interface, the deployment, and the day after launch.',
+  introduction: 'Good engineering choices survive deployment and the work that follows.',
   items: [
     {
       id: 'whole-path',
       title: 'Follow the whole path',
       description:
-        'The seams between interface, backend, delivery, and infrastructure shape the experience, so I work across them.',
+        'I follow problems from the first user interaction through delivery and operation.',
     },
     {
       id: 'built-to-run',
       title: 'Build it to run',
-      description:
-        'Releases, monitoring, and operating clarity are part of the product—not chores left for later.',
+      description: 'I plan for releases and monitoring while building the product itself.',
     },
     {
       id: 'leave-a-map',
       title: 'Leave a map',
       description:
-        'Documentation and shared workflows should make a system easier for the next person, including future me.',
+        'I leave clear documentation so teammates can understand and improve the system.',
     },
   ],
 }
@@ -114,8 +103,7 @@ const now: Now = {
     },
     {
       label: 'Focused on',
-      value:
-        'End-to-end products, dependable delivery, and the operating details that keep software useful.',
+      value: 'Building useful products and keeping them dependable after launch.',
     },
   ],
 }

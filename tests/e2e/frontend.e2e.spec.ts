@@ -29,11 +29,11 @@ test.describe('Frontend', () => {
   test('renders the default English homepage', async ({ page }) => {
     await page.goto('/')
 
-    await expect(page).toHaveTitle(/Wilson Le \| Software Engineer/)
+    await expect(page).toHaveTitle(/Wilson Le \| Forward Deployed Engineer/)
     await expect(page.locator('header').getByRole('link', { name: 'Wilson Le' })).toBeVisible()
     await expect(page.locator('main').getByText('Wilson Le', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'I build the whole path from idea to reliable software.',
+      'I build software that people can use and teams can trust.',
     )
     await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about')
     await expect(page.getByRole('link', { name: 'Work', exact: true })).toHaveAttribute(
@@ -59,7 +59,7 @@ test.describe('Frontend', () => {
     await expect(page.locator('#work').getByText('The product', { exact: true })).toHaveCount(3)
     await expect(page.locator('#work').getByText('My part', { exact: true })).toHaveCount(3)
     await expect(page.locator('#work').getByText('Across the stack', { exact: true })).toHaveCount(
-      3,
+      0,
     )
     await expect(
       page.getByRole('heading', { name: 'The principles behind the build.' }),
@@ -73,12 +73,11 @@ test.describe('Frontend', () => {
       'href',
       'https://app.pangea.chat/',
     )
-    await expect(page.getByText('I owned frontend work on the product')).toBeVisible()
+    await expect(
+      page.getByText('I built the frontend, AI services, and delivery systems behind the product.'),
+    ).toBeVisible()
     await expect(page.getByText('1,000+ requests per second')).toHaveCount(0)
     await expect(page.getByText('Vulcan internal platform')).toBeVisible()
-    await expect(
-      page.getByText("I don't publish its URL, screenshots, or operational data."),
-    ).toBeVisible()
     const privateProject = page
       .locator('#work article')
       .filter({ hasText: 'Vulcan internal platform' })
@@ -92,7 +91,7 @@ test.describe('Frontend', () => {
     await page.goto('/en')
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'I build the whole path from idea to reliable software.',
+      'I build software that people can use and teams can trust.',
     )
     await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/en#about')
     await expect(page.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
@@ -109,7 +108,7 @@ test.describe('Frontend', () => {
     await page.goto('/vi')
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'I build the whole path from idea to reliable software.',
+      'I build software that people can use and teams can trust.',
     )
     await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/vi#about')
     await expect(page.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
@@ -242,7 +241,11 @@ test.describe('Frontend', () => {
         portrait.evaluate((image) => image instanceof HTMLImageElement && image.naturalWidth),
       )
       .toBeGreaterThan(0)
-    await expect(page.locator('#about').getByText("I'm Wilson Le")).toBeVisible()
+    await expect(
+      page
+        .locator('#about')
+        .getByText("I'm Wilson Le, a forward deployed engineer based in Brisbane, Queensland."),
+    ).toBeVisible()
   })
 
   test('renders the compact default English résumé route', async ({ page }) => {
@@ -255,12 +258,21 @@ test.describe('Frontend', () => {
       'https://wilsonle.me/resume',
     )
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Experience')
-    await expect(page.locator('#experience article')).toHaveCount(7)
-    await expect(page.getByText('Pangea Chat', { exact: true })).toBeVisible()
-    await expect(page.getByText('DeerX', { exact: true })).toBeVisible()
-    await expect(
-      page.getByText('Product engineering across frontend, AI services, and operations.'),
-    ).toBeVisible()
+    await expect(page.locator('#experience article')).toHaveCount(4)
+    await expect(page.locator('#experience article').first()).toContainText(
+      'Forward Deployed Engineer',
+    )
+    await expect(page.locator('#experience article').first()).toContainText('Lyra · Full-time')
+    await expect(page.locator('#experience article').first()).toContainText(
+      'Sep 2026 – Present · 1 mo',
+    )
+    await expect(page.locator('#experience article').nth(1)).toContainText(
+      'Pangea Chat · Full-time',
+    )
+    await expect(page.getByText('AI-powered language learning via chat with friends')).toBeVisible()
+    await expect(page.getByText('Robotics learning platform')).toBeVisible()
+    await expect(page.getByText('Cloud application engineering team')).toBeVisible()
+    await expect(page.getByText('DeerX', { exact: true })).toHaveCount(0)
     await expect(page.locator('#education')).toHaveCount(0)
     await expect(page.locator('#skills')).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about')
