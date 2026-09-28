@@ -2,7 +2,7 @@ import type { About, Hero, HomeContent, Now, Principles, Project, Projects } fro
 import { siteSettings } from '@/content/en/site'
 
 const hero: Hero = {
-  identity: 'Anh Minh · Wilson online',
+  identity: 'Wilson Le',
   heading: 'I build the whole path from idea to reliable software.',
   introduction:
     "I'm a Brisbane-based software engineer working across product interfaces, backend systems, and the infrastructure that keeps them running.",
@@ -17,10 +17,10 @@ const about: About = {
   heading: 'About Me',
   portrait: {
     src: 'https://avatars.githubusercontent.com/u/43991506',
-    alt: 'Portrait of Anh Minh (Wilson)',
+    alt: 'Portrait of Wilson Le',
   },
   content: [
-    "Anh Minh is my name; Wilson is the name I use around the internet. I'm a software engineer based in Brisbane, Queensland.",
+    "I'm Wilson Le, a software engineer based in Brisbane, Queensland.",
     "I'm happiest working across the whole product path—from the interface people use to the services, delivery pipelines, and monitoring that keep it dependable.",
     'That range has taken me through language learning, robotics education, internal platforms, and infrastructure work. The common thread is making complex systems easier to ship, operate, and understand.',
   ],

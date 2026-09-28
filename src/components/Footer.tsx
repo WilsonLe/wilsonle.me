@@ -19,13 +19,7 @@ export function Footer({ siteSettings }: FooterProps) {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-8 border-b border-ink/20 pb-10 md:grid-cols-[1fr_auto] md:items-end">
           <div>
-            <Link href={basePath || '/'} className="group inline-flex items-center gap-3">
-              <span
-                aria-hidden="true"
-                className="font-label grid h-10 w-14 place-items-center bg-ink text-xs font-bold text-signal transition-transform group-hover:rotate-2"
-              >
-                AM/W
-              </span>
+            <Link href={basePath || '/'} className="inline-flex items-center">
               <span className="font-display text-3xl font-semibold">{siteSettings.name}</span>
             </Link>
             <p className="mt-4 max-w-md text-sm leading-6 text-ink/70">

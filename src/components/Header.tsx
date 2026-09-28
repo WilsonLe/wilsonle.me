@@ -31,16 +31,11 @@ export function Header({ siteSettings }: HeaderProps) {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-rule bg-ink text-paper">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between gap-6">
-          <Link href={homepagePath} className="group flex shrink-0 items-center gap-3">
-            <span
-              aria-hidden="true"
-              className="font-label grid h-9 w-12 place-items-center bg-signal text-xs font-bold tracking-tight text-ink transition-transform group-hover:-rotate-2"
-            >
-              AM/W
-            </span>
-            <span className="hidden text-sm font-semibold tracking-wide text-paper sm:inline">
-              {siteSettings.name}
-            </span>
+          <Link
+            href={homepagePath}
+            className="shrink-0 text-base font-semibold tracking-[-0.02em] text-paper transition-colors hover:text-signal"
+          >
+            {siteSettings.name}
           </Link>
 
           <div className="hidden items-center gap-5 lg:flex lg:gap-5 xl:gap-7">

@@ -1,6 +1,6 @@
 # wilsonle.me
 
-Personal portfolio and blog for Minh (Wilson) Le. Built with Next.js 15,
+Personal portfolio and blog for Wilson Le. Built with Next.js 15,
 Payload CMS 3, and Tailwind CSS v4.
 
 Production: <https://wilsonle.me>

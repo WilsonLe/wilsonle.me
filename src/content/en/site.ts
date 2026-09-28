@@ -1,8 +1,7 @@
 import type { SiteSettings } from '@/content/types'
 
 export const siteSettings: SiteSettings = {
-  name: 'Anh Minh',
-  alternateName: 'Wilson',
+  name: 'Wilson Le',
   title: 'Software Engineer',
   tagline: 'I build software systems',
   location: 'Brisbane, Queensland',
@@ -18,7 +17,7 @@ export const siteSettings: SiteSettings = {
     twitter: 'X',
   },
   seo: {
-    metaTitle: 'Anh Minh | Software Engineer',
+    metaTitle: 'Wilson Le | Software Engineer',
     metaDescription:
       'Software engineer building end-to-end products from user experience to infrastructure across startups, freelance projects, and production-scale systems.',
   },
