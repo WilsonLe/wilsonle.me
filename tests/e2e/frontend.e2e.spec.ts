@@ -29,8 +29,9 @@ test.describe('Frontend', () => {
   test('renders the default English homepage', async ({ page }) => {
     await page.goto('/')
 
-    await expect(page).toHaveTitle(/Anh Minh \| Software Engineer/)
-    await expect(page.getByText('Anh Minh · Wilson online', { exact: true })).toBeVisible()
+    await expect(page).toHaveTitle(/Wilson Le \| Software Engineer/)
+    await expect(page.locator('header').getByRole('link', { name: 'Wilson Le' })).toBeVisible()
+    await expect(page.locator('main').getByText('Wilson Le', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'I build the whole path from idea to reliable software.',
     )
@@ -117,7 +118,7 @@ test.describe('Frontend', () => {
     )
   })
 
-  test('exposes Wilson as an alternate name in Person structured data', async ({ page }) => {
+  test('uses Wilson Le in Person structured data', async ({ page }) => {
     await page.goto('/')
 
     const jsonText = await page.locator('script[type="application/ld+json"]').textContent()
@@ -125,8 +126,8 @@ test.describe('Frontend', () => {
 
     const person = JSON.parse(jsonText!) as Record<string, unknown>
     expect(person['@type']).toBe('Person')
-    expect(person.name).toBe('Anh Minh')
-    expect(person.alternateName).toBe('Wilson')
+    expect(person.name).toBe('Wilson Le')
+    expect(person.alternateName).toBeUndefined()
   })
 
   test('keeps the responsive layouts within the viewport and anchor targets below the header', async ({
@@ -233,7 +234,7 @@ test.describe('Frontend', () => {
   test('loads the portrait without blocking the personal introduction', async ({ page }) => {
     await page.goto('/')
 
-    const portrait = page.getByAltText('Portrait of Anh Minh (Wilson)')
+    const portrait = page.getByAltText('Portrait of Wilson Le')
     await portrait.scrollIntoViewIfNeeded()
     await expect(portrait).toBeVisible()
     await expect
@@ -241,31 +242,27 @@ test.describe('Frontend', () => {
         portrait.evaluate((image) => image instanceof HTMLImageElement && image.naturalWidth),
       )
       .toBeGreaterThan(0)
-    await expect(page.locator('#about').getByText('Anh Minh is my name')).toBeVisible()
+    await expect(page.locator('#about').getByText("I'm Wilson Le")).toBeVisible()
   })
 
-  test('renders the complete default English résumé route', async ({ page }) => {
+  test('renders the compact default English résumé route', async ({ page }) => {
     await page.goto('/resume')
 
-    await expect(page).toHaveTitle('Résumé | Anh Minh')
+    await expect(page).toHaveTitle('Résumé | Wilson Le')
     await expect(page.locator('html')).toHaveAttribute('lang', 'en')
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
       'https://wilsonle.me/resume',
     )
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'Experience, skills, and education.',
-    )
-    await expect(page.locator('#experience h3')).toHaveCount(7)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Experience')
+    await expect(page.locator('#experience article')).toHaveCount(7)
     await expect(page.getByText('Pangea Chat', { exact: true })).toBeVisible()
     await expect(page.getByText('DeerX', { exact: true })).toBeVisible()
-    await expect(page.locator('#education h3')).toHaveCount(2)
-    await expect(page.getByText('University of Southern Queensland', { exact: true })).toBeVisible()
     await expect(
-      page.locator('#education').getByText('Denison University', { exact: true }),
+      page.getByText('Product engineering across frontend, AI services, and operations.'),
     ).toBeVisible()
-    await expect(page.locator('#education').getByText('3.52/4.00')).toBeVisible()
-    await expect(page.getByText('LangGraph', { exact: true })).toBeVisible()
+    await expect(page.locator('#education')).toHaveCount(0)
+    await expect(page.locator('#skills')).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about')
     await expect(page.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
       'href',
@@ -292,9 +289,7 @@ test.describe('Frontend', () => {
       'href',
       'https://wilsonle.me/vi/resume',
     )
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'Experience, skills, and education.',
-    )
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Experience')
     await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/vi#about')
     await expect(page.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
       'href',
@@ -354,7 +349,7 @@ test.describe('Frontend', () => {
         await page.goto(route.path)
 
         if (route.name === 'home') {
-          const portrait = page.getByAltText('Portrait of Anh Minh (Wilson)')
+          const portrait = page.getByAltText('Portrait of Wilson Le')
           await portrait.scrollIntoViewIfNeeded()
           await expect
             .poll(() =>

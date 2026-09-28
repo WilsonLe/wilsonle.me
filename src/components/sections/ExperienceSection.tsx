@@ -11,6 +11,16 @@ function formatDate(dateString: string): string {
   return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' })
 }
 
+function getInitials(company: string): string {
+  return company
+    .split(/\s+/)
+    .filter((word) => !['inc.', 'international', 'investment'].includes(word.toLowerCase()))
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase()
+}
+
 export function ExperienceSection({ experiences, heading, presentLabel }: ExperienceSectionProps) {
   if (experiences.length === 0) {
     return null
@@ -19,75 +29,44 @@ export function ExperienceSection({ experiences, heading, presentLabel }: Experi
   return (
     <section
       id="experience"
-      className="paper-grid bg-paper px-4 py-24 text-ink sm:px-6 lg:px-8 lg:py-32"
+      className="mx-auto max-w-[660px] rounded-xl border border-[#dededb] bg-white px-5 py-6 shadow-[0_1px_2px_rgba(0,0,0,0.02)] sm:px-6"
       aria-labelledby="experience-heading"
     >
-      <div className="mx-auto max-w-7xl">
-        <div className="flex items-end justify-between gap-8 border-b border-ink pb-8">
-          <h2
-            id="experience-heading"
-            className="font-display text-5xl font-medium leading-none tracking-[-0.04em] sm:text-7xl"
-          >
-            {heading}
-          </h2>
-          <span
-            aria-hidden="true"
-            className="font-label hidden text-xs font-bold tracking-[0.14em] text-signal-deep sm:block"
-          >
-            R01
-          </span>
-        </div>
+      <h1 id="experience-heading" className="text-lg font-semibold tracking-[-0.02em]">
+        {heading}
+      </h1>
 
-        <ol>
-          {experiences.map((experience, index) => (
-            <li key={experience.id} className="border-b border-ink/40">
-              <article className="grid min-w-0 gap-5 py-9 lg:grid-cols-[3rem_13rem_minmax(0,1fr)] lg:gap-8 lg:py-12">
-                <span
-                  aria-hidden="true"
-                  className="font-label text-xs font-bold tracking-[0.12em] text-signal-deep"
-                >
-                  {String(index + 1).padStart(2, '0')}
-                </span>
+      <ol className="mt-5">
+        {experiences.map((experience) => (
+          <li key={experience.id} className="border-b border-[#e5e5e3] last:border-b-0">
+            <article className="flex min-w-0 gap-3 py-4 sm:gap-4">
+              <span
+                aria-hidden="true"
+                className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-[#edf1f6] text-sm font-semibold tracking-[-0.03em] text-[#364f70]"
+              >
+                {getInitials(experience.company)}
+              </span>
 
-                <div className="font-label min-w-0 text-[0.68rem] uppercase leading-5 tracking-[0.1em] text-ink/65">
-                  <p>
-                    {formatDate(experience.startDate)} –{' '}
-                    {experience.current
-                      ? presentLabel
-                      : experience.endDate
-                        ? formatDate(experience.endDate)
-                        : ''}
-                  </p>
-                  {experience.location ? <p className="mt-2">{experience.location}</p> : null}
-                </div>
-
-                <div className="min-w-0">
-                  <h3 className="font-display break-words text-3xl font-medium leading-tight sm:text-4xl">
-                    {experience.title}
-                  </h3>
-                  <p className="mt-2 text-base font-semibold text-blueprint-deep">
-                    {experience.company}
-                  </p>
-
-                  <ul className="mt-7 space-y-3">
-                    {experience.highlights.map((highlight) => (
-                      <li
-                        key={highlight}
-                        className="flex min-w-0 items-start gap-3 text-sm leading-7 text-ink/75"
-                      >
-                        <span className="shrink-0 text-signal-deep" aria-hidden="true">
-                          →
-                        </span>
-                        <span className="min-w-0">{highlight}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </article>
-            </li>
-          ))}
-        </ol>
-      </div>
+              <div className="min-w-0 text-sm leading-[1.45]">
+                <h2 className="font-semibold text-[#202124]">{experience.title}</h2>
+                <p className="text-[#33363a]">{experience.company}</p>
+                <p className="mt-0.5 text-[#686b70]">
+                  {formatDate(experience.startDate)} –{' '}
+                  {experience.current
+                    ? presentLabel
+                    : experience.endDate
+                      ? formatDate(experience.endDate)
+                      : ''}
+                </p>
+                {experience.location ? (
+                  <p className="mt-0.5 text-[#686b70]">{experience.location}</p>
+                ) : null}
+                <p className="mt-2 text-[#33363a]">{experience.summary}</p>
+              </div>
+            </article>
+          </li>
+        ))}
+      </ol>
     </section>
   )
 }

@@ -109,6 +109,7 @@ export interface Experience {
   id: string
   title: string
   company: string
+  summary: string
   location?: string
   startDate: string
   endDate?: string
