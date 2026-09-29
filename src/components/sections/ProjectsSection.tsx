@@ -16,23 +16,12 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       aria-labelledby="work-heading"
     >
       <div className="mx-auto max-w-7xl">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-20">
-          <div>
-            <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-signal-deep">
-              <span aria-hidden="true">02 / </span>
-              {projects.eyebrow}
-            </p>
-            <h2
-              id="work-heading"
-              className="font-display mt-5 max-w-xl text-4xl font-medium leading-[0.95] tracking-[-0.035em] sm:text-5xl lg:text-7xl"
-            >
-              {projects.heading}
-            </h2>
-          </div>
-          <p className="max-w-2xl self-end text-lg leading-8 text-ink/75">
-            {projects.introduction}
-          </p>
-        </div>
+        <h2
+          id="work-heading"
+          className="font-display text-4xl font-medium leading-[0.95] tracking-[-0.035em] sm:text-5xl lg:text-7xl"
+        >
+          {projects.heading}
+        </h2>
 
         <ol className="mt-16 border-t border-ink lg:mt-20">
           {projects.items.map((project, index) => (

@@ -29,11 +29,11 @@ test.describe('Frontend', () => {
   test('renders the default English homepage', async ({ page }) => {
     await page.goto('/')
 
-    await expect(page).toHaveTitle(/Wilson Le \| Forward Deployed Engineer/)
+    await expect(page).toHaveTitle('Wilson Le | Forward Deployed Engineer at Lyra')
     await expect(page.locator('header').getByRole('link', { name: 'Wilson Le' })).toBeVisible()
     await expect(page.locator('main').getByText('Wilson Le', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'I build software that people can use and teams can trust.',
+      'Forward Deployed Engineer at Lyra',
     )
     await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about')
     await expect(page.getByRole('link', { name: 'Work', exact: true })).toHaveAttribute(
@@ -54,7 +54,7 @@ test.describe('Frontend', () => {
       '/#work',
     )
     await expect(page.getByRole('link', { name: 'View résumé' })).toHaveAttribute('href', '/resume')
-    await expect(page.getByRole('heading', { name: 'Selected work, with context.' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Selected work' })).toBeVisible()
     await expect(page.locator('#work article')).toHaveCount(3)
     await expect(page.locator('#work').getByText('The product', { exact: true })).toHaveCount(3)
     await expect(page.locator('#work').getByText('My part', { exact: true })).toHaveCount(3)
@@ -91,7 +91,7 @@ test.describe('Frontend', () => {
     await page.goto('/en')
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'I build software that people can use and teams can trust.',
+      'Forward Deployed Engineer at Lyra',
     )
     await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/en#about')
     await expect(page.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
@@ -108,7 +108,7 @@ test.describe('Frontend', () => {
     await page.goto('/vi')
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'I build software that people can use and teams can trust.',
+      'Forward Deployed Engineer at Lyra',
     )
     await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/vi#about')
     await expect(page.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(

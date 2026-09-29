@@ -2,7 +2,7 @@ import type { SiteSettings } from '@/content/types'
 
 export const siteSettings: SiteSettings = {
   name: 'Wilson Le',
-  title: 'Forward Deployed Engineer',
+  title: 'Forward Deployed Engineer at Lyra',
   tagline: 'I build software systems',
   location: 'Brisbane, Queensland',
   email: 'minhle02.work@gmail.com',
@@ -17,7 +17,7 @@ export const siteSettings: SiteSettings = {
     twitter: 'X',
   },
   seo: {
-    metaTitle: 'Wilson Le | Forward Deployed Engineer',
+    metaTitle: 'Wilson Le | Forward Deployed Engineer at Lyra',
     metaDescription:
       'Forward deployed engineer building useful products and keeping them dependable after launch.',
   },
