@@ -117,6 +117,39 @@ test.describe('Frontend', () => {
     )
   })
 
+  test('keeps website templates in footer navigation across locales', async ({ page }) => {
+    for (const [homePath, templatesPath] of [
+      ['/', '/website-templates'],
+      ['/en', '/en/website-templates'],
+      ['/vi', '/vi/website-templates'],
+    ]) {
+      await page.goto(homePath)
+
+      await expect(
+        page.locator('header').getByRole('link', { name: 'Website templates' }),
+      ).toHaveCount(0)
+
+      const templatesLink = page
+        .locator('footer')
+        .getByRole('navigation', { name: 'Navigation' })
+        .getByRole('link', { name: 'Website templates' })
+      await expect(templatesLink).toHaveAttribute('href', templatesPath)
+      await templatesLink.click()
+      await expect(page).toHaveURL(new RegExp(`${templatesPath}$`))
+      await expect(page.getByRole('heading', { level: 1, name: 'Website templates' })).toBeVisible()
+    }
+
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Toggle navigation' }).click()
+    await expect(
+      page.locator('#mobile-navigation').getByRole('link', { name: 'Website templates' }),
+    ).toHaveCount(0)
+    await expect(
+      page.locator('footer').getByRole('link', { name: 'Website templates' }),
+    ).toBeVisible()
+  })
+
   test('uses Wilson Le in Person structured data', async ({ page }) => {
     await page.goto('/')
 

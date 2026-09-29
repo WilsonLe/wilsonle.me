@@ -23,7 +23,6 @@ export function Header({ siteSettings }: HeaderProps) {
     { href: `${homepagePath}#now`, label: navigation.now },
     { href: `${homepagePath}#about`, label: navigation.about },
     { href: `${basePath}/resume`, label: navigation.resume, featured: true },
-    { href: `${basePath}/website-templates`, label: navigation.templates },
     { href: `${homepagePath}#contact`, label: navigation.contact },
   ]
 
