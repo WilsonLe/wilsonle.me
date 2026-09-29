@@ -31,6 +31,7 @@ export interface SiteSettings {
     templates: string
     contact: string
     menuLabel: string
+    footerLabel: string
   }
   contact: {
     eyebrow: string

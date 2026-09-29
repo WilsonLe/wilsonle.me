@@ -30,6 +30,7 @@ export const siteSettings: SiteSettings = {
     templates: 'Website templates',
     contact: 'Contact',
     menuLabel: 'Toggle navigation',
+    footerLabel: 'Navigation',
   },
   contact: {
     eyebrow: 'Contact',
