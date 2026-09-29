@@ -29,23 +29,27 @@ test.describe('Frontend', () => {
   test('renders the default English homepage', async ({ page }) => {
     await page.goto('/')
 
+    const header = page.getByRole('banner')
     await expect(page).toHaveTitle('Wilson Le | Forward Deployed Engineer at Lyra')
-    await expect(page.locator('header').getByRole('link', { name: 'Wilson Le' })).toBeVisible()
+    await expect(header.getByRole('link', { name: 'Wilson Le' })).toBeVisible()
     await expect(page.locator('main').getByText('Wilson Le', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Forward Deployed Engineer at Lyra',
     )
-    await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about')
-    await expect(page.getByRole('link', { name: 'Work', exact: true })).toHaveAttribute(
+    await expect(header.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about')
+    await expect(header.getByRole('link', { name: 'Work', exact: true })).toHaveAttribute(
       'href',
       '/#work',
     )
-    await expect(page.getByRole('link', { name: 'Approach' })).toHaveAttribute('href', '/#approach')
-    await expect(page.getByRole('link', { name: 'Now', exact: true })).toHaveAttribute(
+    await expect(header.getByRole('link', { name: 'Approach' })).toHaveAttribute(
+      'href',
+      '/#approach',
+    )
+    await expect(header.getByRole('link', { name: 'Now', exact: true })).toHaveAttribute(
       'href',
       '/#now',
     )
-    await expect(page.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
+    await expect(header.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
       'href',
       '/resume',
     )
@@ -62,13 +66,18 @@ test.describe('Frontend', () => {
       0,
     )
     await expect(
-      page.getByRole('heading', { name: 'The principles behind the build.' }),
+      page.getByRole('heading', { name: 'The SDLC, with faster feedback.' }),
     ).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Currently in Brisbane.' })).toBeVisible()
     await expect(page.getByText('Updated September 2026', { exact: true })).toBeVisible()
-    await expect(page.getByText('Follow the whole path', { exact: true })).toBeVisible()
-    await expect(page.getByText('Build it to run', { exact: true })).toBeVisible()
-    await expect(page.getByText('Leave a map', { exact: true })).toBeVisible()
+    await expect(page.getByText('Understand and design', { exact: true })).toBeVisible()
+    await expect(page.getByText('Build and test', { exact: true })).toBeVisible()
+    await expect(page.getByText('Release and learn', { exact: true })).toBeVisible()
+    await expect(
+      page.getByRole('link', {
+        name: 'SDLC source: W. W. Royce, Managing the Development of Large Software Systems (1970)',
+      }),
+    ).toHaveAttribute('href', 'https://cse.msu.edu/~cse435/Homework/HW3/royce1970.pdf')
     await expect(page.getByRole('link', { name: 'Open Pangea Chat' })).toHaveAttribute(
       'href',
       'https://app.pangea.chat/',
@@ -93,11 +102,13 @@ test.describe('Frontend', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Forward Deployed Engineer at Lyra',
     )
-    await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/en#about')
-    await expect(page.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
+    await expect(page.getByRole('banner').getByRole('link', { name: 'About' })).toHaveAttribute(
       'href',
-      '/en/resume',
+      '/en#about',
     )
+    await expect(
+      page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
+    ).toHaveAttribute('href', '/en/resume')
     await expect(page.getByRole('link', { name: 'View résumé' })).toHaveAttribute(
       'href',
       '/en/resume',
@@ -110,11 +121,13 @@ test.describe('Frontend', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Forward Deployed Engineer at Lyra',
     )
-    await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/vi#about')
-    await expect(page.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
+    await expect(page.getByRole('banner').getByRole('link', { name: 'About' })).toHaveAttribute(
       'href',
-      '/vi/resume',
+      '/vi#about',
     )
+    await expect(
+      page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
+    ).toHaveAttribute('href', '/vi/resume')
   })
 
   test('keeps website templates in footer navigation across locales', async ({ page }) => {
@@ -269,6 +282,8 @@ test.describe('Frontend', () => {
     const portrait = page.getByAltText('Portrait of Wilson Le')
     await portrait.scrollIntoViewIfNeeded()
     await expect(portrait).toBeVisible()
+    await expect(portrait).toHaveAttribute('src', /wilson-portrait\.jpg/)
+    await expect(portrait).not.toHaveClass(/grayscale/)
     await expect
       .poll(() =>
         portrait.evaluate((image) => image instanceof HTMLImageElement && image.naturalWidth),
@@ -308,11 +323,13 @@ test.describe('Frontend', () => {
     await expect(page.getByText('DeerX', { exact: true })).toHaveCount(0)
     await expect(page.locator('#education')).toHaveCount(0)
     await expect(page.locator('#skills')).toHaveCount(0)
-    await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about')
-    await expect(page.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
+    await expect(page.getByRole('banner').getByRole('link', { name: 'About' })).toHaveAttribute(
       'href',
-      '/resume',
+      '/#about',
     )
+    await expect(
+      page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
+    ).toHaveAttribute('href', '/resume')
   })
 
   test('renders explicit localized résumé routes', async ({ page }) => {
@@ -322,11 +339,13 @@ test.describe('Frontend', () => {
       'href',
       'https://wilsonle.me/resume',
     )
-    await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/en#about')
-    await expect(page.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
+    await expect(page.getByRole('banner').getByRole('link', { name: 'About' })).toHaveAttribute(
       'href',
-      '/en/resume',
+      '/en#about',
     )
+    await expect(
+      page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
+    ).toHaveAttribute('href', '/en/resume')
 
     await page.goto('/vi/resume')
     await expect(page.locator('html')).toHaveAttribute('lang', 'vi')
@@ -335,11 +354,13 @@ test.describe('Frontend', () => {
       'https://wilsonle.me/vi/resume',
     )
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Experience')
-    await expect(page.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/vi#about')
-    await expect(page.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
+    await expect(page.getByRole('banner').getByRole('link', { name: 'About' })).toHaveAttribute(
       'href',
-      '/vi/resume',
+      '/vi#about',
     )
+    await expect(
+      page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
+    ).toHaveAttribute('href', '/vi/resume')
   })
 
   test('lists localized résumé routes in the sitemap', async ({ request }) => {

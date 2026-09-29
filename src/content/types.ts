@@ -87,6 +87,10 @@ export interface Principles {
   heading: string
   introduction: string
   items: Principle[]
+  source: {
+    label: string
+    url: string
+  }
 }
 
 export interface NowItem {

@@ -51,6 +51,16 @@ export function PrinciplesSection({ principles }: PrinciplesSectionProps) {
             </li>
           ))}
         </ol>
+        <p className="mt-6 text-sm text-paper-muted">
+          <a
+            href={principles.source.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline decoration-blueprint underline-offset-4 hover:text-paper focus-visible:text-paper"
+          >
+            {principles.source.label}
+          </a>
+        </p>
       </div>
     </section>
   )
