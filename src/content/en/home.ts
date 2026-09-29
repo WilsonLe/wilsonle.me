@@ -61,27 +61,43 @@ const projects: Projects = {
 
 const principles: Principles = {
   eyebrow: 'How I work',
-  heading: 'The SDLC, with faster feedback.',
-  introduction:
-    'I follow the software development life cycle: understand client needs, design, build, test, release, and learn. AI agents help me move through each iteration faster so I can adapt as those needs change.',
-  items: [
+  heading: 'Build. Learn. Repeat.',
+  chartLabel: 'Software development life cycle',
+  agentLabel: 'AI agents',
+  agentDetail: 'Faster iterations',
+  iterationLabel: 'Iteration',
+  nextLabel: 'Next stage',
+  feedbackLabel: 'New client need',
+  stages: [
     {
-      id: 'understand-design',
-      title: 'Understand and design',
-      description:
-        'I clarify the client’s goals, define the problem, and shape a practical plan before building.',
+      id: 'understand',
+      label: 'Understand',
+      detail: 'Define the client’s goal.',
     },
     {
-      id: 'build-test',
-      title: 'Build and test',
-      description:
-        'I use agents to speed up implementation and testing, then review the results against the goal.',
+      id: 'design',
+      label: 'Design',
+      detail: 'Map a workable solution.',
     },
     {
-      id: 'release-learn',
-      title: 'Release and learn',
-      description:
-        'I release, observe how the product works in practice, gather feedback, and start the next iteration.',
+      id: 'build',
+      label: 'Build',
+      detail: 'Build with agent support.',
+    },
+    {
+      id: 'test',
+      label: 'Test',
+      detail: 'Verify the result.',
+    },
+    {
+      id: 'release',
+      label: 'Release',
+      detail: 'Ship and observe.',
+    },
+    {
+      id: 'learn',
+      label: 'Learn',
+      detail: 'Turn feedback into the next pass.',
     },
   ],
   source: {

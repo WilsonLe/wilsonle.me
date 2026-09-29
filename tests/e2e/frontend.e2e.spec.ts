@@ -65,14 +65,12 @@ test.describe('Frontend', () => {
     await expect(page.locator('#work').getByText('Across the stack', { exact: true })).toHaveCount(
       0,
     )
-    await expect(
-      page.getByRole('heading', { name: 'The SDLC, with faster feedback.' }),
-    ).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Build. Learn. Repeat.' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Currently in Brisbane.' })).toBeVisible()
     await expect(page.getByText('Updated September 2026', { exact: true })).toBeVisible()
-    await expect(page.getByText('Understand and design', { exact: true })).toBeVisible()
-    await expect(page.getByText('Build and test', { exact: true })).toBeVisible()
-    await expect(page.getByText('Release and learn', { exact: true })).toBeVisible()
+    await expect(
+      page.getByRole('group', { name: 'Software development life cycle' }).getByRole('button'),
+    ).toHaveCount(6)
     await expect(
       page.getByRole('link', {
         name: 'SDLC source: W. W. Royce, Managing the Development of Large Software Systems (1970)',
@@ -94,6 +92,40 @@ test.describe('Frontend', () => {
     await expect(page.getByRole('heading', { name: 'Experience', exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Tech Stack', exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Education', exact: true })).toHaveCount(0)
+  })
+
+  test('moves around the SDLC loop and restarts when client needs change', async ({ page }) => {
+    await page.goto('/')
+
+    const chart = page.getByRole('group', { name: 'Software development life cycle' })
+    const understand = chart.getByRole('button', { name: '01 Understand' })
+    await expect(understand).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByText('Iteration 01')).toBeVisible()
+
+    await page.getByRole('button', { name: 'Next stage' }).click()
+    await expect(chart.getByRole('button', { name: '02 Design' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+
+    await chart.getByRole('button', { name: '03 Build' }).click()
+    await expect(page.getByText('Build with agent support.')).toBeVisible()
+
+    await chart.getByRole('button', { name: '04 Test' }).focus()
+    await page.keyboard.press('Enter')
+    await expect(chart.getByRole('button', { name: '04 Test' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+
+    await page.getByRole('button', { name: 'New client need' }).click()
+    await expect(understand).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByText('Iteration 02')).toBeVisible()
+
+    await chart.getByRole('button', { name: '06 Learn' }).click()
+    await page.getByRole('button', { name: 'Next stage' }).click()
+    await expect(understand).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByText('Iteration 03')).toBeVisible()
   })
 
   test('renders the explicit English locale route', async ({ page }) => {

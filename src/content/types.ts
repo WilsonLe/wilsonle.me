@@ -76,17 +76,22 @@ export interface Projects {
   items: Project[]
 }
 
-export interface Principle {
+export interface CycleStage {
   id: string
-  title: string
-  description: string
+  label: string
+  detail: string
 }
 
 export interface Principles {
   eyebrow: string
   heading: string
-  introduction: string
-  items: Principle[]
+  chartLabel: string
+  agentLabel: string
+  agentDetail: string
+  iterationLabel: string
+  nextLabel: string
+  feedbackLabel: string
+  stages: CycleStage[]
   source: {
     label: string
     url: string
