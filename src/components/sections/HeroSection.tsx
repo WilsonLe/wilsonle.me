@@ -53,10 +53,6 @@ export function HeroSection({ basePath, hero, siteSettings }: HeroSectionProps) 
             >
               {hero.heading}
             </h1>
-            <p className="mt-8 max-w-2xl text-base leading-7 text-paper-muted sm:text-lg sm:leading-8">
-              {hero.introduction}
-            </p>
-
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link
                 href={`${homepagePath}#work`}

@@ -3,8 +3,7 @@ import { siteSettings } from '@/content/en/site'
 
 const hero: Hero = {
   identity: 'Wilson Le',
-  heading: 'I build software that people can use and teams can trust.',
-  introduction: 'I work at Lyra in Brisbane, building products close to real users.',
+  heading: 'Forward Deployed Engineer at Lyra',
   workCta: 'Explore selected work',
   resumeCta: 'View résumé',
   skipToWorkLabel: 'Skip to selected work',
@@ -54,9 +53,7 @@ const projectItems: Project[] = [
 ]
 
 const projects: Projects = {
-  eyebrow: 'Selected work',
-  heading: 'Selected work, with context.',
-  introduction: 'Selected products show how I turn complex problems into useful software.',
+  heading: 'Selected work',
   productLabel: 'The product',
   contributionLabel: 'My part',
   items: projectItems,

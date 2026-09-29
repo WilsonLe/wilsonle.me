@@ -42,7 +42,6 @@ export interface SiteSettings {
 export interface Hero {
   identity: string
   heading: string
-  introduction: string
   workCta: string
   resumeCta: string
   skipToWorkLabel: string
@@ -70,9 +69,7 @@ export interface Project {
 }
 
 export interface Projects {
-  eyebrow: string
   heading: string
-  introduction: string
   productLabel: string
   contributionLabel: string
   items: Project[]
