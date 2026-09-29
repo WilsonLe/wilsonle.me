@@ -14,7 +14,7 @@ const hero: Hero = {
 const about: About = {
   heading: 'About Me',
   portrait: {
-    src: 'https://avatars.githubusercontent.com/u/43991506',
+    src: '/images/wilson-portrait.jpg',
     alt: 'Portrait of Wilson Le',
   },
   content: [
@@ -61,27 +61,49 @@ const projects: Projects = {
 
 const principles: Principles = {
   eyebrow: 'How I work',
-  heading: 'The principles behind the build.',
-  introduction: 'Good engineering choices survive deployment and the work that follows.',
-  items: [
+  heading: 'Build. Learn. Repeat.',
+  chartLabel: 'Software development life cycle',
+  agentLabel: 'AI agents',
+  agentDetail: 'Faster iterations',
+  iterationLabel: 'Iteration',
+  nextLabel: 'Next stage',
+  feedbackLabel: 'New client need',
+  stages: [
     {
-      id: 'whole-path',
-      title: 'Follow the whole path',
-      description:
-        'I follow problems from the first user interaction through delivery and operation.',
+      id: 'understand',
+      label: 'Understand',
+      detail: 'Define the client’s goal.',
     },
     {
-      id: 'built-to-run',
-      title: 'Build it to run',
-      description: 'I plan for releases and monitoring while building the product itself.',
+      id: 'design',
+      label: 'Design',
+      detail: 'Map a workable solution.',
     },
     {
-      id: 'leave-a-map',
-      title: 'Leave a map',
-      description:
-        'I leave clear documentation so teammates can understand and improve the system.',
+      id: 'build',
+      label: 'Build',
+      detail: 'Build with agent support.',
+    },
+    {
+      id: 'test',
+      label: 'Test',
+      detail: 'Verify the result.',
+    },
+    {
+      id: 'release',
+      label: 'Release',
+      detail: 'Ship and observe.',
+    },
+    {
+      id: 'learn',
+      label: 'Learn',
+      detail: 'Turn feedback into the next pass.',
     },
   ],
+  source: {
+    label: 'SDLC source: W. W. Royce, Managing the Development of Large Software Systems (1970)',
+    url: 'https://cse.msu.edu/~cse435/Homework/HW3/royce1970.pdf',
+  },
 }
 
 const now: Now = {

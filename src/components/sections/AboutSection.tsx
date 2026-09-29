@@ -24,7 +24,7 @@ export function AboutSection({ about }: AboutSectionProps) {
             width={640}
             height={640}
             sizes="(min-width: 1024px) 32rem, calc(100vw - 3rem)"
-            className="relative aspect-square h-auto w-full border border-ink object-cover grayscale"
+            className="relative aspect-square h-auto w-full border border-ink object-cover"
           />
         </div>
 
