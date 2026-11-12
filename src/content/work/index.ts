@@ -225,4 +225,100 @@ export const works: Work[] = [
       'Centralised sign-in with Keycloak SSO.',
     ],
   },
+  {
+    slug: 'localcut',
+    projectId: 'localcut',
+    name: 'LocalCut',
+    summary: 'A video editor, right in the browser.',
+    tone: 'sand',
+    contributions: [
+      'Built the local media engine and timeline editor.',
+      'Added text animation, compositing and video export.',
+      'Exposed editing tools to external agents through WebMCP.',
+    ],
+    screens: [
+      {
+        id: 'timeline',
+        title: 'From media to a finished sequence.',
+        image: {
+          src: '/work/screenshots/localcut-editor.webp',
+          alt: 'LocalCut with a populated demo project, original landscape artwork, a video preview, three timeline tracks and a crossfade.',
+          width: 2560,
+          height: 1600,
+        },
+        callout: {
+          label: 'Media engine + timeline editor',
+          description:
+            'I built the editing engine and timeline for arranging media, layering titles, animating properties and applying transitions. This demo brings those tools together.',
+          x: 60,
+          y: 78,
+        },
+      },
+      {
+        id: 'typography',
+        title: 'Titles with room for detail.',
+        image: {
+          src: '/work/screenshots/localcut-typography.webp',
+          alt: 'LocalCut title properties with an Inter text preview, font, animation and alignment controls over the demo editing workspace.',
+          width: 2560,
+          height: 2000,
+        },
+        callout: {
+          label: 'Typography + motion controls',
+          description:
+            'I added bundled fonts, text styling and animation controls so titles can be designed alongside the edit, with a preview before applying changes.',
+          x: 50,
+          y: 50,
+        },
+      },
+    ],
+  },
+  {
+    slug: 'localdesign',
+    projectId: 'localdesign',
+    name: 'LocalDesign',
+    summary: 'Your canvas, locally.',
+    tone: 'blue',
+    contributions: [
+      'Built the canvas, layer editor and frame layouts.',
+      'Implemented portable typography and SVG/PNG exports.',
+      'Added editable backups and WebMCP authoring tools.',
+    ],
+    screens: [
+      {
+        id: 'canvas',
+        title: 'A canvas built around editable layers.',
+        image: {
+          src: '/work/screenshots/localdesign-canvas.webp',
+          alt: 'LocalDesign with the Field Notes demo composition, semantic layers, drawing toolbar and frame inspector visible around the full canvas.',
+          width: 2880,
+          height: 1800,
+        },
+        callout: {
+          label: 'Canvas engine + layer workflows',
+          description:
+            'I built the canvas and layer workflows for composing frames, shapes, images and text. This editable demo shows nested layers and a layout frame in context.',
+          x: 50,
+          y: 50,
+        },
+      },
+      {
+        id: 'typography',
+        title: 'Typography that travels with the design.',
+        image: {
+          src: '/work/screenshots/localdesign-typography.webp',
+          alt: 'LocalDesign with the Field Notes headline selected and Source Serif 4 typography, font source, size, line-height and tracking controls visible.',
+          width: 2880,
+          height: 1800,
+        },
+        callout: {
+          label: 'Text shaping + portable exports',
+          description:
+            'I implemented text layout, font handling and portable exports, with controls for type size, spacing and line height. Bundled fonts stay with the editable design.',
+          x: 87,
+          y: 40,
+        },
+      },
+    ],
+  },
 ]

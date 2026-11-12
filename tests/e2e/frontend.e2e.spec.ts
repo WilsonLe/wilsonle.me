@@ -47,15 +47,15 @@ test.describe('Frontend', () => {
       '/#work',
     )
     await expect(page.getByRole('heading', { name: 'Work', exact: true })).toBeVisible()
-    await expect(page.locator('#work article')).toHaveCount(3)
-    await expect(page.locator('#work figure')).toHaveCount(10)
+    await expect(page.locator('#work article')).toHaveCount(5)
+    await expect(page.locator('#work figure')).toHaveCount(14)
     await expect(page.locator('#pangea-chat h4')).toHaveText([
       'Sentence builder',
       'Pangea Bot',
       'Message interpreter',
       'World-map group chats',
     ])
-    await expect(page.locator('#work').getByText('My part', { exact: true })).toHaveCount(3)
+    await expect(page.locator('#work').getByText('My part', { exact: true })).toHaveCount(5)
     await expect(
       page.getByText('Built the frontend and AI assistant.', { exact: true }),
     ).toBeVisible()
@@ -76,6 +76,14 @@ test.describe('Frontend', () => {
       'https://app.pangea.chat/',
     )
     await expect(page.getByRole('heading', { name: 'Vulcan Augmetics', exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Open LocalCut' })).toHaveAttribute(
+      'href',
+      'https://wilsonle.github.io/LocalCut/',
+    )
+    await expect(page.getByRole('link', { name: 'Open LocalDesign' })).toHaveAttribute(
+      'href',
+      'https://wilsonle.github.io/LocalDesign/',
+    )
     await expect(page.getByRole('heading', { name: 'Experience', exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Education', exact: true })).toHaveCount(0)
   })
