@@ -23,6 +23,14 @@ test('keeps each locale destination, canonical metadata and sitemap consistent',
 }) => {
   for (const base of ['', '/en', '/vi']) {
     await page.goto(`${base}/work/pangea-chat`)
+    await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
+      'content',
+      'Wilson Le',
+    )
+    await expect(page.locator('meta[name="twitter:image:alt"]')).toHaveAttribute(
+      'content',
+      /Pangea Chat/,
+    )
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
       `https://wilsonle.me${base === '/en' ? '' : base}/work/pangea-chat`,

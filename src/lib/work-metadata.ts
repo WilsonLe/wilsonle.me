@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import type { Locale } from '@/lib/i18n'
 import type { WorkShowcase } from '@/content/work-types'
-import { OG_IMAGE_URL, SITE_URL } from '@/site-config'
+import { OG_IMAGE_URL, SITE_NAME, SITE_URL } from '@/site-config'
 
 export function workMetadata(content: WorkShowcase, locale: Locale): Metadata {
   const canonicalUrl = new URL(
@@ -20,6 +20,7 @@ export function workMetadata(content: WorkShowcase, locale: Locale): Metadata {
       },
     },
     openGraph: {
+      siteName: SITE_NAME,
       title: content.seo.title,
       description: content.seo.description,
       url: canonicalUrl,
@@ -32,7 +33,7 @@ export function workMetadata(content: WorkShowcase, locale: Locale): Metadata {
       card: 'summary_large_image',
       title: content.seo.title,
       description: content.seo.description,
-      images: [OG_IMAGE_URL],
+      images: [{ url: OG_IMAGE_URL, width: 1200, height: 630, alt: content.seo.title }],
     },
   }
 }
