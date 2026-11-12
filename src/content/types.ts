@@ -120,6 +120,7 @@ export interface WorkShowcaseContent {
       heading: string
       description: string
       image: ShowcaseImage
+      imagePosition?: 'center' | 'bottom'
     }[]
   }
   closeHeading: string

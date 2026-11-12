@@ -122,6 +122,7 @@ export const pangeaChatContent: WorkShowcaseContent = {
         heading: 'Help finding the words.',
         description: 'Work through translation choices while composing your message.',
         image: translation,
+        imagePosition: 'bottom',
       },
       {
         heading: 'Understand a word. Keep going.',

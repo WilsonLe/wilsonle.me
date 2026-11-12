@@ -162,7 +162,7 @@ export function WorkShowcasePageView({ content, basePath }: WorkShowcasePageView
                       {...item.image}
                       alt={item.image.alt}
                       sizes="(max-width: 767px) 90vw, 400px"
-                      className="h-full w-full rounded-t-lg object-cover object-center shadow-lg shadow-ink/10"
+                      className={`h-full w-full rounded-t-lg object-cover shadow-lg shadow-ink/10 ${item.imagePosition === 'bottom' ? 'object-bottom' : 'object-center'}`}
                     />
                   </a>
                   <figcaption className="mt-6">
