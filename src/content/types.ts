@@ -119,9 +119,7 @@ export interface WorkShowcaseContent {
     items: {
       heading: string
       description: string
-      visual:
-        | { kind: 'image'; image: ShowcaseImage }
-        | { kind: 'services'; services: ShowcaseService[] }
+      image: ShowcaseImage
     }[]
   }
   closeHeading: string

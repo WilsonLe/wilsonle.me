@@ -17,7 +17,8 @@ Production: <https://wilsonle.me>
   images and progressive scroll reveals, with readable no-JavaScript and
   reduced-motion fallbacks. Shared ownership is credited to a two-engineer team;
   locally served service icons illustrate GitHub Actions, AWS ECS/EC2, Sentry,
-  and PagerDuty. Impact pairs real app detail images with the release/response
+  and PagerDuty. The story leads with Pangea Bot and in-chat language-learning
+  assistance, with app-based learner outcomes before the supporting engineering
   workflow. Icon sources are recorded beside the assets.
 - **Blog** — authored **in code** as MDX files under `src/content/blog/<locale>/`.
   No headless CMS in front of blog posts.

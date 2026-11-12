@@ -135,6 +135,48 @@ export function WorkShowcasePageView({ content, basePath }: WorkShowcasePageView
           ))}
 
           <section
+            id="impact"
+            aria-labelledby="impact-heading"
+            className="border-b border-ink/20 py-16 sm:py-24"
+            data-showcase-reveal
+          >
+            <p className="font-label text-xs uppercase tracking-[0.13em] text-ink/65">
+              {content.impact.label}
+            </p>
+            <h2
+              id="impact-heading"
+              className="font-display mt-6 max-w-3xl text-4xl font-normal leading-[1.08] tracking-[-0.035em] sm:text-5xl lg:text-6xl"
+            >
+              {content.impact.heading}
+            </h2>
+            <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-7">
+              {content.impact.items.map((item) => (
+                <figure key={item.heading} className="min-w-0">
+                  <a
+                    href={item.image.src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block h-72 overflow-hidden rounded-xl bg-pangea-lilac p-5 pb-0 lg:h-80 lg:p-7 lg:pb-0"
+                  >
+                    <Image
+                      {...item.image}
+                      alt={item.image.alt}
+                      sizes="(max-width: 767px) 90vw, 400px"
+                      className="h-full w-full rounded-t-lg object-cover object-center shadow-lg shadow-ink/10"
+                    />
+                  </a>
+                  <figcaption className="mt-6">
+                    <h3 className="text-lg font-medium tracking-tight">{item.heading}</h3>
+                    <p className="mt-3 max-w-sm text-sm leading-7 text-ink/65">
+                      {item.description}
+                    </p>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+
+          <section
             id="delivery"
             aria-labelledby="delivery-heading"
             className="py-16 sm:py-24 lg:py-28"
@@ -186,67 +228,6 @@ export function WorkShowcasePageView({ content, basePath }: WorkShowcasePageView
             </ol>
           </section>
         </div>
-
-        <section
-          id="impact"
-          aria-labelledby="impact-heading"
-          className="mx-auto max-w-7xl border-t border-ink/20 py-16 sm:py-24"
-          data-showcase-reveal
-        >
-          <p className="font-label text-xs uppercase tracking-[0.13em] text-ink/65">
-            {content.impact.label}
-          </p>
-          <h2
-            id="impact-heading"
-            className="font-display mt-6 max-w-3xl text-4xl font-normal leading-[1.08] tracking-[-0.035em] sm:text-5xl lg:text-6xl"
-          >
-            {content.impact.heading}
-          </h2>
-          <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-7">
-            {content.impact.items.map((item) => (
-              <figure key={item.heading} className="min-w-0">
-                {item.visual.kind === 'image' ? (
-                  <a
-                    href={item.visual.image.src}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block h-72 overflow-hidden rounded-xl bg-pangea-lilac p-5 pb-0 lg:h-80 lg:p-7 lg:pb-0"
-                  >
-                    <Image
-                      {...item.visual.image}
-                      alt={item.visual.image.alt}
-                      sizes="(max-width: 767px) 90vw, 400px"
-                      className="h-full w-full rounded-t-lg object-cover object-center shadow-lg shadow-ink/10"
-                    />
-                  </a>
-                ) : (
-                  <div className="flex h-72 items-center rounded-xl bg-ink px-6 text-paper lg:h-80 lg:px-8">
-                    <ol className="grid w-full gap-1">
-                      {item.visual.services.map((service, index, services) => (
-                        <li key={service.icon} className="relative flex items-center gap-4 text-sm">
-                          <span className="relative z-10 inline-flex bg-ink">
-                            <ShowcaseServiceIcon icon={service.icon} />
-                          </span>
-                          <span>{service.name}</span>
-                          {index < services.length - 1 && (
-                            <span
-                              aria-hidden="true"
-                              className="absolute left-6 top-12 h-6 border-l border-paper-muted/45"
-                            />
-                          )}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                )}
-                <figcaption className="mt-6">
-                  <h3 className="text-lg font-medium tracking-tight">{item.heading}</h3>
-                  <p className="mt-3 max-w-sm text-sm leading-7 text-ink/65">{item.description}</p>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </section>
 
         <footer className="mx-auto max-w-7xl border-t border-ink/20 pt-12 sm:flex sm:items-end sm:justify-between sm:gap-10">
           <div>

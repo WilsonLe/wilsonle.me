@@ -32,7 +32,7 @@ test.describe('Pangea work showcase', () => {
       await page.setViewportSize({ width, height: 900 })
       await page.goto('/work/pangea-chat')
       const impact = page.getByRole('region', {
-        name: 'A complete path from conversation to production.',
+        name: 'Keep learning inside the conversation.',
       })
       await expect(impact).toHaveCSS('opacity', '0')
       for (const image of await page.locator('main img').all()) {
