@@ -230,6 +230,51 @@ test.describe('Frontend', () => {
     await expect(page.locator('#mobile-navigation')).toHaveCount(0)
   })
 
+  test('keeps keyboard focus visible against its surrounding surfaces', async ({ page }) => {
+    await page.goto('/')
+    await page.keyboard.press('Tab')
+
+    const toHex = (rgb: string) =>
+      `#${rgb
+        .match(/\d+/g)!
+        .slice(0, 3)
+        .map((value) => Number(value).toString(16).padStart(2, '0'))
+        .join('')}`
+    const links = [
+      page.getByRole('link', { name: 'View work', exact: true }),
+      page.getByRole('link', { name: 'Open full screenshot: Sentence builder', exact: true }),
+      page.locator('#contact').getByRole('link', { name: /^Email / }),
+      page.getByRole('contentinfo').getByRole('link', { name: 'Download résumé', exact: true }),
+    ]
+
+    for (const link of links) {
+      await link.focus()
+      const focus = await link.evaluate((element) => {
+        const style = getComputedStyle(element)
+        let parent = element.parentElement
+        while (parent && getComputedStyle(parent).backgroundColor === 'rgba(0, 0, 0, 0)') {
+          parent = parent.parentElement
+        }
+        return {
+          visible: element.matches(':focus-visible'),
+          color: style.outlineColor,
+          width: Number.parseFloat(style.outlineWidth),
+          style: style.outlineStyle,
+          backdrop: getComputedStyle(parent || document.body).backgroundColor,
+        }
+      })
+      expect(focus.visible).toBe(true)
+      expect(focus.style).toBe('solid')
+      expect(focus.width).toBeGreaterThanOrEqual(2)
+      await expect
+        .poll(async () => {
+          const outline = await link.evaluate((element) => getComputedStyle(element).outlineColor)
+          return contrastRatio(toHex(outline), toHex(focus.backdrop))
+        })
+        .toBeGreaterThanOrEqual(3)
+    }
+  })
+
   test('uses WCAG AA palette pairs and disables smooth scrolling for reduced motion', async ({
     page,
   }) => {

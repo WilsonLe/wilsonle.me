@@ -13,6 +13,7 @@ Candidate evidence captured from the local production build on 13 November 2026.
 
 Project-only captures, including mobile Work, omit the fixed site header to keep screenshot content unobstructed; screenshots of the site itself retain it.
 
+- [Keyboard focus on the primary CTA, desktop](hero-keyboard-focus-desktop.webp)
 - [LocalCut, desktop](localcut-desktop.webp)
 - [LocalDesign, desktop](localdesign-desktop.webp)
 - [Contact and footer, desktop](contact-footer-desktop.webp)
@@ -23,8 +24,9 @@ Project-only captures, including mobile Work, omit the fixed site header to keep
 
 - `pnpm lint`, `pnpm exec tsc --noEmit`, and `pnpm exec prettier --check .` pass.
 - `pnpm build` passes; Payload emits its existing dynamic-import dependency warning.
-- All 16 frontend Playwright checks pass and exercise all home locales, desktop/tablet/mobile overflow and anchor targets, keyboard navigation, reduced motion, palette contrast, direct PDF downloads, removed routes, sitemap, and metadata against the production build.
+- All 17 frontend Playwright checks pass and exercise all home locales, desktop/tablet/mobile overflow and anchor targets, keyboard navigation, reduced motion, palette contrast, direct PDF downloads, removed routes, sitemap, and metadata against the production build.
 - Download cases use separate visitor sessions per locale. A diagnostic reproduced Chromium throttling the eleventh rapid download in one session; that same footer link succeeds in a fresh session. All four download entry points remain covered for each locale.
+- The independent first-pass review found an invisible primary-CTA focus outline. Cyan outlines now contrast with dark surfaces, with dark outlines on paper/cyan. The added regression test failed on the reviewed candidate at contrast ratio 1, then passed after correction; it waits for the existing color transition to settle. The focused production rendering was also visually inspected.
 - Production render inspection confirms five project boundaries, all nine inter-feature rules, the unchanged off-white token, and the cyan accent. Screenshots establish appearance; download/route tests establish behavior.
 
 No database, CMS, deployment, or production state changes are part of this delivery.
