@@ -22,17 +22,6 @@ test.describe('Pangea work showcase', () => {
         'href',
         'https://app.pangea.chat/',
       )
-      const canonical = basePath === '/vi' ? '/vi/work/pangea-chat' : '/work/pangea-chat'
-      await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
-      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-        'href',
-        `https://wilsonle.me${canonical}`,
-      )
-      await expect(page.locator('link[hreflang="vi"]')).toHaveCount(1)
-      await expect(page.locator('link[hreflang="vi"]')).toHaveAttribute(
-        'href',
-        'https://wilsonle.me/vi/work/pangea-chat',
-      )
     }
   })
 
@@ -78,13 +67,26 @@ test.describe('Pangea work showcase', () => {
     }
   })
 
-  test('lists all showcase routes in the sitemap and rejects unknown locales', async ({
+  test('publishes localized metadata and sitemap entries and rejects unknown locales', async ({
+    page,
     request,
   }) => {
     const sitemap = await request.get('/sitemap.xml')
     expect(sitemap.ok()).toBeTruthy()
     for (const path of ['/work/pangea-chat', '/en/work/pangea-chat', '/vi/work/pangea-chat']) {
       expect(await sitemap.text()).toContain(`https://wilsonle.me${path}`)
+      await page.goto(path)
+      const canonical = path.startsWith('/vi/') ? '/vi/work/pangea-chat' : '/work/pangea-chat'
+      await expect(page.locator('link[rel="canonical"]')).toHaveCount(1)
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+        'href',
+        `https://wilsonle.me${canonical}`,
+      )
+      await expect(page.locator('link[hreflang="vi"]')).toHaveCount(1)
+      await expect(page.locator('link[hreflang="vi"]')).toHaveAttribute(
+        'href',
+        'https://wilsonle.me/vi/work/pangea-chat',
+      )
     }
     expect((await request.get('/fr/work/pangea-chat')).status()).toBe(404)
   })
