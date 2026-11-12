@@ -1,10 +1,13 @@
+import Image from 'next/image'
+import Link from 'next/link'
 import type { Projects } from '@/content/types'
 
 interface ProjectsSectionProps {
   projects: Projects
+  basePath: string
 }
 
-export function ProjectsSection({ projects }: ProjectsSectionProps) {
+export function ProjectsSection({ projects, basePath }: ProjectsSectionProps) {
   if (projects.items.length === 0) {
     return null
   }
@@ -60,20 +63,41 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                   ) : null}
                 </header>
 
-                <dl className="min-w-0 space-y-8">
-                  <div className="grid gap-2 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-6">
-                    <dt className="font-label text-[0.68rem] font-bold uppercase tracking-[0.13em] text-ink/60">
-                      {projects.productLabel}
-                    </dt>
-                    <dd className="text-lg leading-8 text-ink">{project.summary}</dd>
-                  </div>
-                  <div className="grid gap-2 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-6">
-                    <dt className="font-label text-[0.68rem] font-bold uppercase tracking-[0.13em] text-ink/60">
-                      {projects.contributionLabel}
-                    </dt>
-                    <dd className="leading-7 text-ink/75">{project.contribution}</dd>
-                  </div>
-                </dl>
+                <div className="min-w-0">
+                  {project.showcase ? (
+                    <Link
+                      href={`${basePath}${project.showcase.path}`}
+                      className="group mb-9 focus-visible:outline-ink flex items-center justify-between gap-4 overflow-hidden bg-[#e7e1ef] px-6 py-4 text-ink"
+                    >
+                      <span className="font-label text-xs font-bold uppercase tracking-[0.1em]">
+                        {project.showcase.label} <span aria-hidden="true">→</span>
+                      </span>
+                      <Image
+                        src={project.showcase.image}
+                        alt={project.showcase.imageAlt}
+                        width={800}
+                        unoptimized
+                        height={1000}
+                        sizes="160px"
+                        className="h-40 w-32 object-contain transition-transform duration-500 group-hover:-translate-y-2 motion-reduce:transform-none"
+                      />
+                    </Link>
+                  ) : null}
+                  <dl className="min-w-0 space-y-8">
+                    <div className="grid gap-2 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-6">
+                      <dt className="font-label text-[0.68rem] font-bold uppercase tracking-[0.13em] text-ink/60">
+                        {projects.productLabel}
+                      </dt>
+                      <dd className="text-lg leading-8 text-ink">{project.summary}</dd>
+                    </div>
+                    <div className="grid gap-2 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-6">
+                      <dt className="font-label text-[0.68rem] font-bold uppercase tracking-[0.13em] text-ink/60">
+                        {projects.contributionLabel}
+                      </dt>
+                      <dd className="leading-7 text-ink/75">{project.contribution}</dd>
+                    </div>
+                  </dl>
+                </div>
               </article>
             </li>
           ))}

@@ -8,6 +8,8 @@ import { homeContent as viHomeContent } from '@/content/vi/home'
 import { resumeContent as viResumeContent } from '@/content/vi/resume'
 import { siteSettings as viSiteSettings } from '@/content/vi/site'
 import type { Locale } from '@/lib/i18n'
+import { pangeaChatContent as enPangeaChatContent } from '@/content/en/pangea-chat'
+import { pangeaChatContent as viPangeaChatContent } from '@/content/vi/pangea-chat'
 
 const homeContentByLocale: Record<Locale, HomeContent> = {
   en: enHomeContent,
@@ -38,4 +40,8 @@ export function getResumeContent(locale: Locale) {
 
 export function getWebsiteTemplatesContent(locale: Locale) {
   return locale === 'vi' ? viWebsiteTemplatesContent : enWebsiteTemplatesContent
+}
+
+export function getPangeaChatContent(locale: Locale) {
+  return locale === 'vi' ? viPangeaChatContent : enPangeaChatContent
 }

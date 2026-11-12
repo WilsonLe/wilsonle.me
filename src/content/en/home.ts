@@ -26,6 +26,12 @@ const about: About = {
 const projectItems: Project[] = [
   {
     id: 'pangea-chat',
+    showcase: {
+      path: '/work/pangea-chat',
+      label: 'View the work',
+      image: '/work/pangea-chat/map.webp',
+      imageAlt: 'Pangea Chat’s activity map and language course',
+    },
     name: 'Pangea Chat',
     visibility: 'Public product',
     summary:
