@@ -43,15 +43,14 @@ export function AnnotatedScreenshot({
   const labelX = labelPosition * 10
 
   if (layout === 'split') {
-    // Center the target and scale enough to keep even edge-adjacent targets covered.
-    const zoomScale = Math.max(
-      1.65,
-      50 / Math.min(callout.x, 100 - callout.x, callout.y, 100 - callout.y),
-    )
+    // Keep surrounding app context; pan toward the focus without exposing empty edges.
+    const zoomScale = 1.25
+    const zoomOffset = (position: number) =>
+      Math.max(100 * (1 - zoomScale), Math.min(0, 50 - position * zoomScale))
     const zoomStyle = {
       '--zoom-scale': zoomScale,
-      '--zoom-x': `${50 - callout.x * zoomScale}%`,
-      '--zoom-y': `${50 - callout.y * zoomScale}%`,
+      '--zoom-x': `${zoomOffset(callout.x)}%`,
+      '--zoom-y': `${zoomOffset(callout.y)}%`,
     } as CSSProperties
     return (
       <figure

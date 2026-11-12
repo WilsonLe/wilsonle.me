@@ -128,14 +128,14 @@
 .work-capture-mat {
   background: var(--work-mat);
   border-radius: 4px;
-  padding: 6.5rem clamp(1.25rem, 5vw, 4.5rem) 3.5rem;
+  padding: 6.5rem clamp(0.75rem, 2vw, 1.5rem) 1.25rem;
 }
 .work-capture-image {
   position: relative;
 }
 .work-capture-image img {
   display: block;
-  box-shadow: 0 16px 36px -16px rgb(16 19 15 / 0.45);
+  box-shadow: 0 6px 16px -8px rgb(16 19 15 / 0.25);
 }
 .work-capture-image a {
   display: block;
@@ -190,7 +190,7 @@
 @media (max-width: 639px) {
   .work-capture-mat {
     padding-top: 5.5rem;
-    padding-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
   }
   .work-callout {
     left: 50% !important;
@@ -246,7 +246,7 @@
 }
 
 .work-capture--compact .work-capture-mat {
-  padding: 5rem 1.5rem 1.5rem;
+  padding: 5rem 0.75rem 0.75rem;
 }
 .work-capture--compact .work-callout {
   top: -3.2rem;
@@ -267,7 +267,7 @@
 }
 .pangea-image-mat {
   min-width: 0;
-  padding: clamp(1.25rem, 3vw, 2.5rem);
+  padding: clamp(0.5rem, 1vw, 0.875rem);
   border-radius: 4px;
   background: var(--work-mat);
 }
@@ -275,7 +275,7 @@
   display: block;
   overflow: hidden;
   border-radius: 8px;
-  box-shadow: 0 16px 36px -16px rgb(16 19 15 / 0.45);
+  box-shadow: 0 6px 16px -8px rgb(16 19 15 / 0.25);
 }
 .pangea-zoom-layer {
   position: relative;
@@ -288,9 +288,6 @@
   padding: 1rem 0.5rem;
   border-radius: 4px;
 }
-.pangea-callout-copy {
-  transform-origin: left center;
-}
 @media (min-width: 900px) {
   .pangea-feature {
     grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
@@ -301,14 +298,8 @@
   .pangea-zoom-layer {
     transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .pangea-callout-copy {
-    transition: transform 350ms ease;
-  }
   .pangea-feature:is(:hover, :focus-within) .pangea-zoom-layer {
     transform: translate(var(--zoom-x), var(--zoom-y)) scale(var(--zoom-scale));
-  }
-  .pangea-feature:is(:hover, :focus-within) .pangea-callout-copy {
-    transform: scale(1.035);
   }
   .pangea-feature[data-entered='true'] .pangea-callout {
     animation: pangea-callout-enter 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
