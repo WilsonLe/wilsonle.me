@@ -108,8 +108,8 @@ export const works: Work[] = [
         image: {
           src: '/work/screenshots/vulcan-access.webp',
           alt: 'Vulcan permission editor with the organisation-manager role, Create/Read/Update/Delete tabs and role-plus-same-clinic rules.',
-          width: 1265,
-          height: 712,
+          width: 2560,
+          height: 1600,
         },
         callout: {
           label: 'Built in-house · role + attribute rules',
@@ -125,8 +125,8 @@ export const works: Work[] = [
         image: {
           src: '/work/screenshots/vulcan-cms.webp',
           alt: 'Vulcan internal CMS with full navigation and collections for users, organisations, sessions and exercises.',
-          width: 1265,
-          height: 712,
+          width: 2560,
+          height: 1600,
         },
         callout: {
           label: 'My work · internal CMS + admin',
@@ -142,8 +142,8 @@ export const works: Work[] = [
         image: {
           src: '/work/screenshots/vulcan-monitoring.webp',
           alt: 'Vulcan internal monitoring dashboard with aggregate API volume, latency, errors and time-window filters.',
-          width: 1265,
-          height: 712,
+          width: 2560,
+          height: 1600,
         },
         callout: {
           label: 'API telemetry + monitoring',
@@ -172,14 +172,14 @@ export const works: Work[] = [
         title: 'Teach, with help at your side.',
         image: {
           src: '/work/screenshots/cyobot-instructor.webp',
-          alt: 'CYOBot instructor dashboard with quest management on the left and the real chatbot interface on the right.',
-          width: 1280,
-          height: 720,
+          alt: 'CYOBot Instructor quest catalogue with four demo robotics quests, publication states, level counts and an illustrative lesson-planning chat on the right.',
+          width: 2560,
+          height: 1600,
         },
         callout: {
           label: 'My work · admin + sidebar chatbot',
           description:
-            'An instructor workspace for managing quests, with the chatbot alongside the dashboard.',
+            'Manage robotics quests and levels with a sample lesson-planning conversation alongside.',
           x: 83,
           y: 50,
         },
@@ -189,14 +189,14 @@ export const works: Work[] = [
         title: 'A student’s starting point.',
         image: {
           src: '/work/screenshots/cyobot-student.webp',
-          alt: 'Full CYOBot RoboticsQuest student dashboard with Python, electronics, GPIO and kinematics quests, skills and learning progress.',
-          width: 1265,
-          height: 1016,
+          alt: 'CYOBot student dashboard for Avery Demo, with demo robotics quests, sample skills and rewards, a career skill map and learning shortcuts.',
+          width: 2560,
+          height: 2000,
         },
         callout: {
           label: 'My work · student coding dashboard',
           description:
-            'Python, electronics and robotics quests, with skills and learning progress in view.',
+            'A demo student workspace with robotics quests, skill progress, rewards and a career skill map.',
           x: 44,
           y: 33,
         },
@@ -206,13 +206,14 @@ export const works: Work[] = [
         title: 'Python coding quest',
         image: {
           src: '/work/screenshots/cyobot-python-quest.webp',
-          alt: 'Actual CYOBot Python quest preview showing learning objectives, rewards and level selection over the student dashboard.',
-          width: 1265,
-          height: 712,
+          alt: 'CYOBot Python Mission Control demo quest preview with learning objectives and a three-level learning journey over the student dashboard.',
+          width: 2560,
+          height: 1600,
         },
         callout: {
           label: 'Coding portal · quest + level flow',
-          description: 'A Python quest preview brings together objectives, rewards and levels.',
+          description:
+            'A demo Python quest brings together learning objectives and a three-level journey.',
           x: 61,
           y: 30,
         },
