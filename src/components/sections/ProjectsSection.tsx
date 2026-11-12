@@ -82,6 +82,7 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
                           id={`${work.slug === 'pangea-chat' ? 'pangea' : work.slug}-${screen.id}`}
                           screen={screen}
                           sequence={screenIndex}
+                          zoom={work.slug === 'pangea-chat'}
                         />
                       ))}
                     </div>

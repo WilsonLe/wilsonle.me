@@ -8,10 +8,12 @@ export function AnnotatedScreenshot({
   screen,
   id,
   sequence = 0,
+  zoom = false,
 }: {
   screen: WorkScreen
   id: string
   sequence?: number
+  zoom?: boolean
 }) {
   const ref = useRef<HTMLElement>(null)
 
@@ -42,7 +44,13 @@ export function AnnotatedScreenshot({
     '--zoom-y': `${zoomOffset(callout.y)}%`,
   } as CSSProperties
   return (
-    <figure ref={ref} id={id} className="work-capture work-feature" aria-labelledby={`${id}-title`}>
+    <figure
+      ref={ref}
+      id={id}
+      className="work-capture work-feature"
+      data-zoom={zoom ? 'true' : undefined}
+      aria-labelledby={`${id}-title`}
+    >
       <div className="work-image-mat">
         <a
           className="work-shot-view"
@@ -51,12 +59,12 @@ export function AnnotatedScreenshot({
           rel="noopener noreferrer"
           aria-label={`Open full screenshot: ${screen.title}`}
         >
-          <div className="work-zoom-layer" style={zoomStyle}>
+          <div className="work-zoom-layer" style={zoom ? zoomStyle : undefined}>
             <Image {...image} alt={image.alt} unoptimized className="h-auto w-full" />
           </div>
         </a>
       </div>
-      <figcaption className="work-callout" tabIndex={0}>
+      <figcaption className="work-callout" tabIndex={zoom ? 0 : undefined}>
         <div className="work-callout-copy">
           <p className="font-label text-xs text-ink/65">
             <span className="mr-3 text-signal-deep">0{sequence + 1}</span>

@@ -163,10 +163,10 @@
   }
 }
 @media (prefers-reduced-motion: no-preference) {
-  .work-zoom-layer {
+  .work-feature[data-zoom='true'] .work-zoom-layer {
     transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .work-feature:is(:hover, :focus-within) .work-zoom-layer {
+  .work-feature[data-zoom='true']:is(:hover, :focus-within) .work-zoom-layer {
     transform: translate(var(--zoom-x), var(--zoom-y)) scale(var(--zoom-scale));
   }
   .work-feature[data-entered='true'] .work-callout {
