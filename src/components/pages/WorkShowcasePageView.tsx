@@ -68,14 +68,14 @@ export function WorkShowcasePageView({ content, routeBasePath }: WorkShowcasePag
                 />
               ))}
             </div>
-            <figcaption className="font-label mt-4 text-[0.65rem] leading-6 text-ink/55">
+            <figcaption className="font-label mt-4 text-[0.65rem] leading-6 text-ink/60">
               {content.imageNote}
             </figcaption>
           </figure>
           <dl className="mt-9 grid grid-cols-2 gap-6 border-b border-ink/20 pb-9 sm:max-w-xl">
             {[content.role, content.period].map((item) => (
               <div key={item.label}>
-                <dt className="font-label text-[0.65rem] uppercase tracking-[0.12em] text-ink/55">
+                <dt className="font-label text-[0.65rem] uppercase tracking-[0.12em] text-ink/60">
                   {item.label}
                 </dt>
                 <dd className="mt-2 text-sm font-medium">{item.value}</dd>
