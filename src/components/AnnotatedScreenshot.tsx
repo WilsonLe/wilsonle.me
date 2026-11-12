@@ -44,7 +44,7 @@ export function AnnotatedScreenshot({
 
   if (layout === 'split') {
     // Keep surrounding app context; pan toward the focus without exposing empty edges.
-    const zoomScale = 1.25
+    const zoomScale = 1.5
     const zoomOffset = (position: number) =>
       Math.max(100 * (1 - zoomScale), Math.min(0, 50 - position * zoomScale))
     const zoomStyle = {
