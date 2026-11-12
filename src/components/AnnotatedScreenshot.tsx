@@ -76,16 +76,6 @@ export function AnnotatedScreenshot({
                 priority={priority}
                 className="h-auto w-full"
               />
-              <svg
-                className="pangea-target-overlay"
-                viewBox={`0 0 1000 ${height}`}
-                fill="none"
-                aria-hidden="true"
-              >
-                <path className="work-leader" d={`M 1000 ${targetY} H ${targetX + 18}`} />
-                <circle className="work-target" cx={targetX} cy={targetY} r="18" />
-                <circle cx={targetX} cy={targetY} r="3" fill="currentColor" stroke="none" />
-              </svg>
             </div>
           </a>
         </div>
