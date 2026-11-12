@@ -47,15 +47,27 @@ test.describe('Frontend', () => {
       '/#work',
     )
     await expect(page.getByRole('heading', { name: 'Work', exact: true })).toBeVisible()
-    await expect(page.locator('#work article')).toHaveCount(5)
-    await expect(page.locator('#work figure')).toHaveCount(16)
+    await expect(page.locator('#work article')).toHaveCount(6)
+    await expect(page.locator('#work figure')).toHaveCount(19)
+    await expect(page.locator('#work article h3')).toHaveText([
+      'Kalibr',
+      'Pangea Chat',
+      'CYOBot',
+      'Vulcan Augmetics',
+      'LocalCut',
+      'LocalDesign',
+    ])
+    await expect(page.getByRole('link', { name: 'Open Kalibr' })).toHaveAttribute(
+      'href',
+      'https://usekalibr.com',
+    )
     await expect(page.locator('#pangea-chat h4')).toHaveText([
       'Sentence builder',
       'Pangea Bot',
       'Message interpreter',
       'World-map group chats',
     ])
-    await expect(page.locator('#work').getByText('My part', { exact: true })).toHaveCount(3)
+    await expect(page.locator('#work').getByText('My part', { exact: true })).toHaveCount(4)
     await expect(page.locator('#work').getByText('Features', { exact: true })).toHaveCount(2)
     await expect(
       page.locator('#work').getByText('Frontend + AI services', { exact: true }),
@@ -99,11 +111,85 @@ test.describe('Frontend', () => {
         'href',
         `/work/screenshots/${project}-webmcp.webp`,
       )
-      await expect(figure.getByRole('img')).toHaveJSProperty('naturalWidth', 1920)
-      await expect(figure.getByRole('img')).toHaveJSProperty('naturalHeight', 1080)
+      await expect(figure.getByRole('img')).toHaveJSProperty('naturalWidth', 1844)
+      await expect(figure.getByRole('img')).toHaveJSProperty('naturalHeight', 934)
     }
     await expect(page.getByRole('heading', { name: 'Experience', exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Education', exact: true })).toHaveCount(0)
+  })
+
+  test('explains contribution ownership and the observed playtest workflow', async ({ page }) => {
+    await page.goto('/')
+    const pangea = page.locator('#pangea-chat')
+    await expect(pangea).toContainText('proactive playtest program for existing users')
+    await expect(pangea).toContainText('15 minutes')
+    await expect(pangea).toContainText('Agents observed in the background and extracted todos')
+    await expect(pangea).toContainText('I signed off on implementation, testing and deployment')
+    await expect(pangea).toContainText('Most changes shipped on the same day as the playtest')
+    for (const project of ['cyobot', 'vulcan-augmetics']) {
+      await expect(page.locator(`#${project}`)).toContainText('Founding software engineer.')
+    }
+    await expect(page.locator('#cyobot')).toContainText(
+      'instructor dashboard and student dashboard',
+    )
+    await expect(page.locator('#cyobot')).toContainText('internal operational processes')
+    await expect(page.locator('#vulcan-augmetics')).toContainText('on-call support system')
+    await expect(page.locator('#localcut-asset-index')).toContainText('context and transcripts')
+    await expect(page.locator('#localdesign-pages-layers-frames')).toContainText('layer tree')
+    for (const project of ['localcut', 'localdesign']) {
+      await expect(page.locator(`#${project}`)).toContainText('Fully open source.')
+      await expect(page.locator(`#${project}`)).toContainText('entirely in your browser')
+    }
+    await expect(page.locator('#kalibr-admin-panels')).toContainText('synthetic demo data')
+  })
+
+  test('lets pointer, keyboard and phone users inspect full-resolution screenshots', async ({
+    page,
+  }) => {
+    for (const width of [1440, 375]) {
+      await page.setViewportSize({ width, height: 812 })
+      await page.goto('/')
+      for (const id of [
+        'localcut-timeline',
+        'localcut-asset-index',
+        'localcut-webmcp',
+        'localdesign-webmcp',
+      ]) {
+        const figure = page.locator(`#${id}`)
+        const zoom = figure.getByRole('button', { name: 'Zoom image' })
+        await zoom.click()
+        await expect(figure.getByRole('button', { name: 'Fit image' })).toHaveAttribute(
+          'aria-expanded',
+          'true',
+        )
+        const region = figure.getByRole('region')
+        await expect(region).toBeFocused()
+        const before = await region.evaluate((element) => ({
+          left: element.scrollLeft,
+          width: element.clientWidth,
+          scrollWidth: element.scrollWidth,
+        }))
+        if (before.scrollWidth > before.width + 20) {
+          await region.press('ArrowRight')
+          await expect
+            .poll(() => region.evaluate((element) => element.scrollLeft))
+            .toBeGreaterThan(before.left)
+        }
+        await expect
+          .poll(() => page.evaluate(() => document.documentElement.scrollWidth - innerWidth))
+          .toBeLessThanOrEqual(0)
+        await figure.getByRole('button', { name: 'Fit image' }).click()
+        await expect(zoom).toHaveAttribute('aria-expanded', 'false')
+        await expect(figure.getByRole('region')).toHaveCount(0)
+      }
+    }
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    const figure = page.locator('#localdesign-webmcp')
+    await figure.getByRole('button', { name: 'Zoom image' }).press('Enter')
+    await expect(figure.getByRole('region')).toBeFocused()
+    await expect(figure.locator('.work-zoom-layer')).toHaveCSS('transform', 'none')
+    await figure.getByRole('button', { name: 'Fit image' }).press('Enter')
+    await expect(figure.getByRole('button', { name: 'Zoom image' })).toBeFocused()
   })
 
   test('renders the explicit English locale route', async ({ page }) => {
@@ -279,6 +365,16 @@ test.describe('Frontend', () => {
       expect(focus.visible).toBe(true)
       expect(focus.style).toBe('solid')
       expect(focus.width).toBeGreaterThanOrEqual(2)
+      if (await link.locator('img').count()) {
+        // The image sits inside an overflow clip: its focus cue must be outside that clip.
+        const frame = page.locator('.work-shot-view').filter({ has: link })
+        await expect(frame).toHaveCSS('outline-style', 'solid')
+        await expect
+          .poll(() =>
+            frame.evaluate((element) => Number.parseFloat(getComputedStyle(element).outlineWidth)),
+          )
+          .toBeGreaterThanOrEqual(2)
+      }
       await expect
         .poll(async () => {
           const outline = await link.evaluate((element) => getComputedStyle(element).outlineColor)

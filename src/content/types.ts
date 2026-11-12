@@ -77,6 +77,7 @@ export interface Projects {
   productLabel: string
   contributionLabel: string
   featuresLabel: string
+  screenshotLabels: { zoom: string; fit: string; hint: string }
   items: Project[]
 }
 

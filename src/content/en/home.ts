@@ -25,6 +25,14 @@ const about: About = {
 
 const projectItems: Project[] = [
   {
+    id: 'kalibr',
+    name: 'Kalibr',
+    summary: 'Competitive games and gameplay analytics.',
+    contribution: 'Built the game library UI, analytics processing pipelines and admin panels.',
+    url: 'https://usekalibr.com',
+    linkLabel: 'Open Kalibr',
+  },
+  {
     id: 'pangea-chat',
     name: 'Pangea Chat',
     summary:
@@ -37,7 +45,8 @@ const projectItems: Project[] = [
     id: 'cyobot-robotics-quest',
     name: 'CYOBot Robotics Quest',
     summary: 'Students learn coding and robotics through a browser-based learning platform.',
-    contribution: 'I built its coding portal, content system, and shared sign-in flow.',
+    contribution:
+      'Founding software engineer; led the landing page, instructor and student dashboards, and streamlined internal operations.',
     url: 'https://dashboard.cyobot.com/',
     linkLabel: 'Open Robotics Quest',
   },
@@ -45,13 +54,15 @@ const projectItems: Project[] = [
     id: 'vulcan-internal-platform',
     name: 'Vulcan internal platform',
     summary: 'An internal platform helped teams manage content, access, and production services.',
-    contribution: 'I built content and access workflows, then added monitoring for production.',
+    contribution:
+      'Founding software engineer; led the internal admin dashboard, access control, telemetry, monitoring and on-call support.',
   },
   {
     id: 'localcut',
     name: 'LocalCut',
     summary: 'A video editor that works with media directly in the browser.',
-    contribution: 'Local media editing, a multitrack timeline, animated titles and video export.',
+    contribution:
+      'Open-source, browser-local timeline editing and asset indexing with external-agent control.',
     url: 'https://wilsonle.github.io/LocalCut/',
     linkLabel: 'Open LocalCut',
   },
@@ -59,7 +70,8 @@ const projectItems: Project[] = [
     id: 'localdesign',
     name: 'LocalDesign',
     summary: 'A browser-local canvas for designing with editable layers, text and images.',
-    contribution: 'Editable layers, portable typography, SVG/PNG exports and project backups.',
+    contribution:
+      'Open-source, browser-local pages, layers and frames with external-agent control.',
     url: 'https://wilsonle.github.io/LocalDesign/',
     linkLabel: 'Open LocalDesign',
   },
@@ -70,6 +82,11 @@ const projects: Projects = {
   productLabel: 'The product',
   contributionLabel: 'My part',
   featuresLabel: 'Features',
+  screenshotLabels: {
+    zoom: 'Zoom image',
+    fit: 'Fit image',
+    hint: 'Scroll to explore the full-resolution image.',
+  },
   items: projectItems,
 }
 

@@ -77,7 +77,8 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
                           key={screen.id}
                           id={`${work.slug === 'pangea-chat' ? 'pangea' : work.slug}-${screen.id}`}
                           screen={screen}
-                          zoom={work.slug === 'pangea-chat'}
+                          zoom={work.slug === 'pangea-chat' || screen.zoom}
+                          labels={projects.screenshotLabels}
                         />
                       ))}
                     </div>
