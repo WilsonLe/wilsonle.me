@@ -22,9 +22,10 @@ export interface CyobotShowcase {
   scope: string
   heroImage: CyobotImage
   heroCaption: string
+  robotImage: CyobotImage
   workLabel: string
   workHeading: string
-  contributions: { title: string; description: string }[]
+  contributions: { title: string; description: string; image: CyobotImage }[]
   chapters: {
     id: string
     label: string
@@ -35,7 +36,19 @@ export interface CyobotShowcase {
   }[]
   impactLabel: string
   impactHeading: string
-  capabilities: { title: string; description: string }[]
+  capabilities: {
+    title: string
+    description: string
+    demo: {
+      src: string
+      poster: string
+      width: number
+      height: number
+      alt: string
+      sourceUrl: string
+    }
+  }[]
+  demoSourceLabel: string
   closingHeading: string
   imageCredit: string
   sourceLabel: string

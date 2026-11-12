@@ -108,6 +108,14 @@ test('keeps the story readable with reduced motion and without JavaScript', asyn
   await expect
     .poll(() => image.evaluate((el) => el instanceof HTMLImageElement && el.naturalWidth))
     .toBeGreaterThan(0)
+  await expect(staticPage.locator('video[controls]')).toHaveCount(3)
+  expect(
+    await staticPage
+      .locator('video')
+      .evaluateAll((els) =>
+        els.every((el) => el instanceof HTMLVideoElement && el.paused && !el.autoplay),
+      ),
+  ).toBe(true)
   await context.close()
 })
 
@@ -120,4 +128,39 @@ test('keeps the showcase scoped to Wilson’s verified CYOBot contribution', asy
   await expect(page.locator('main')).not.toContainText('Correction services')
   await expect(page.locator('main')).not.toContainText('Bot services')
   await expect(page.locator('main')).not.toContainText('DevOps')
+})
+
+test('leads contributions with real images and provides playable robot loops', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/work/cyobot')
+  const contribution = page.getByRole('region', { name: /Connecting the tools/ })
+  await expect(contribution.getByRole('img')).toHaveCount(3)
+  const videos = page.locator('main video')
+  await expect(videos).toHaveCount(3)
+  for (const video of await videos.all()) {
+    await video.scrollIntoViewIfNeeded()
+    await expect(video).toHaveAttribute('controls', '')
+    await expect(video).toHaveAttribute('loop', '')
+    expect(await video.evaluate((el) => (el as HTMLVideoElement).paused)).toBe(true)
+    const poster = await video.getAttribute('poster')
+    expect((await request.get(poster!)).ok()).toBeTruthy()
+    await video.focus()
+    await page.keyboard.press('Space')
+    await expect
+      .poll(() => video.evaluate((el) => (el as HTMLVideoElement).currentTime))
+      .toBeGreaterThan(0)
+    await page.keyboard.press('Space')
+    await expect.poll(() => video.evaluate((el) => (el as HTMLVideoElement).paused)).toBe(true)
+  }
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.reload()
+  expect(
+    await page
+      .locator('video')
+      .evaluateAll((els) =>
+        els.every((el) => el instanceof HTMLVideoElement && el.paused && !el.autoplay),
+      ),
+  ).toBe(true)
 })

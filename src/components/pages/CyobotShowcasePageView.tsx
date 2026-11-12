@@ -26,25 +26,33 @@ export function CyobotShowcasePageView({
             <p className="font-label text-xs uppercase tracking-[0.12em] text-ink/65">
               {content.category}
             </p>
-            <div className="mt-8 grid gap-8 lg:grid-cols-[1.3fr_1fr] lg:gap-20">
+            <div className="mt-8 grid items-center gap-8 lg:grid-cols-[1.3fr_1fr] lg:gap-20">
               <div>
                 <p className="text-lg font-semibold">{content.name}</p>
                 <h1 className="font-display mt-4 whitespace-pre-line text-[clamp(3.6rem,7vw,6.8rem)] font-normal leading-[0.98] tracking-[-0.055em]">
                   {content.heading}
                 </h1>
-              </div>
-              <div className="self-end">
-                <p className="max-w-md text-lg leading-relaxed text-ink/75">
+                <p className="mt-7 max-w-md text-lg leading-relaxed text-ink/75">
                   {content.introduction}
                 </p>
                 <a
                   href={content.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-8 inline-block border-b border-ink pb-2 text-sm font-medium hover:text-signal-deep"
+                  className="mt-7 inline-block border-b border-ink pb-2 text-sm font-medium hover:text-signal-deep"
                 >
                   {content.visitLabel} <span aria-hidden="true">↗</span>
                 </a>
+              </div>
+              <div className="order-first justify-self-center lg:order-last" data-work-reveal>
+                <Image
+                  {...content.robotImage}
+                  alt={content.robotImage.alt}
+                  unoptimized
+                  priority
+                  sizes="(max-width: 1023px) 300px, 420px"
+                  className="h-auto w-full max-w-[18rem] lg:max-w-[26rem]"
+                />
               </div>
             </div>
           </header>
@@ -91,7 +99,16 @@ export function CyobotShowcasePageView({
             </div>
             <div className="mt-14 grid gap-9 sm:grid-cols-3 lg:gap-14">
               {content.contributions.map((item, index) => (
-                <div key={item.title} className="border-t border-ink/25 pt-6" data-work-reveal>
+                <div key={item.title} data-work-reveal>
+                  <div className="mb-6 overflow-hidden bg-[#e7e1ef] p-3">
+                    <Image
+                      {...item.image}
+                      alt={item.image.alt}
+                      unoptimized
+                      sizes="(max-width: 639px) 90vw, 390px"
+                      className="aspect-[16/10] h-auto w-full object-contain"
+                    />
+                  </div>
                   <span className="font-label text-xs text-ink/50" aria-hidden="true">
                     0{index + 1}
                   </span>
@@ -104,7 +121,7 @@ export function CyobotShowcasePageView({
           {content.chapters.map((chapter, index) => (
             <section
               key={chapter.id}
-              className="work-chapter grid gap-10 border-t border-ink/20 py-16 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20 lg:py-24"
+              className="work-chapter grid gap-10 border-t border-ink/20 py-16 lg:grid-cols-[0.65fr_1.35fr] lg:gap-16 lg:py-24"
               aria-labelledby={`${chapter.id}-heading`}
             >
               <div className="self-start lg:sticky lg:top-36" data-work-reveal>
@@ -151,30 +168,66 @@ export function CyobotShowcasePageView({
             >
               {content.impactHeading}
             </h2>
-            <div className="mt-14 grid gap-10 sm:grid-cols-3 lg:gap-16">
+            <div className="mt-14 grid gap-10 sm:grid-cols-3 lg:gap-10">
               {content.capabilities.map((item) => (
-                <div key={item.title} data-work-reveal>
-                  <h3 className="text-lg font-semibold">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-ink/70">{item.description}</p>
-                </div>
+                <figure key={item.title} data-work-reveal>
+                  <div className="overflow-hidden bg-[#e3e8dc] p-3">
+                    <video
+                      aria-label={item.demo.alt}
+                      controls
+                      loop
+                      muted
+                      playsInline
+                      preload="none"
+                      poster={item.demo.poster}
+                      width={item.demo.width}
+                      height={item.demo.height}
+                      className="aspect-[16/10] h-auto w-full object-contain"
+                    >
+                      <source src={item.demo.src} type="video/mp4" />
+                      <a href={item.demo.sourceUrl}>{content.demoSourceLabel}</a>
+                    </video>
+                  </div>
+                  <figcaption className="mt-6">
+                    <h3 className="text-lg font-semibold">{item.title}</h3>
+                    <p className="mt-3 text-sm leading-7 text-ink/70">{item.description}</p>
+                    <a
+                      href={item.demo.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-block text-xs underline underline-offset-4"
+                    >
+                      {content.demoSourceLabel} <span aria-hidden="true">↗</span>
+                    </a>
+                  </figcaption>
+                </figure>
               ))}
             </div>
           </section>
           <div
-            className="flex flex-col items-start justify-between gap-10 border-t border-ink/25 py-14 sm:flex-row sm:items-end"
+            className="grid items-center gap-10 border-t border-ink/25 py-14 sm:grid-cols-[1fr_1.4fr] lg:gap-20"
             data-work-reveal
           >
-            <h2 className="font-display max-w-lg text-4xl tracking-[-0.035em] sm:text-5xl">
-              {content.closingHeading}
-            </h2>
-            <a
-              href={content.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 border-b border-ink pb-2 text-sm font-medium hover:text-signal-deep"
-            >
-              {content.visitLabel} <span aria-hidden="true">↗</span>
-            </a>
+            <Image
+              {...content.robotImage}
+              alt={content.robotImage.alt}
+              unoptimized
+              sizes="(max-width: 639px) 250px, 350px"
+              className="mx-auto h-auto w-full max-w-[18rem]"
+            />
+            <div>
+              <h2 className="font-display max-w-lg text-4xl tracking-[-0.035em] sm:text-5xl">
+                {content.closingHeading}
+              </h2>
+              <a
+                href={content.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-8 inline-block border-b border-ink pb-2 text-sm font-medium hover:text-signal-deep"
+              >
+                {content.visitLabel} <span aria-hidden="true">↗</span>
+              </a>
+            </div>
           </div>
           <p className="max-w-2xl text-xs leading-6 text-ink/60">
             {content.imageCredit}{' '}
