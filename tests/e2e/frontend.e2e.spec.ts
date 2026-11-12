@@ -48,7 +48,7 @@ test.describe('Frontend', () => {
     )
     await expect(page.getByRole('heading', { name: 'Work', exact: true })).toBeVisible()
     await expect(page.locator('#work article')).toHaveCount(6)
-    await expect(page.locator('#work figure')).toHaveCount(19)
+    await expect(page.locator('#work figure')).toHaveCount(18)
     await expect(page.locator('#work article h3')).toHaveText([
       'Kalibr',
       'Pangea Chat',
@@ -121,11 +121,12 @@ test.describe('Frontend', () => {
   test('explains contribution ownership and the observed playtest workflow', async ({ page }) => {
     await page.goto('/')
     const pangea = page.locator('#pangea-chat')
-    await expect(pangea).toContainText('proactive playtest program for existing users')
-    await expect(pangea).toContainText('15 minutes')
-    await expect(pangea).toContainText('Agents observed in the background and extracted todos')
+    await expect(pangea.getByRole('listitem')).toHaveCount(4)
+    await expect(pangea).toContainText('proactively invited existing users')
+    await expect(pangea).toContainText('15-minute playtest calls')
+    await expect(pangea).toContainText('Background agents extracted todos')
     await expect(pangea).toContainText('I signed off on implementation, testing and deployment')
-    await expect(pangea).toContainText('Most changes shipped on the same day as the playtest')
+    await expect(pangea).toContainText('most changes shipped that day')
     for (const project of ['cyobot', 'vulcan-augmetics']) {
       await expect(page.locator(`#${project}`)).toContainText('Founding software engineer.')
     }
@@ -143,53 +144,62 @@ test.describe('Frontend', () => {
     await expect(page.locator('#kalibr-admin-panels')).toContainText('synthetic demo data')
   })
 
-  test('lets pointer, keyboard and phone users inspect full-resolution screenshots', async ({
+  test('keeps every image static and introduces each Work image and text block consistently', async ({
     page,
   }) => {
-    for (const width of [1440, 375]) {
-      await page.setViewportSize({ width, height: 812 })
-      await page.goto('/')
-      for (const id of [
-        'localcut-timeline',
-        'localcut-asset-index',
-        'localcut-webmcp',
-        'localdesign-webmcp',
-      ]) {
-        const figure = page.locator(`#${id}`)
-        const zoom = figure.getByRole('button', { name: 'Zoom image' })
-        await zoom.click()
-        await expect(figure.getByRole('button', { name: 'Fit image' })).toHaveAttribute(
-          'aria-expanded',
-          'true',
-        )
-        const region = figure.getByRole('region')
-        await expect(region).toBeFocused()
-        const before = await region.evaluate((element) => ({
-          left: element.scrollLeft,
-          width: element.clientWidth,
-          scrollWidth: element.scrollWidth,
-        }))
-        if (before.scrollWidth > before.width + 20) {
-          await region.press('ArrowRight')
-          await expect
-            .poll(() => region.evaluate((element) => element.scrollLeft))
-            .toBeGreaterThan(before.left)
-        }
-        await expect
-          .poll(() => page.evaluate(() => document.documentElement.scrollWidth - innerWidth))
-          .toBeLessThanOrEqual(0)
-        await figure.getByRole('button', { name: 'Fit image' }).click()
-        await expect(zoom).toHaveAttribute('aria-expanded', 'false')
-        await expect(figure.getByRole('region')).toHaveCount(0)
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    await page.goto('/')
+    await expect(
+      page.locator('#work').getByRole('button', { name: /zoom|fit image/i }),
+    ).toHaveCount(0)
+    await expect(page.locator('#kalibr-analytics-pipeline, #work img[src$=".svg"]')).toHaveCount(0)
+    const heading = page.locator('.work-heading')
+    await heading.scrollIntoViewIfNeeded()
+    await expect(heading).toHaveAttribute('data-entered', 'true')
+    await expect(heading).toHaveCSS('animation-name', 'work-enter')
+    for (const intro of await page.locator('.work-intro').all()) {
+      await intro.scrollIntoViewIfNeeded()
+      await expect(intro).toHaveAttribute('data-entered', 'true')
+      await expect(intro.locator('header')).toHaveCSS('animation-name', 'work-enter')
+      await expect(intro.locator('dl')).toHaveCSS('animation-duration', '0.65s')
+    }
+    for (const figure of await page.locator('#work figure').all()) {
+      await figure.scrollIntoViewIfNeeded()
+      await expect(figure).toHaveAttribute('data-entered', 'true')
+      for (const part of ['.work-image-mat', '.work-callout']) {
+        await expect(figure.locator(part)).toHaveCSS('animation-name', 'work-enter')
+        await expect(figure.locator(part)).toHaveCSS('animation-duration', '0.65s')
       }
+      await figure.hover()
+      await figure.getByRole('link').focus()
+      const image = figure.getByRole('img')
+      await expect(image).toHaveCSS('transform', 'none')
+      const geometry = await image.evaluate((element) => ({
+        image: element.getBoundingClientRect().width,
+        frame: element.closest('.work-shot-view')!.clientWidth,
+      }))
+      expect(geometry.image).toBeCloseTo(geometry.frame, 0)
+    }
+    for (const image of await page.locator('#pangea-chat img').all()) {
+      await expect(image).toHaveJSProperty('naturalWidth', 1707)
+      await expect(image).toHaveJSProperty('naturalHeight', 960)
     }
     await page.emulateMedia({ reducedMotion: 'reduce' })
-    const figure = page.locator('#localdesign-webmcp')
-    await figure.getByRole('button', { name: 'Zoom image' }).press('Enter')
-    await expect(figure.getByRole('region')).toBeFocused()
-    await expect(figure.locator('.work-zoom-layer')).toHaveCSS('transform', 'none')
-    await figure.getByRole('button', { name: 'Fit image' }).press('Enter')
-    await expect(figure.getByRole('button', { name: 'Zoom image' })).toBeFocused()
+    for (const part of ['.work-image-mat', '.work-callout']) {
+      await expect(page.locator('#localdesign-webmcp').locator(part)).toHaveCSS(
+        'animation-name',
+        'none',
+      )
+    }
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.locator('#kalibr-admin-panels a').focus()
+    await expect(page.locator('#kalibr-admin-panels .work-shot-view')).toHaveCSS(
+      'transform',
+      'none',
+    )
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+    ).toBeLessThanOrEqual(0)
   })
 
   test('renders the explicit English locale route', async ({ page }) => {

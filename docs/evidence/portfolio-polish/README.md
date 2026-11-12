@@ -2,16 +2,18 @@
 
 Candidate evidence captured from the local production build on 13 November 2026.
 
-- Work retains six project boundaries and now has horizontal rules between all thirteen adjacent feature-image pairs. Numbered project/category and screenshot pre-titles are removed.
+- Work retains six project boundaries and now has horizontal rules between all twelve adjacent feature-image pairs. Numbered project/category and screenshot pre-titles are removed.
 - LocalCut and LocalDesign use product feature lists and descriptions; client projects retain their contribution lists.
 - Contact begins with its heading. The footer has a compact identity/navigation row and a quieter copyright/location row.
 - The live [AMSOFT](https://amsoft.vn/) stylesheet supplied the near-black `#080b0c`, cyan `#78e3f2`, dark cyan `#156675`, and supporting tokens. The existing off-white `#f4eddd` is retained.
 - Header, hero, mobile menu, and footer download `/wilson-le-resume.pdf` on `/`, `/en`, and `/vi`. The former resume routes return 404 and are absent from the sitemap. The shared PDF is English, matching the current Vietnamese fallback content.
 - The one-page tagged PDF was rendered and visually inspected. Text extraction confirms all four existing experience entries and both existing education entries. Social links are preserved. `pnpm generate:resume` regenerates it from the existing typed facts with the already-installed Playwright renderer; it is served as a static file.
 
-The current contribution and showcase update adds Kalibr first, expands Pangea's user-supplied playtest workflow, identifies CYOBot/Vulcan as founding software engineer work, and focuses LocalCut/LocalDesign on their requested browser-local features. There are nineteen feature images, including one source-backed Kalibr pipeline diagram. Kalibr's library is a public live capture; the admin panel is the actual component rendered locally with visibly labelled synthetic data. See [complete source and fixture provenance](../product-showcases.md).
+The current contribution and showcase update adds Kalibr first, expands Pangea's user-supplied playtest workflow, identifies CYOBot/Vulcan as founding software engineer work, and focuses LocalCut/LocalDesign on their requested browser-local features. There are eighteen feature images. Kalibr's library is a public live capture; its analytics row shows the actual admin component rendered locally with visibly labelled synthetic data. The architecture diagram is removed. See [complete source and fixture provenance](../product-showcases.md).
 
-The supplied ChatGPT/app captures are cropped to 1844 × 934, removing OS/browser chrome while preserving exact source-region pixels. They occupy the full content width. Explicit zoom offers native-resolution scrolling by pointer, keyboard and touch, with a fit control and full-size link. Reduced motion disables automatic animation while retaining deliberate zoom.
+The supplied ChatGPT/app captures remain exact 1844 ×934 crops excluding OS/browser chrome. All rows now follow the Vulcan CMS image-left/caption-right format and introduce both the image and its labelled text together. The Work heading and each project introduction use the same 650ms once-only entrance. Reduced motion and missing JavaScript leave content readable.
+
+All custom zoom behavior is removed. Pangea's former 1.5× views are now static 1707 ×960 source-pixel crops. Hover/focus never scales images, and full-size links retain the visible focus outline outside the clip.
 
 The follow-up [typography audit and WebMCP integration](typography-audit.md) documents the user-reported overlap, the failing regression, secondary enlargement defects and the new screenshot provenance.
 
@@ -25,8 +27,7 @@ Project-only captures, including mobile Work, omit the fixed site header to keep
 - [Kalibr, desktop](kalibr-desktop.webp)
 - [Kalibr, mobile](kalibr-mobile.webp)
 - [Pangea playtest contribution](pangea-contribution-desktop.webp)
-- [LocalCut zoomed agent view](localcut-agent-zoom-desktop.webp)
-- [LocalDesign zoomed view on mobile](localdesign-agent-zoom-mobile.webp)
+- [Pangea static close-ups](pangea-static-desktop.webp)
 - [Screenshot-link keyboard focus](image-keyboard-focus-desktop.webp)
 - [LocalCut external-agent feature](localcut-webmcp-desktop.webp)
 - [LocalDesign external-agent feature](localdesign-webmcp-desktop.webp)
@@ -45,8 +46,9 @@ Project-only captures, including mobile Work, omit the fixed site header to keep
 - Download cases use separate visitor sessions per locale. A diagnostic reproduced Chromium throttling the eleventh rapid download in one session; that same footer link succeeds in a fresh session. All four download entry points remain covered for each locale.
 - The independent first-pass review found an invisible primary-CTA focus outline. Cyan outlines now contrast with dark surfaces, with dark outlines on paper/cyan. The added regression test failed on the reviewed candidate at contrast ratio 1, then passed after correction; it waits for the existing color transition to settle. The focused production rendering was also visually inspected.
 - Typography checks cover actual line-ink separation, clipping, 11 viewport widths on all three home routes, two serif fallbacks, 200% root text size and expanded mobile navigation. All 24 checks pass against the rebuilt production app.
-- A new focus regression reproduces the image-link outline being clipped by the new scroll viewport. The shared frame now draws its focus cue outside the clip; keyboard zoom focuses the scroll region and arrow-key panning stays inside the viewport.
-- New content checks cover Kalibr-first ordering, the supplied contribution details, native crop dimensions and feature captions. Zoom checks cover 1440px/375px, keyboard panning, repeat fit/zoom, no page widening, and reduced motion.
-- Production render inspection confirms six project boundaries, all thirteen inter-feature rules, the unchanged off-white token, and the cyan accent. Screenshots establish appearance; download/route tests establish behavior.
+- A new focus regression reproduces the image-link outline being clipped by the new scroll viewport. The shared frame draws its focus cue outside the clip. The later zoom-opening review finding is removed with the entire custom zoom interaction under the latest user instruction.
+- New content checks cover Kalibr-first ordering, the supplied contribution details, native crop dimensions, condensed workflow bullet and feature captions. Static-image/entrance checks cover all eighteen rows, matching image/caption timing, all project introductions, hover/focus invariance, Pangea source dimensions and reduced motion.
+- Actual entrance sampling confirms image and caption opacity/translation progress together: both reached opacity 0.84 together and ended fully visible with zero translation. Static hover/focus and reduced-motion states are covered separately.
+- Production render inspection confirms six project boundaries, all twelve inter-feature rules, the unchanged off-white token, and the cyan accent. Screenshots establish appearance; download/route tests establish behavior.
 
 No database, CMS, deployment, or production state changes are part of this delivery.

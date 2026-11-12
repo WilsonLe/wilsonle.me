@@ -82,11 +82,6 @@ const projects: Projects = {
   productLabel: 'The product',
   contributionLabel: 'My part',
   featuresLabel: 'Features',
-  screenshotLabels: {
-    zoom: 'Zoom image',
-    fit: 'Fit image',
-    hint: 'Scroll to explore the full-resolution image.',
-  },
   items: projectItems,
 }
 

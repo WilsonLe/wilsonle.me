@@ -1,5 +1,6 @@
 import type { Projects } from '@/content/types'
 import { works } from '@/content/work'
+import { ScrollEntrance } from '@/components/ScrollEntrance'
 import { AnnotatedScreenshot } from '@/components/AnnotatedScreenshot'
 
 export function ProjectsSection({ projects }: { projects: Projects }) {
@@ -11,12 +12,14 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
       aria-labelledby="work-heading"
     >
       <div className="mx-auto max-w-7xl">
-        <h2
-          id="work-heading"
-          className="font-display text-5xl font-medium leading-display tracking-[-0.035em] sm:text-6xl lg:text-7xl"
-        >
-          {projects.heading}
-        </h2>
+        <ScrollEntrance className="work-heading">
+          <h2
+            id="work-heading"
+            className="font-display text-5xl font-medium leading-display tracking-[-0.035em] sm:text-6xl lg:text-7xl"
+          >
+            {projects.heading}
+          </h2>
+        </ScrollEntrance>
         <ol className="mt-12 border-t border-ink">
           {projects.items.map((project) => {
             const work = works.find((item) => item.projectId === project.id)
@@ -28,7 +31,7 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
                   className="work-project min-w-0 scroll-mt-24 py-10 sm:py-14 lg:py-16"
                   aria-labelledby={`${project.id}-heading`}
                 >
-                  <div className="grid items-start gap-7 pb-8 md:grid-cols-2 md:gap-14 lg:pb-10">
+                  <ScrollEntrance className="work-intro grid items-start gap-7 pb-8 md:grid-cols-2 md:gap-14 lg:pb-10">
                     <header>
                       <h3
                         id={`${project.id}-heading`}
@@ -69,7 +72,7 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
                         )}
                       </dd>
                     </dl>
-                  </div>
+                  </ScrollEntrance>
                   {work && (
                     <div className="work-features" aria-label={`${work.name} screenshots`}>
                       {work.screens.map((screen) => (
@@ -77,8 +80,6 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
                           key={screen.id}
                           id={`${work.slug === 'pangea-chat' ? 'pangea' : work.slug}-${screen.id}`}
                           screen={screen}
-                          zoom={work.slug === 'pangea-chat' || screen.zoom}
-                          labels={projects.screenshotLabels}
                         />
                       ))}
                     </div>
