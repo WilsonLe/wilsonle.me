@@ -56,9 +56,14 @@ test.describe('Frontend', () => {
     await expect(
       page.getByText('One other engineer and I shared ownership', { exact: false }),
     ).toHaveCount(0)
-    await expect(page.locator('#approach, #now, #work')).toHaveCount(0)
+    await expect(page.locator('#approach, #now, #about')).toHaveCount(0)
     await expect(
-      page.locator('a[href*="#approach"], a[href*="#now"], a[href*="#work"], a[href^="/work/"]'),
+      page.locator('a[href*="#approach"], a[href*="#now"], a[href*="#about"]'),
+    ).toHaveCount(0)
+    await expect(
+      page.locator(
+        'a[href$="/work/pangea-chat"], a[href$="/work/cyobot"], a[href$="/work/vulcan-augmetics"]',
+      ),
     ).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Open Pangea Chat' })).toHaveAttribute(
       'href',
