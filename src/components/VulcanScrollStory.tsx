@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import { VulcanSystemFlow } from '@/components/VulcanSystemFlow'
 import { VulcanIcon } from '@/components/VulcanIcon'
 import type { VulcanChapter } from '@/content/vulcan-types'
 
@@ -65,7 +66,7 @@ export function VulcanScrollStory({ chapters }: VulcanScrollStoryProps) {
             aria-labelledby={`${chapter.id}-heading`}
           >
             <figure className="vulcan-story-inline">
-              <div className="flex justify-center bg-vulcan-sand px-6 py-10 sm:p-12">
+              <div className="flex justify-center bg-vulcan-sand p-8 sm:p-14">
                 <Image
                   {...chapter.image}
                   alt={chapter.image.alt}
@@ -89,6 +90,7 @@ export function VulcanScrollStory({ chapters }: VulcanScrollStoryProps) {
               >
                 {chapter.heading}
               </h3>
+              <VulcanSystemFlow flow={chapter.flow} />
               <p className="mt-6 text-base leading-8 text-ink/70 sm:text-lg">
                 {chapter.description}
               </p>

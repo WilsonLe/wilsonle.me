@@ -49,16 +49,17 @@ const projectItems: Project[] = [
       path: '/work/vulcan-augmetics',
       label: 'Explore the work',
       image: {
-        src: '/images/work/vulcan-augmetics/content.webp',
-        alt: 'Vulcan’s real internal workspace for users, organisations and programme content.',
-        width: 1122,
-        height: 470,
+        src: '/images/work/vulcan-augmetics/access-rules.webp',
+        alt: 'Vulcan’s in-house role- and attribute-based access-control rules.',
+        width: 631,
+        height: 356,
       },
     },
     name: 'Vulcan internal platform',
     visibility: 'Private internal system',
-    summary: 'An internal platform helped teams manage content, access, and production services.',
-    contribution: 'I built content and access workflows, then added monitoring for production.',
+    summary: 'An in-house platform for access control, telemetry and analytics.',
+    contribution:
+      'I built role- and attribute-based access control, telemetry and analytics in-house.',
   },
 ]
 

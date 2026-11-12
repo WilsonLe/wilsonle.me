@@ -8,9 +8,11 @@ export interface VulcanChapter {
   description: string
   image: ShowcaseImage
   caption: string
+  flow: { label: string; steps: { icon: VulcanSymbol; label: string }[] }
 }
 
-export type VulcanFeature = 'content' | 'access' | 'monitoring'
+export type VulcanFeature = 'access' | 'analytics'
+export type VulcanSymbol = VulcanFeature | 'person' | 'context' | 'events' | 'report'
 
 export interface VulcanShowcaseContent {
   seo: PageSeo
@@ -27,13 +29,6 @@ export interface VulcanShowcaseContent {
   workLabel: string
   workHeading: string
   chapters: VulcanChapter[]
-  signIn: {
-    label: string
-    heading: string
-    description: string
-    image: ShowcaseImage
-    caption: string
-  }
   impact: {
     label: string
     heading: string

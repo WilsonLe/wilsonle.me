@@ -43,7 +43,7 @@ export function VulcanWorkPageView({ content, basePath }: VulcanWorkPageViewProp
               </h1>
             </div>
             <figure className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
-              <div className="flex aspect-[4/3] items-center overflow-hidden bg-vulcan-sand p-5 sm:p-8 lg:p-10">
+              <div className="flex aspect-[4/3] items-center overflow-hidden bg-vulcan-sand p-8 sm:p-12 lg:p-16">
                 <Image
                   {...content.heroImage}
                   alt={content.heroImage.alt}
@@ -89,42 +89,6 @@ export function VulcanWorkPageView({ content, basePath }: VulcanWorkPageViewProp
       </section>
 
       <section
-        className="border-t border-ink/20 px-5 py-20 sm:px-8 lg:py-28"
-        aria-labelledby="vulcan-signin-heading"
-      >
-        <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2 lg:gap-24">
-          <figure>
-            <div className="flex justify-center bg-vulcan-sand p-6 sm:p-10">
-              <Image
-                {...content.signIn.image}
-                alt={content.signIn.image.alt}
-                sizes="(min-width: 768px) 380px, 80vw"
-                className="vulcan-screen h-auto w-full max-w-[380px] rounded-md"
-              />
-            </div>
-            <figcaption className="font-label mt-4 text-xs leading-6 text-ink/60">
-              {content.signIn.caption}
-            </figcaption>
-          </figure>
-          <div>
-            <VulcanIcon name="access" className="mb-8 h-12 w-12 text-signal-deep" />
-            <p className="font-label text-xs font-bold uppercase tracking-[0.14em] text-signal-deep">
-              {content.signIn.label}
-            </p>
-            <h2
-              id="vulcan-signin-heading"
-              className="font-display mt-6 whitespace-pre-line text-4xl leading-[1.08] tracking-[-0.035em] sm:text-5xl"
-            >
-              {content.signIn.heading}
-            </h2>
-            <p className="mt-6 max-w-md text-base leading-8 text-ink/70 sm:text-lg">
-              {content.signIn.description}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section
         className="bg-ink px-5 py-20 text-paper sm:px-8 lg:py-28"
         aria-labelledby="vulcan-impact-heading"
       >
@@ -138,14 +102,14 @@ export function VulcanWorkPageView({ content, basePath }: VulcanWorkPageViewProp
           >
             {content.impact.heading}
           </h2>
-          <ul className="mt-10 grid gap-8 sm:grid-cols-3 sm:gap-10">
+          <ul className="mt-10 grid gap-8 sm:grid-cols-2 sm:gap-12">
             {content.impact.items.map((item) => (
               <li key={item.heading} className="border-t border-paper/25 pt-6">
-                <div className="mb-7 flex aspect-[4/3] items-center justify-center bg-ink-soft p-5">
+                <div className="mb-7 flex aspect-[4/3] items-center justify-center bg-ink-soft p-8 sm:p-12">
                   <Image
                     {...item.image}
                     alt={item.image.alt}
-                    sizes="(min-width: 1024px) 370px, (min-width: 640px) 30vw, 85vw"
+                    sizes="(min-width: 1024px) 520px, (min-width: 640px) 44vw, 80vw"
                     className="h-full w-full object-contain"
                   />
                 </div>
