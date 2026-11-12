@@ -153,7 +153,7 @@ export function CyobotShowcasePageView({
                     <h3 className="font-display text-2xl tracking-tight">
                       {chapter.workflow.heading}
                     </h3>
-                    <ol className="mt-8 grid gap-6 sm:grid-cols-3">
+                    <ol className="mt-8 grid grid-cols-3 gap-3 sm:gap-6">
                       {chapter.workflow.steps.map((step, stepIndex) => (
                         <li
                           key={step.kind}
@@ -165,20 +165,22 @@ export function CyobotShowcasePageView({
                               alt=""
                               unoptimized
                               sizes="96px"
-                              className="h-24 w-24 object-contain"
+                              className="h-16 w-16 object-contain sm:h-24 sm:w-24"
                             />
                           ) : (
                             <WirelessStepIcon kind={step.kind} />
                           )}
                           {stepIndex < chapter.workflow!.steps.length - 1 ? (
                             <span
-                              className="absolute -right-3 top-8 hidden text-xl text-ink/40 sm:block"
+                              className="absolute -right-2 top-5 text-base text-ink/40 sm:-right-3 sm:top-8 sm:text-xl"
                               aria-hidden="true"
                             >
                               →
                             </span>
                           ) : null}
-                          <p className="mt-4 max-w-36 text-sm leading-6">{step.label}</p>
+                          <p className="mt-4 max-w-36 text-xs leading-5 sm:text-sm sm:leading-6">
+                            {step.label}
+                          </p>
                         </li>
                       ))}
                     </ol>

@@ -5,7 +5,7 @@ export function WirelessStepIcon({ kind }: { kind: 'dashboard' | 'wireless' }) {
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      className="h-24 w-24"
+      className="h-16 w-16 sm:h-24 sm:w-24"
       aria-hidden="true"
     >
       {kind === 'dashboard' ? (
