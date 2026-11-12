@@ -69,6 +69,18 @@ export const pangeaChatContent: WorkShowcaseContent = {
         conversation,
       ],
       caption: 'Choose Pangea Bot, then practise through a real conversation.',
+      artwork: {
+        kind: 'chatbot',
+        title: 'A guided conversation with Pangea Bot',
+        description:
+          'Illustration based on the app: choose a school scenario, introduce yourself, and continue when Pangea Bot replies. The arrows and circles identify each step.',
+        callouts: ['Choose a scenario', 'Try a reply', 'Keep talking'],
+        partner: 'Pangea Bot',
+        scenario: 'First day at school',
+        messages: ['Hola, me llamo Lucía.', '¡Hola! Me llamo Wilson.', '¿Cómo estás, Wilson?'],
+      },
+      artworkNote: 'Illustration based on the app, with an example conversation.',
+      originalScreenLabel: 'Original screen',
     },
     {
       id: 'ai-services',
@@ -79,6 +91,21 @@ export const pangeaChatContent: WorkShowcaseContent = {
       details: ['Interactive translation', 'Word meanings', 'Pronunciation'],
       images: [translation, vocabulary],
       caption: 'Translation choices, word meanings, and pronunciation inside the chat.',
+      artwork: {
+        kind: 'assistance',
+        title: 'Language-learning assistance inside the conversation',
+        description:
+          'Illustration based on the app: choose a translation while writing a greeting, open the meaning of monopatín, and hear its pronunciation. Labels point to the translation choices, word meaning, and audio control.',
+        callouts: ['Translate as you write', 'See its meaning', 'Hear pronunciation'],
+        heading: 'Language help',
+        draft: 'Hello! My name is Wilson.',
+        translationLabel: 'Translation choices',
+        choices: ['¡Hola!', 'Buenos días', 'Adiós'],
+        word: 'monopatín',
+        meaning: 'skateboard',
+      },
+      artworkNote: 'Illustration based on the app’s translation and vocabulary tools.',
+      originalScreenLabel: 'Original screen',
     },
   ],
   delivery: {

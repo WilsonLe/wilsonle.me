@@ -86,6 +86,28 @@ export interface ShowcaseService {
   name: string
 }
 
+export type ShowcaseFeatureArtwork = {
+  title: string
+  description: string
+  callouts: [string, string, string]
+} & (
+  | {
+      kind: 'chatbot'
+      partner: string
+      scenario: string
+      messages: [string, string, string]
+    }
+  | {
+      kind: 'assistance'
+      heading: string
+      draft: string
+      translationLabel: string
+      choices: [string, string, string]
+      word: string
+      meaning: string
+    }
+)
+
 export interface WorkShowcaseContent {
   path: string
   seo: PageSeo
@@ -106,6 +128,9 @@ export interface WorkShowcaseContent {
     details: string[]
     images: ShowcaseImage[]
     caption: string
+    artwork: ShowcaseFeatureArtwork
+    artworkNote: string
+    originalScreenLabel: string
   }[]
   delivery: {
     label: string

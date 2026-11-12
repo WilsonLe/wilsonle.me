@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { PangeaFeatureArtwork } from '@/components/PangeaFeatureArtwork'
 import { ShowcaseScroll } from '@/components/ShowcaseScroll'
 import { ShowcaseServiceIcon } from '@/components/ShowcaseServiceIcon'
 import type { WorkShowcaseContent } from '@/content/types'
@@ -109,26 +110,25 @@ export function WorkShowcasePageView({ content, basePath }: WorkShowcasePageView
                 </ul>
               </div>
               <figure data-showcase-reveal>
-                <div className="grid items-start gap-6 rounded-xl sm:grid-cols-2 bg-pangea-lilac/65 p-5 sm:gap-6 sm:p-8">
-                  {chapter.images.map((image, imageIndex) => (
-                    <a
-                      key={image.src}
-                      href={image.src}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`showcase-screen block overflow-hidden rounded-lg shadow-lg shadow-ink/10 ${imageIndex === 1 ? 'sm:mt-9' : ''}`}
-                    >
-                      <Image
-                        {...image}
-                        alt={image.alt}
-                        sizes="(max-width: 640px) 80vw, (max-width: 1024px) 43vw, 320px"
-                        className="h-auto w-full"
-                      />
-                    </a>
-                  ))}
-                </div>
-                <figcaption className="mt-4 max-w-lg text-xs leading-6 text-ink/65">
-                  {chapter.caption}
+                <PangeaFeatureArtwork content={chapter.artwork} />
+                <figcaption className="mt-4 text-xs leading-6 text-ink/65">
+                  <p>{chapter.artworkNote}</p>
+                  <p className="sr-only">{chapter.caption}</p>
+                  <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
+                    {chapter.images.map((image, imageIndex) => (
+                      <a
+                        key={image.src}
+                        href={image.src}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={image.alt}
+                        className="inline-flex min-h-11 items-center gap-2 underline underline-offset-4 hover:text-ink"
+                      >
+                        {chapter.originalScreenLabel} 0{imageIndex + 1}
+                        <span aria-hidden="true">↗</span>
+                      </a>
+                    ))}
+                  </div>
                 </figcaption>
               </figure>
             </section>

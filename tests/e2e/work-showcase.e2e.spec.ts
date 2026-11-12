@@ -62,8 +62,51 @@ test.describe('Pangea work showcase', () => {
       for (const section of await page.locator('[data-showcase-reveal]').all()) {
         await expect(section).toHaveCSS('opacity', '1')
       }
+      for (const stroke of await page.locator('.feature-draw').all()) {
+        await expect(stroke).toHaveCSS('stroke-dashoffset', '0px')
+      }
+      for (const detail of await page.locator('.feature-appear').all()) {
+        await expect(detail).toHaveCSS('opacity', '1')
+      }
       await expect(page.getByRole('heading', { name: 'Pangea Chat', exact: true })).toBeVisible()
       await context.close()
+    }
+  })
+
+  test('draws the SVG callouts on entry and reveals complete artwork when reduced motion is enabled', async ({
+    page,
+  }) => {
+    await page.goto('/work/pangea-chat')
+    const artworks = page.locator('.feature-artwork')
+    await expect(artworks).toHaveCount(2)
+    for (const artwork of await artworks.all()) {
+      const stroke = artwork.locator('.feature-draw').first()
+      await expect(stroke).toHaveCSS('stroke-dashoffset', '1px')
+      await artwork.scrollIntoViewIfNeeded()
+      await expect(stroke).toHaveCSS('stroke-dashoffset', '0px')
+      await expect(artwork.locator('.feature-appear').last()).toHaveCSS('opacity', '1')
+    }
+    const source = page.getByRole('link', {
+      name: 'A real Pangea activity offers a choice to play with Pangea Bot or with other learners.',
+      exact: true,
+    })
+    await source.focus()
+    await expect(source).toBeFocused()
+    await expect(source).toHaveAttribute('href', '/images/work/pangea-chat/roleplay.webp')
+
+    await page.goto('/')
+    await page.goto('/work/pangea-chat')
+    await expect(artworks.first().locator('.feature-draw').first()).toHaveCSS(
+      'stroke-dashoffset',
+      '1px',
+    )
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    for (const panel of await page.locator('figure').filter({ has: artworks }).all()) {
+      await expect(panel).toHaveCSS('opacity', '1')
+    }
+    for (const artwork of await artworks.all()) {
+      await expect(artwork.locator('.feature-draw').first()).toHaveCSS('stroke-dashoffset', '0px')
+      await expect(artwork.locator('.feature-appear').last()).toHaveCSS('opacity', '1')
     }
   })
 

@@ -21,9 +21,50 @@
       transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
-  .work-showcase[data-motion-ready='true'] [data-showcase-reveal]:not([data-revealed='true']) {
-    opacity: 0;
-    transform: translateY(1.5rem);
+  .feature-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .feature-appear {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 600ms ease,
+      transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .feature-stage-1 {
+    transition-delay: 150ms;
+  }
+
+  .feature-stage-2 {
+    transition-delay: 400ms;
+  }
+
+  .feature-stage-3 {
+    transition-delay: 700ms;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .work-showcase[data-motion-ready='true'] [data-showcase-reveal]:not([data-revealed='true']) {
+      opacity: 0;
+      transform: translateY(1.5rem);
+    }
+
+    .work-showcase[data-motion-ready='true']
+      [data-showcase-reveal]:not([data-revealed='true'])
+      .feature-draw {
+      stroke-dashoffset: 1;
+    }
+
+    .work-showcase[data-motion-ready='true']
+      [data-showcase-reveal]:not([data-revealed='true'])
+      .feature-appear {
+      opacity: 0;
+      transform: translateY(0.75rem);
+    }
   }
 
   .showcase-pipeline::after {
@@ -138,6 +179,17 @@
 
   .showcase-pipeline::after {
     animation: none;
+  }
+
+  .work-showcase .feature-draw {
+    stroke-dashoffset: 0;
+    transition: none;
+  }
+
+  .work-showcase .feature-appear {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 

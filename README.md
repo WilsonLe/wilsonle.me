@@ -18,7 +18,8 @@ Production: <https://wilsonle.me>
   reduced-motion fallbacks. Shared ownership is credited to a two-engineer team;
   locally served service icons illustrate GitHub Actions, AWS ECS/EC2, Sentry,
   and PagerDuty. The story leads with Pangea Bot and in-chat language-learning
-  assistance, with app-based learner outcomes before the supporting engineering
+  assistance, with original annotated SVG feature illustrations and app-based
+  learner outcomes before the supporting engineering
   workflow. Icon sources are recorded beside the assets.
 - **Blog** — authored **in code** as MDX files under `src/content/blog/<locale>/`.
   No headless CMS in front of blog posts.
