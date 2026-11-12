@@ -36,6 +36,11 @@ export interface SiteSettings {
     eyebrow: string
     heading: string
     emailLabel: string
+    booking: {
+      url: string
+      label: string
+      text: string
+    }
   }
 }
 

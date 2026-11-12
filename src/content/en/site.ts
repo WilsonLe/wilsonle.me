@@ -35,5 +35,10 @@ export const siteSettings: SiteSettings = {
     eyebrow: 'Contact',
     heading: 'Get In Touch',
     emailLabel: 'Email',
+    booking: {
+      url: 'https://calendly.com/wilson-lyratechnologies/30min',
+      label: 'Booking',
+      text: 'Book a 30-minute call',
+    },
   },
 }
