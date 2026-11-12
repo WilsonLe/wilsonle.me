@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @theme {
+  --leading-display: 1.15;
   --color-ink: #080b0c;
   --color-ink-raised: #101516;
   --color-ink-soft: #151b1c;
@@ -28,6 +29,13 @@
     background: var(--color-ink);
     color: var(--color-paper);
     text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    overflow-wrap: anywhere;
   }
 
   a,

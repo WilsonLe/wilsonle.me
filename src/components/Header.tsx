@@ -88,7 +88,7 @@ export function Header({ siteSettings }: HeaderProps) {
 
         {isMenuOpen && (
           <div id="mobile-navigation" className="border-t border-rule pb-5 pt-3 lg:hidden">
-            <div className="grid grid-cols-2 gap-px bg-rule">
+            <div className="grid grid-cols-1 gap-px bg-rule sm:grid-cols-2">
               {navLinks.map((link) => (
                 <a
                   key={link.href}

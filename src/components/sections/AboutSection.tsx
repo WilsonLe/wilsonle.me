@@ -35,7 +35,7 @@ export function AboutSection({ about }: AboutSectionProps) {
           </p>
           <h2
             id="about-heading"
-            className="font-display mt-5 text-5xl font-medium leading-[0.95] tracking-[-0.035em] sm:text-6xl lg:text-8xl"
+            className="font-display mt-5 text-5xl font-medium leading-display tracking-[-0.035em] sm:text-6xl lg:text-8xl"
           >
             {about.heading}
           </h2>

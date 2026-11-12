@@ -49,7 +49,7 @@ export function HeroSection({ basePath, hero, siteSettings }: HeroSectionProps) 
             </p>
             <h1
               id="hero-heading"
-              className="font-display max-w-5xl text-[clamp(3.25rem,9vw,8.5rem)] font-medium leading-[0.88] tracking-[-0.055em] text-paper"
+              className="font-display max-w-5xl text-[clamp(3.25rem,9vw,8.5rem)] font-medium leading-display tracking-[-0.035em] text-paper"
             >
               {hero.heading}
             </h1>

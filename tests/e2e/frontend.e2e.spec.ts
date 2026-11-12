@@ -48,7 +48,7 @@ test.describe('Frontend', () => {
     )
     await expect(page.getByRole('heading', { name: 'Work', exact: true })).toBeVisible()
     await expect(page.locator('#work article')).toHaveCount(5)
-    await expect(page.locator('#work figure')).toHaveCount(14)
+    await expect(page.locator('#work figure')).toHaveCount(16)
     await expect(page.locator('#pangea-chat h4')).toHaveText([
       'Sentence builder',
       'Pangea Bot',
@@ -89,6 +89,19 @@ test.describe('Frontend', () => {
       'href',
       'https://wilsonle.github.io/LocalDesign/',
     )
+    for (const project of ['localcut', 'localdesign']) {
+      const figure = page.locator(`#${project}-webmcp`)
+      await figure.scrollIntoViewIfNeeded()
+      await expect(figure.getByRole('heading')).toHaveText(
+        project === 'localcut' ? 'Edit with an external agent.' : 'Design with an external agent.',
+      )
+      await expect(figure.getByRole('link')).toHaveAttribute(
+        'href',
+        `/work/screenshots/${project}-webmcp.webp`,
+      )
+      await expect(figure.getByRole('img')).toHaveJSProperty('naturalWidth', 1920)
+      await expect(figure.getByRole('img')).toHaveJSProperty('naturalHeight', 1080)
+    }
     await expect(page.getByRole('heading', { name: 'Experience', exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Education', exact: true })).toHaveCount(0)
   })

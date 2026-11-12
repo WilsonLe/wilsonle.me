@@ -255,6 +255,22 @@ export const works: Work[] = [
           y: 50,
         },
       },
+      {
+        id: 'webmcp',
+        title: 'Edit with an external agent.',
+        image: {
+          src: '/work/screenshots/localcut-webmcp.webp',
+          alt: 'An external-agent conversation beside LocalCut, with a video preview, clip list and context dialog visible in the editor.',
+          width: 1920,
+          height: 1080,
+        },
+        callout: {
+          description:
+            'Use WebMCP tools to let an external agent work in the editor. Steer the edit in conversation while clips, context and transcripts stay visible in LocalCut.',
+          x: 50,
+          y: 50,
+        },
+      },
     ],
   },
   {
@@ -298,6 +314,22 @@ export const works: Work[] = [
             'Fine-tune type size, spacing and line height. Bundled fonts stay with the editable design, and SVG or PNG exports make it easy to share the result.',
           x: 87,
           y: 40,
+        },
+      },
+      {
+        id: 'webmcp',
+        title: 'Design with an external agent.',
+        image: {
+          src: '/work/screenshots/localdesign-webmcp.webp',
+          alt: 'An external-agent conversation beside LocalDesign, showing a CYOBot concept board with editable frames, layers and the design inspector.',
+          width: 1920,
+          height: 1080,
+        },
+        callout: {
+          description:
+            'Use WebMCP tools to create and refine frames, layers and text with an external agent. Keep the canvas visible alongside the conversation and adjust the result in the editor.',
+          x: 50,
+          y: 50,
         },
       },
     ],

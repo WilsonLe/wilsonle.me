@@ -19,7 +19,7 @@ export function NowSection({ now }: NowSectionProps) {
           </p>
           <h2
             id="now-heading"
-            className="font-display mt-5 max-w-xl text-4xl font-medium leading-[0.95] tracking-[-0.035em] sm:text-5xl lg:text-7xl"
+            className="font-display mt-5 max-w-xl text-4xl font-medium leading-display tracking-[-0.035em] sm:text-5xl lg:text-7xl"
           >
             {now.heading}
           </h2>

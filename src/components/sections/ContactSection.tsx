@@ -49,7 +49,7 @@ export function ContactSection({ siteSettings }: ContactSectionProps) {
         <div>
           <h2
             id="contact-heading"
-            className="font-display max-w-3xl text-5xl font-medium leading-[0.9] tracking-[-0.04em] sm:text-7xl lg:text-8xl"
+            className="font-display max-w-3xl text-5xl font-medium leading-display tracking-[-0.035em] sm:text-7xl lg:text-8xl"
           >
             {siteSettings.contact.heading}
           </h2>
@@ -62,9 +62,9 @@ export function ContactSection({ siteSettings }: ContactSectionProps) {
                 href={link.href}
                 target={link.external ? '_blank' : undefined}
                 rel={link.external ? 'noopener noreferrer' : undefined}
-                className="group grid min-w-0 grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-3 px-3 py-4 transition-colors hover:bg-ink hover:text-signal"
+                className="group grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-3 py-4 transition-colors hover:bg-ink hover:text-signal sm:grid-cols-[5.5rem_minmax(0,1fr)_auto]"
               >
-                <span className="font-label text-[0.65rem] font-bold uppercase tracking-[0.12em] opacity-80">
+                <span className="font-label col-span-2 text-[0.65rem] font-bold uppercase tracking-[0.12em] opacity-80 sm:col-span-1">
                   {link.label}
                 </span>
                 <span className="min-w-0 break-words text-sm sm:text-base">{link.value}</span>

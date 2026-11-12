@@ -19,7 +19,7 @@ export function PrinciplesSection({ principles }: PrinciplesSectionProps) {
         </p>
         <h2
           id="approach-heading"
-          className="font-display mt-5 max-w-3xl text-4xl font-medium leading-[0.95] tracking-[-0.035em] text-paper sm:text-5xl lg:text-7xl"
+          className="font-display mt-5 max-w-3xl text-4xl font-medium leading-display tracking-[-0.035em] text-paper sm:text-5xl lg:text-7xl"
         >
           {principles.heading}
         </h2>

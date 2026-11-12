@@ -13,7 +13,7 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
       <div className="mx-auto max-w-7xl">
         <h2
           id="work-heading"
-          className="font-display text-5xl font-medium leading-none tracking-[-0.035em] sm:text-6xl lg:text-7xl"
+          className="font-display text-5xl font-medium leading-display tracking-[-0.035em] sm:text-6xl lg:text-7xl"
         >
           {projects.heading}
         </h2>
