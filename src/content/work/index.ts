@@ -2,7 +2,7 @@ export interface WorkScreen {
   id: string
   title: string
   image: { src: string; alt: string; width: number; height: number }
-  callout: { label: string; x: number; y: number; labelX: number }
+  callout: { description?: string; label: string; x: number; y: number; labelX: number }
 }
 export interface Work {
   slug: string
@@ -23,40 +23,25 @@ export const works: Work[] = [
     tone: 'purple',
     screens: [
       {
-        id: 'world-map',
-        title: 'A world of conversations.',
-        image: {
-          src: '/work/screenshots/pangea-map.webp',
-          alt: 'Pangea Chat world map with conversation activities, search and navigation.',
-          width: 1280,
-          height: 720,
-        },
-        callout: {
-          label: 'Frontend · world map UI',
-          x: 48,
-          y: 28,
-          labelX: 34,
-        },
-      },
-      {
-        id: 'interactive-translator',
-        title: 'Learn while you write.',
+        id: 'sentence-builder',
+        title: 'Sentence builder',
         image: {
           src: '/work/screenshots/pangea-translator.webp',
-          alt: 'Interactive translator showing Spanish phrase choices and an explanation inside the full Pangea Chat interface.',
+          alt: 'Pangea Chat sentence builder with translation choices and explanations before a message is sent.',
           width: 1280,
           height: 720,
         },
         callout: {
-          label: 'AI services · interactive translation',
+          label: 'Frontend + AI services',
           x: 66,
           y: 78,
           labelX: 68,
+          description: 'Build a sentence with translation choices and explanations before sending.',
         },
       },
       {
         id: 'pangea-bot',
-        title: 'A partner to practise with.',
+        title: 'Pangea Bot',
         image: {
           src: '/work/screenshots/pangea-bot.webp',
           alt: 'Pangea Bot Spanish role-play conversation with vocabulary suggestions, chat list and the world map behind it.',
@@ -64,26 +49,46 @@ export const works: Work[] = [
           height: 720,
         },
         callout: {
-          label: 'Frontend + AI · Pangea Bot',
+          label: 'Frontend + AI services',
           x: 64,
           y: 63,
           labelX: 36,
+          description: 'Practise a language through a guided conversation with Pangea Bot.',
         },
       },
       {
-        id: 'vocabulary-help',
-        title: 'Vocabulary in context',
+        id: 'message-interpreter',
+        title: 'Message interpreter',
         image: {
-          src: '/work/screenshots/pangea-vocabulary.webp',
-          alt: 'Pangea Chat vocabulary popup with the meaning and pronunciation of monopatín, surrounded by the bot conversation and world map.',
+          src: '/work/screenshots/pangea-message-interpreter.webp',
+          alt: 'Pangea Chat message interpreter showing the Spanish message ¿Cómo estás, Wilson? together with its English translation inside the chat.',
           width: 1280,
           height: 720,
         },
         callout: {
-          label: 'In-chat meaning + pronunciation',
+          label: 'In-chat language assistance',
+          description:
+            'Read an incoming message with its translation, without leaving the conversation.',
           x: 56,
-          y: 35,
-          labelX: 40,
+          y: 81,
+          labelX: 50,
+        },
+      },
+      {
+        id: 'world-map-group-chats',
+        title: 'World-map group chats',
+        image: {
+          src: '/work/screenshots/pangea-map.webp',
+          alt: 'Pangea Chat world map with conversation activities, search and navigation.',
+          width: 1280,
+          height: 720,
+        },
+        callout: {
+          label: 'Frontend · conversation discovery',
+          x: 48,
+          y: 28,
+          labelX: 34,
+          description: 'Find conversations on the world map and practise with other people.',
         },
       },
     ],

@@ -49,6 +49,12 @@ test.describe('Frontend', () => {
     await expect(page.getByRole('heading', { name: 'Work', exact: true })).toBeVisible()
     await expect(page.locator('#work article')).toHaveCount(3)
     await expect(page.locator('#work figure')).toHaveCount(10)
+    await expect(page.locator('#pangea-chat h4')).toHaveText([
+      'Sentence builder',
+      'Pangea Bot',
+      'Message interpreter',
+      'World-map group chats',
+    ])
     await expect(page.locator('#work').getByText('My part', { exact: true })).toHaveCount(3)
     await expect(
       page.getByText('Built the frontend and AI assistant.', { exact: true }),

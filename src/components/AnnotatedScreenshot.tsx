@@ -8,10 +8,14 @@ export function AnnotatedScreenshot({
   screen,
   priority = false,
   compact = false,
+  layout = 'gallery',
+  sequence = 0,
 }: {
   screen: WorkScreen
   priority?: boolean
   compact?: boolean
+  layout?: 'gallery' | 'split'
+  sequence?: number
 }) {
   const ref = useRef<HTMLElement>(null)
 
@@ -37,6 +41,67 @@ export function AnnotatedScreenshot({
   const targetY = (callout.y * height) / 100
   const labelPosition = compact ? 50 : callout.labelX
   const labelX = labelPosition * 10
+
+  if (layout === 'split') {
+    return (
+      <figure
+        ref={ref}
+        id={`pangea-${screen.id}`}
+        className="work-capture pangea-feature"
+        aria-labelledby={`pangea-${screen.id}-title`}
+      >
+        <div className="pangea-image-mat">
+          <a
+            className="pangea-shot-view"
+            href={image.src}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Open full screenshot: ${screen.title}`}
+          >
+            <div
+              className="pangea-zoom-layer"
+              style={{ transformOrigin: `${callout.x}% ${callout.y}%` }}
+            >
+              <Image
+                {...image}
+                alt={image.alt}
+                sizes="(min-width: 1280px) 740px, (min-width: 900px) 60vw, 90vw"
+                priority={priority}
+                className="h-auto w-full"
+              />
+              <svg
+                className="pangea-target-overlay"
+                viewBox={`0 0 1000 ${height}`}
+                fill="none"
+                aria-hidden="true"
+              >
+                <path className="work-leader" d={`M 1000 ${targetY} H ${targetX + 18}`} />
+                <circle className="work-target" cx={targetX} cy={targetY} r="18" />
+                <circle cx={targetX} cy={targetY} r="3" fill="currentColor" stroke="none" />
+              </svg>
+            </div>
+          </a>
+        </div>
+        <figcaption className="pangea-callout" tabIndex={0}>
+          <div className="pangea-callout-copy">
+            <p className="font-label text-xs text-ink/65">
+              <span className="mr-3 text-signal-deep">0{sequence + 1}</span>
+              {callout.label}
+            </p>
+            <h4
+              id={`pangea-${screen.id}-title`}
+              className="font-display mt-5 text-3xl leading-tight tracking-[-0.025em] sm:text-4xl"
+            >
+              {screen.title}
+            </h4>
+            {callout.description && (
+              <p className="mt-4 max-w-sm text-sm leading-7 text-ink/75">{callout.description}</p>
+            )}
+          </div>
+        </figcaption>
+      </figure>
+    )
+  }
 
   return (
     <figure ref={ref} className={`work-capture${compact ? ' work-capture--compact' : ''}`}>

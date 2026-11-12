@@ -74,21 +74,33 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
                       </dd>
                     </dl>
                   </div>
-                  {work && (
-                    <div
-                      className="work-gallery grid gap-5 sm:grid-cols-2 lg:gap-7"
-                      aria-label={`${work.name} screenshots`}
-                    >
-                      {work.screens.map((screen, screenIndex) => {
-                        const lead = work.screens.length % 2 === 1 && screenIndex === 0
-                        return (
-                          <div key={screen.id} className={lead ? 'sm:col-span-2' : 'min-w-0'}>
-                            <AnnotatedScreenshot screen={screen} compact={!lead} />
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
+                  {work &&
+                    (work.slug === 'pangea-chat' ? (
+                      <div className="pangea-features" aria-label="Pangea Chat screenshots">
+                        {work.screens.map((screen, screenIndex) => (
+                          <AnnotatedScreenshot
+                            key={screen.id}
+                            screen={screen}
+                            layout="split"
+                            sequence={screenIndex}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div
+                        className="work-gallery grid gap-5 sm:grid-cols-2 lg:gap-7"
+                        aria-label={`${work.name} screenshots`}
+                      >
+                        {work.screens.map((screen, screenIndex) => {
+                          const lead = work.screens.length % 2 === 1 && screenIndex === 0
+                          return (
+                            <div key={screen.id} className={lead ? 'sm:col-span-2' : 'min-w-0'}>
+                              <AnnotatedScreenshot screen={screen} compact={!lead} />
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ))}
                 </article>
               </li>
             )
