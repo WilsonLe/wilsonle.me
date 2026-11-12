@@ -2,15 +2,15 @@ export interface WorkScreen {
   id: string
   title: string
   image: { src: string; alt: string; width: number; height: number }
-  callout: { description: string; label: string; x: number; y: number }
+  callout: { description: string; x: number; y: number }
 }
 export interface Work {
   slug: string
   projectId: string
   name: string
   summary: string
-  contributions: string[]
-  tone: 'purple' | 'sand' | 'blue'
+  contributions?: string[]
+  features?: string[]
   screens: WorkScreen[]
 }
 
@@ -20,7 +20,6 @@ export const works: Work[] = [
     projectId: 'pangea-chat',
     name: 'Pangea Chat',
     summary: 'Learn a language through conversation.',
-    tone: 'purple',
     screens: [
       {
         id: 'sentence-builder',
@@ -32,7 +31,6 @@ export const works: Work[] = [
           height: 1440,
         },
         callout: {
-          label: 'Frontend + AI services',
           x: 66,
           y: 78,
           description: 'Build a sentence with translation choices and explanations before sending.',
@@ -48,7 +46,6 @@ export const works: Work[] = [
           height: 1440,
         },
         callout: {
-          label: 'Frontend + AI services',
           x: 64,
           y: 63,
           description: 'Practise a language through a guided conversation with Pangea Bot.',
@@ -64,7 +61,6 @@ export const works: Work[] = [
           height: 1440,
         },
         callout: {
-          label: 'In-chat language assistance',
           description:
             'Read an incoming message with its translation, without leaving the conversation.',
           x: 56,
@@ -81,7 +77,6 @@ export const works: Work[] = [
           height: 1440,
         },
         callout: {
-          label: 'Frontend · conversation discovery',
           x: 51,
           y: 70,
           description: 'Find conversations on the world map and practise with other people.',
@@ -100,7 +95,6 @@ export const works: Work[] = [
     projectId: 'vulcan-internal-platform',
     name: 'Vulcan Augmetics',
     summary: 'The internal platform behind the prosthetics.',
-    tone: 'sand',
     screens: [
       {
         id: 'access-control',
@@ -112,7 +106,6 @@ export const works: Work[] = [
           height: 1600,
         },
         callout: {
-          label: 'Built in-house · role + attribute rules',
           description:
             'I implemented access controls that combine roles with conditions such as the user’s clinic to determine which records they can access.',
           x: 80,
@@ -129,7 +122,6 @@ export const works: Work[] = [
           height: 1600,
         },
         callout: {
-          label: 'My work · internal CMS + admin',
           description:
             'I built the internal CMS and admin workflows for managing users, organisations, sessions and exercises.',
           x: 58,
@@ -146,7 +138,6 @@ export const works: Work[] = [
           height: 1600,
         },
         callout: {
-          label: 'API telemetry + monitoring',
           description:
             'I added API telemetry and monitoring for request volume, latency and errors.',
           x: 51,
@@ -165,7 +156,6 @@ export const works: Work[] = [
     projectId: 'cyobot-robotics-quest',
     name: 'CYOBot',
     summary: 'From learning to building with robots.',
-    tone: 'blue',
     screens: [
       {
         id: 'instructor-dashboard',
@@ -177,7 +167,6 @@ export const works: Work[] = [
           height: 1600,
         },
         callout: {
-          label: 'My work · admin + sidebar chatbot',
           description:
             'Manage robotics quests and levels with a sample lesson-planning conversation alongside.',
           x: 83,
@@ -194,7 +183,6 @@ export const works: Work[] = [
           height: 2000,
         },
         callout: {
-          label: 'My work · student coding dashboard',
           description:
             'A demo student workspace with robotics quests, skill progress, rewards and a career skill map.',
           x: 44,
@@ -211,7 +199,6 @@ export const works: Work[] = [
           height: 1600,
         },
         callout: {
-          label: 'Coding portal · quest + level flow',
           description:
             'A demo Python quest brings together learning objectives and a three-level journey.',
           x: 61,
@@ -230,11 +217,10 @@ export const works: Work[] = [
     projectId: 'localcut',
     name: 'LocalCut',
     summary: 'A video editor, right in the browser.',
-    tone: 'sand',
-    contributions: [
-      'Built the local media engine and timeline editor.',
-      'Added text animation, compositing and video export.',
-      'Exposed editing tools to external agents through WebMCP.',
+    features: [
+      'Arrange local media on a multitrack timeline.',
+      'Layer animated titles, apply transitions and export video.',
+      'Edit with external agents through WebMCP tools.',
     ],
     screens: [
       {
@@ -247,9 +233,8 @@ export const works: Work[] = [
           height: 1600,
         },
         callout: {
-          label: 'Media engine + timeline editor',
           description:
-            'I built the editing engine and timeline for arranging media, layering titles, animating properties and applying transitions. This demo brings those tools together.',
+            'Arrange local media across multiple tracks, layer titles and add transitions. Preview the sequence as you edit, then export the finished video.',
           x: 60,
           y: 78,
         },
@@ -264,9 +249,8 @@ export const works: Work[] = [
           height: 2000,
         },
         callout: {
-          label: 'Typography + motion controls',
           description:
-            'I added bundled fonts, text styling and animation controls so titles can be designed alongside the edit, with a preview before applying changes.',
+            'Style titles with bundled fonts, alignment and animation controls. Preview typography and motion alongside the video before applying changes.',
           x: 50,
           y: 50,
         },
@@ -278,11 +262,10 @@ export const works: Work[] = [
     projectId: 'localdesign',
     name: 'LocalDesign',
     summary: 'Your canvas, locally.',
-    tone: 'blue',
-    contributions: [
-      'Built the canvas, layer editor and frame layouts.',
-      'Implemented portable typography and SVG/PNG exports.',
-      'Added editable backups and WebMCP authoring tools.',
+    features: [
+      'Compose frames, shapes, images and text with editable layers.',
+      'Keep fonts with the design and export to SVG or PNG.',
+      'Save editable backups and author with WebMCP tools.',
     ],
     screens: [
       {
@@ -295,9 +278,8 @@ export const works: Work[] = [
           height: 1800,
         },
         callout: {
-          label: 'Canvas engine + layer workflows',
           description:
-            'I built the canvas and layer workflows for composing frames, shapes, images and text. This editable demo shows nested layers and a layout frame in context.',
+            'Compose frames, shapes, images and text on a local canvas. Organise the design with nested layers and frame layouts, keeping every element editable.',
           x: 50,
           y: 50,
         },
@@ -312,9 +294,8 @@ export const works: Work[] = [
           height: 1800,
         },
         callout: {
-          label: 'Text shaping + portable exports',
           description:
-            'I implemented text layout, font handling and portable exports, with controls for type size, spacing and line height. Bundled fonts stay with the editable design.',
+            'Fine-tune type size, spacing and line height. Bundled fonts stay with the editable design, and SVG or PNG exports make it easy to share the result.',
           x: 87,
           y: 40,
         },

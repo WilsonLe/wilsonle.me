@@ -1,16 +1,16 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-ink: #10130f;
-  --color-ink-raised: #181c17;
-  --color-ink-soft: #242a22;
+  --color-ink: #080b0c;
+  --color-ink-raised: #101516;
+  --color-ink-soft: #151b1c;
   --color-paper: #f4eddd;
-  --color-paper-muted: #cec6b7;
-  --color-signal: #ff8052;
-  --color-signal-deep: #b63e1e;
-  --color-blueprint: #a8caff;
-  --color-blueprint-deep: #315f9f;
-  --color-rule: #465043;
+  --color-paper-muted: #d8dcd7;
+  --color-signal: #78e3f2;
+  --color-signal-deep: #156675;
+  --color-blueprint: #9aedf7;
+  --color-blueprint-deep: #174e57;
+  --color-rule: #3e5b5f;
 }
 
 @layer base {
@@ -36,7 +36,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-signal);
+    outline: 2px solid currentColor;
     outline-offset: 4px;
   }
 
@@ -61,8 +61,8 @@
 
   .field-grid {
     background-image:
-      linear-gradient(rgb(168 202 255 / 0.055) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(168 202 255 / 0.055) 1px, transparent 1px);
+      linear-gradient(rgb(120 227 242 / 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(120 227 242 / 0.055) 1px, transparent 1px);
     background-size: 2rem 2rem;
   }
 
@@ -106,15 +106,9 @@
   background: var(--color-paper-muted);
 }
 
-/* Product screenshots use a soft frame in each project’s tone. */
+/* Neutral frames let the product screenshots carry their own color. */
 .work-project {
-  --work-mat: #e1dbea;
-}
-.work-project[data-tone='sand'] {
-  --work-mat: #e4ddcd;
-}
-.work-project[data-tone='blue'] {
-  --work-mat: #d6e3e8;
+  --work-mat: #d8dbd5;
 }
 .work-text-link {
   text-underline-offset: 5px;
@@ -125,13 +119,17 @@
 /* Product features pair the app screenshot with its explanation. */
 .work-features {
   display: grid;
-  gap: clamp(2rem, 5vw, 4rem);
 }
 .work-feature {
   display: grid;
   align-items: center;
   gap: 1.75rem;
   scroll-margin-top: 7rem;
+}
+.work-feature + .work-feature {
+  margin-top: clamp(2rem, 5vw, 4rem);
+  border-top: 1px solid var(--color-ink);
+  padding-top: clamp(2rem, 5vw, 4rem);
 }
 .work-image-mat {
   min-width: 0;

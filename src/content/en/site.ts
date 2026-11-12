@@ -7,6 +7,7 @@ export const siteSettings: SiteSettings = {
   location: 'Brisbane, Queensland',
   email: 'minhle02.work@gmail.com',
   phone: '+61 452-685-096',
+  resumeUrl: '/wilson-le-resume.pdf',
   social: {
     github: 'https://github.com/WilsonLe',
     linkedin: 'https://linkedin.com/in/wilsonle02',
@@ -26,13 +27,12 @@ export const siteSettings: SiteSettings = {
     approach: 'Approach',
     now: 'Now',
     about: 'About',
-    resume: 'Résumé',
+    resume: 'Download résumé',
     contact: 'Contact',
     menuLabel: 'Toggle navigation',
     footerLabel: 'Navigation',
   },
   contact: {
-    eyebrow: 'Contact',
     heading: 'Get In Touch',
     emailLabel: 'Email',
     booking: {

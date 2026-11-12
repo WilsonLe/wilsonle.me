@@ -63,15 +63,16 @@ export function HeroSection({ basePath, hero, siteSettings }: HeroSectionProps) 
                   ↓
                 </span>
               </Link>
-              <Link
-                href={`${basePath}/resume`}
+              <a
+                href={siteSettings.resumeUrl}
+                download
                 className="font-label inline-flex min-h-12 items-center justify-center border border-rule px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-paper transition-colors hover:border-blueprint hover:text-blueprint"
               >
                 {hero.resumeCta}
                 <span className="ml-3" aria-hidden="true">
-                  →
+                  ↓
                 </span>
-              </Link>
+              </a>
             </div>
           </div>
 

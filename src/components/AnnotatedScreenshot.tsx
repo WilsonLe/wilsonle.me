@@ -7,12 +7,10 @@ import type { WorkScreen } from '@/content/work'
 export function AnnotatedScreenshot({
   screen,
   id,
-  sequence = 0,
   zoom = false,
 }: {
   screen: WorkScreen
   id: string
-  sequence?: number
   zoom?: boolean
 }) {
   const ref = useRef<HTMLElement>(null)
@@ -66,13 +64,9 @@ export function AnnotatedScreenshot({
       </div>
       <figcaption className="work-callout" tabIndex={zoom ? 0 : undefined}>
         <div className="work-callout-copy">
-          <p className="font-label text-xs text-ink/65">
-            <span className="mr-3 text-signal-deep">0{sequence + 1}</span>
-            {callout.label}
-          </p>
           <h4
             id={`${id}-title`}
-            className="font-display mt-5 text-3xl leading-tight tracking-[-0.025em] sm:text-4xl"
+            className="font-display text-3xl leading-tight tracking-[-0.025em] sm:text-4xl"
           >
             {screen.title}
           </h4>

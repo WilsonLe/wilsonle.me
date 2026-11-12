@@ -8,8 +8,8 @@ Production: <https://wilsonle.me>
 ## What this repo is
 
 - **Portfolio** — identity-led home page (selected work, working principles,
-  current focus, about, contact) plus a dedicated résumé, rendered from typed
-  content modules.
+  current focus, about, contact), rendered from typed content modules, with a
+  direct résumé PDF download.
 - **Blog** — authored **in code** as MDX files under `src/content/blog/<locale>/`.
   No headless CMS in front of blog posts.
 - **Payload CMS** — used as a **backend data store only** (media, contact-form
@@ -44,7 +44,7 @@ src/
   collections/           Payload collections (Users, Media)
   components/            React components; sections/ drive the home page
   content/               Typed content by locale (target structure)
-    en/ vi/              site.ts, home.ts, resume.ts, blog/*.mdx
+    en/ vi/              site.ts, home.ts, blog/*.mdx
   lib/content.ts         Legacy holding pen — being migrated to src/content/
   payload.config.ts      Payload config
   payload-types.ts       Generated — do not edit
@@ -84,6 +84,15 @@ Open <http://localhost:3000>. The Payload admin lives at
 | `pnpm test`               | Integration + e2e                   |
 | `pnpm generate:types`     | Regenerate `src/payload-types.ts`   |
 | `pnpm generate:importmap` | Regenerate Payload admin import map |
+
+### Résumé download
+
+All home locales download `public/wilson-le-resume.pdf` directly. The former
+`/resume`, `/en/resume`, and `/vi/resume` pages have been removed.
+The English PDF uses the existing facts in `src/content/en/resume.ts` and
+site contact details. After an approved content change, regenerate it with
+`pnpm generate:resume` (requires the Playwright Chromium browser), then render
+and inspect the PDF before committing.
 
 ### Before committing
 

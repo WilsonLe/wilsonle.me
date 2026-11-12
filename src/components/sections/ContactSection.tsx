@@ -47,12 +47,9 @@ export function ContactSection({ siteSettings }: ContactSectionProps) {
     >
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(24rem,0.8fr)] lg:items-end lg:gap-20">
         <div>
-          <p className="font-label text-xs font-bold uppercase tracking-[0.16em] text-ink/80">
-            {siteSettings.contact.eyebrow}
-          </p>
           <h2
             id="contact-heading"
-            className="font-display mt-4 max-w-3xl text-5xl font-medium leading-[0.9] tracking-[-0.04em] sm:text-7xl lg:text-8xl"
+            className="font-display max-w-3xl text-5xl font-medium leading-[0.9] tracking-[-0.04em] sm:text-7xl lg:text-8xl"
           >
             {siteSettings.contact.heading}
           </h2>

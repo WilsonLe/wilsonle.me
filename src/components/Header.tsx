@@ -19,7 +19,7 @@ export function Header({ siteSettings }: HeaderProps) {
 
   const navLinks = [
     { href: `${homepagePath}#work`, label: navigation.work },
-    { href: `${basePath}/resume`, label: navigation.resume, featured: true },
+    { href: siteSettings.resumeUrl, label: navigation.resume, featured: true, download: true },
     { href: `${homepagePath}#contact`, label: navigation.contact },
   ]
 
@@ -36,9 +36,10 @@ export function Header({ siteSettings }: HeaderProps) {
 
           <div className="hidden items-center gap-5 lg:flex lg:gap-5 xl:gap-7">
             {navLinks.map((link) => (
-              <Link
+              <a
                 key={link.href}
                 href={link.href}
+                download={link.download}
                 className={`font-label text-[0.7rem] font-semibold uppercase tracking-[0.12em] transition-colors ${
                   link.featured
                     ? 'border border-signal px-3 py-2 text-signal hover:bg-signal hover:text-ink'
@@ -46,7 +47,8 @@ export function Header({ siteSettings }: HeaderProps) {
                 }`}
               >
                 {link.label}
-              </Link>
+                {link.download && <span aria-hidden="true"> ↓</span>}
+              </a>
             ))}
           </div>
 
@@ -88,16 +90,18 @@ export function Header({ siteSettings }: HeaderProps) {
           <div id="mobile-navigation" className="border-t border-rule pb-5 pt-3 lg:hidden">
             <div className="grid grid-cols-2 gap-px bg-rule">
               {navLinks.map((link) => (
-                <Link
+                <a
                   key={link.href}
                   href={link.href}
+                  download={link.download}
                   onClick={() => setIsMenuOpen(false)}
                   className={`font-label bg-ink px-4 py-4 text-xs font-semibold uppercase tracking-[0.12em] transition-colors hover:bg-ink-raised ${
                     link.featured ? 'text-signal' : 'text-paper-muted hover:text-paper'
                   }`}
                 >
                   {link.label}
-                </Link>
+                  {link.download && <span aria-hidden="true"> ↓</span>}
+                </a>
               ))}
             </div>
           </div>

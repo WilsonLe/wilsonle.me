@@ -1,5 +1,4 @@
-import type { Education, Experience, ResumeContent } from '@/content/types'
-import { siteSettings } from '@/content/en/site'
+import type { Education, Experience } from '@/content/types'
 
 export const experiences: Experience[] = [
   {
@@ -79,29 +78,3 @@ export const education: Education[] = [
     ],
   },
 ]
-
-export const resumeContent: ResumeContent = {
-  locale: 'en',
-  siteSettings,
-  intro: {
-    eyebrow: 'Résumé',
-    heading: 'Experience',
-    summary: 'A concise record of my work.',
-    backLabel: 'Back to portfolio',
-  },
-  labels: {
-    experienceHeading: 'Experience',
-    educationHeading: 'Education',
-    presentLabel: 'Present',
-    expectedGraduationLabel: 'Expected Graduation',
-    graduatedLabel: 'Graduated',
-    gpaLabel: 'GPA',
-    courseworkLabel: 'Relevant Coursework',
-  },
-  experiences,
-  education,
-  seo: {
-    title: `Résumé | ${siteSettings.name}`,
-    description: `Work experience for ${siteSettings.name}, a forward deployed engineer based in Brisbane.`,
-  },
-}

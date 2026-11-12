@@ -17,68 +17,47 @@ export function Footer({ siteSettings }: FooterProps) {
   const navigation = siteSettings.navigation
   const navLinks = [
     { href: `${homepagePath}#work`, label: navigation.work },
-    { href: `${basePath}/resume`, label: navigation.resume },
+    { href: siteSettings.resumeUrl, label: navigation.resume, download: true },
     { href: `${homepagePath}#contact`, label: navigation.contact },
   ]
 
   return (
-    <footer className="border-t border-ink bg-paper text-ink">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid gap-8 border-b border-ink/20 pb-10 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
+    <footer className="bg-ink text-paper">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+        <div className="flex flex-col justify-between gap-6 pb-8 md:flex-row md:items-center md:gap-10">
           <div>
-            <Link href={basePath || '/'} className="inline-flex items-center">
-              <span className="font-display text-3xl font-semibold">{siteSettings.name}</span>
+            <Link
+              href={homepagePath}
+              className="font-display inline-flex py-1 text-3xl font-medium tracking-[-0.03em] transition-colors hover:text-signal"
+            >
+              {siteSettings.name}
             </Link>
-            <p className="mt-4 max-w-md text-sm leading-6 text-ink/70">
-              {siteSettings.title}
-              {siteSettings.location ? ` · ${siteSettings.location}` : ''}
-            </p>
+            <p className="mt-2 text-sm leading-6 text-paper-muted">{siteSettings.title}</p>
           </div>
 
           <nav aria-label={navigation.footerLabel}>
-            <p className="font-label mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-ink/60">
-              {navigation.footerLabel}
-            </p>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+            <div className="flex flex-wrap gap-x-6 gap-y-1 sm:gap-x-8">
               {navLinks.map((link) => (
-                <Link
+                <a
                   key={link.href}
                   href={link.href}
-                  className="font-label text-xs font-semibold uppercase tracking-[0.12em] decoration-signal decoration-2 underline-offset-4 hover:underline"
+                  download={link.download}
+                  className="font-label inline-flex min-h-11 items-center gap-2 text-xs transition-colors hover:text-signal"
                 >
                   {link.label}
-                </Link>
+                  {link.download && <span aria-hidden="true">↓</span>}
+                </a>
               ))}
             </div>
           </nav>
-
-          <div className="font-label flex flex-wrap gap-5 text-xs font-semibold uppercase tracking-[0.12em]">
-            {siteSettings.social?.github && (
-              <a
-                href={siteSettings.social.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="decoration-signal decoration-2 underline-offset-4 hover:underline"
-              >
-                {siteSettings.socialLabels.github} <span aria-hidden="true">↗</span>
-              </a>
-            )}
-            {siteSettings.social?.linkedin && (
-              <a
-                href={siteSettings.social.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="decoration-signal decoration-2 underline-offset-4 hover:underline"
-              >
-                {siteSettings.socialLabels.linkedin} <span aria-hidden="true">↗</span>
-              </a>
-            )}
-          </div>
         </div>
 
-        <p className="font-label pt-6 text-[0.68rem] uppercase tracking-[0.14em] text-ink/60">
-          © {currentYear} {siteSettings.name}
-        </p>
+        <div className="flex flex-wrap justify-between gap-x-8 gap-y-2 border-t border-rule pt-5 text-xs leading-5 text-paper-muted">
+          <p>
+            © {currentYear} {siteSettings.name}
+          </p>
+          {siteSettings.location && <p>{siteSettings.location}</p>}
+        </div>
       </div>
     </footer>
   )

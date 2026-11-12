@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
 
 function relativeLuminance(hexColor: string): number {
@@ -38,10 +39,9 @@ test.describe('Frontend', () => {
       'href',
       '/#work',
     )
-    await expect(header.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
-      'href',
-      '/resume',
-    )
+    await expect(
+      header.getByRole('link', { name: 'Download résumé', exact: true }),
+    ).toHaveAttribute('href', '/wilson-le-resume.pdf')
     await expect(page.getByRole('link', { name: 'View work', exact: true })).toHaveAttribute(
       'href',
       '/#work',
@@ -55,7 +55,12 @@ test.describe('Frontend', () => {
       'Message interpreter',
       'World-map group chats',
     ])
-    await expect(page.locator('#work').getByText('My part', { exact: true })).toHaveCount(5)
+    await expect(page.locator('#work').getByText('My part', { exact: true })).toHaveCount(3)
+    await expect(page.locator('#work').getByText('Features', { exact: true })).toHaveCount(2)
+    await expect(
+      page.locator('#work').getByText('Frontend + AI services', { exact: true }),
+    ).toHaveCount(0)
+    await expect(page.locator('#contact').getByText('Contact', { exact: true })).toHaveCount(0)
     await expect(
       page.getByText('Built the frontend and AI assistant.', { exact: true }),
     ).toBeVisible()
@@ -98,12 +103,11 @@ test.describe('Frontend', () => {
       page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
     ).toHaveAttribute('href', '/en#work')
     await expect(
-      page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
-    ).toHaveAttribute('href', '/en/resume')
-    await expect(page.getByRole('link', { name: 'View résumé' })).toHaveAttribute(
-      'href',
-      '/en/resume',
-    )
+      page.getByRole('banner').getByRole('link', { name: 'Download résumé', exact: true }),
+    ).toHaveAttribute('href', '/wilson-le-resume.pdf')
+    await expect(
+      page.getByRole('main').getByRole('link', { name: 'Download résumé' }),
+    ).toHaveAttribute('href', '/wilson-le-resume.pdf')
   })
 
   test('renders the Vietnamese locale route with current fallback content', async ({ page }) => {
@@ -116,20 +120,22 @@ test.describe('Frontend', () => {
       page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
     ).toHaveAttribute('href', '/vi#work')
     await expect(
-      page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
-    ).toHaveAttribute('href', '/vi/resume')
+      page.getByRole('banner').getByRole('link', { name: 'Download résumé', exact: true }),
+    ).toHaveAttribute('href', '/wilson-le-resume.pdf')
   })
 
   test('omits website templates from navigation across locales and viewports', async ({ page }) => {
     for (const width of [1440, 375]) {
       await page.setViewportSize({ width, height: 812 })
-      for (const route of ['/', '/en', '/vi', '/resume', '/en/resume', '/vi/resume']) {
+      for (const route of ['/', '/en', '/vi']) {
         await page.goto(route)
         await expect(page.getByRole('link', { name: /website templates/i })).toHaveCount(0)
         await expect(
           page.locator('a[href*="website-templates"], a[href*="template-previews"]'),
         ).toHaveCount(0)
-        await expect(page.locator('footer').getByRole('link', { name: 'Résumé' })).toBeVisible()
+        await expect(
+          page.locator('footer').getByRole('link', { name: 'Download résumé' }),
+        ).toBeVisible()
         if (width === 375) {
           await page.getByRole('button', { name: 'Toggle navigation' }).click()
           await expect(page.locator('#mobile-navigation')).toBeVisible()
@@ -174,7 +180,7 @@ test.describe('Frontend', () => {
     page,
   }) => {
     for (const width of [375, 768, 1440]) {
-      for (const route of ['/', '/resume']) {
+      for (const route of ['/', '/en', '/vi']) {
         await test.step(`${route} at ${width}px`, async () => {
           await page.setViewportSize({ width, height: 900 })
           await page.goto(route)
@@ -187,18 +193,16 @@ test.describe('Frontend', () => {
 
           expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth)
 
-          if (route === '/') {
-            await page.getByRole('link', { name: 'View work' }).click()
-            await expect(page).toHaveURL(/#work$/)
-            await page.waitForFunction(() => {
-              const work = document.querySelector('#work')
-              return work instanceof HTMLElement && work.getBoundingClientRect().top >= 79
-            })
-            const workTop = await page
-              .locator('#work')
-              .evaluate((element) => Math.round(element.getBoundingClientRect().top))
-            expect(workTop).toBeGreaterThanOrEqual(79)
-          }
+          await page.getByRole('link', { name: 'View work' }).click()
+          await expect(page).toHaveURL(/#work$/)
+          await page.waitForFunction(() => {
+            const work = document.querySelector('#work')
+            return work instanceof HTMLElement && work.getBoundingClientRect().top >= 79
+          })
+          const workTop = await page
+            .locator('#work')
+            .evaluate((element) => Math.round(element.getBoundingClientRect().top))
+          expect(workTop).toBeGreaterThanOrEqual(79)
         })
       }
     }
@@ -271,90 +275,69 @@ test.describe('Frontend', () => {
     expect(scrollBehavior).toBe('auto')
   })
 
-  test('renders the compact default English résumé route', async ({ page }) => {
-    await page.goto('/resume')
+  // Isolate visitor sessions: Chromium throttles bursts of more than ten downloads.
+  for (const route of ['/', '/en', '/vi']) {
+    test(`downloads the resume PDF from every entry point on ${route}`, async ({
+      page,
+      request,
+    }) => {
+      const response = await request.get('/wilson-le-resume.pdf')
+      expect(response.ok()).toBeTruthy()
+      expect(response.headers()['content-type']).toContain('application/pdf')
+      expect((await response.body()).subarray(0, 5).toString()).toBe('%PDF-')
 
-    await expect(page).toHaveTitle('Résumé | Wilson Le')
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-      'href',
-      'https://wilsonle.me/resume',
-    )
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Experience')
-    await expect(page.locator('#experience article')).toHaveCount(4)
-    await expect(page.locator('#experience article').first()).toContainText(
-      'Forward Deployed Engineer',
-    )
-    await expect(page.locator('#experience article').first()).toContainText('Lyra · Full-time')
-    await expect(page.locator('#experience article').first()).toContainText(
-      'Sep 2026 – Present · 1 mo',
-    )
-    await expect(page.locator('#experience article').nth(1)).toContainText(
-      'Pangea Chat · Full-time',
-    )
-    await expect(page.getByText('AI-powered language learning via chat with friends')).toBeVisible()
-    await expect(page.getByText('Robotics learning platform')).toBeVisible()
-    await expect(page.getByText('Cloud application engineering team')).toBeVisible()
-    await expect(page.getByText('DeerX', { exact: true })).toHaveCount(0)
-    await expect(page.locator('#education')).toHaveCount(0)
-    await expect(page.locator('#skills')).toHaveCount(0)
-    await expect(
-      page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
-    ).toHaveAttribute('href', '/#work')
-    await expect(
-      page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
-    ).toHaveAttribute('href', '/resume')
+      await page.goto(route)
+      await expect(page.locator('a[href$="/resume"]')).toHaveCount(0)
+      for (const role of ['banner', 'main', 'contentinfo'] as const) {
+        const link = page
+          .getByRole(role)
+          .getByRole('link', { name: 'Download résumé', exact: true })
+        await expect(link).toHaveAttribute('download', '')
+        const downloadPromise = page.waitForEvent('download')
+        await link.click()
+        const download = await downloadPromise
+        expect(download.suggestedFilename()).toBe('wilson-le-resume.pdf')
+        expect((await readFile((await download.path())!)).subarray(0, 5).toString()).toBe('%PDF-')
+        await expect(page).toHaveURL(new RegExp(`${route}$`))
+      }
+
+      await page.setViewportSize({ width: 375, height: 812 })
+      await page.getByRole('button', { name: 'Toggle navigation' }).click()
+      const downloadPromise = page.waitForEvent('download')
+      await page
+        .locator('#mobile-navigation')
+        .getByRole('link', { name: 'Download résumé' })
+        .click()
+      expect((await downloadPromise).suggestedFilename()).toBe('wilson-le-resume.pdf')
+      await expect(page.getByRole('button', { name: 'Toggle navigation' })).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      )
+      await page.setViewportSize({ width: 1440, height: 900 })
+    })
+  }
+
+  test('returns 404 for every removed resume page', async ({ request }) => {
+    for (const route of ['/resume', '/en/resume', '/vi/resume']) {
+      expect((await request.get(route)).status(), route).toBe(404)
+    }
   })
 
-  test('renders explicit localized résumé routes', async ({ page }) => {
-    await page.goto('/en/resume')
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en')
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-      'href',
-      'https://wilsonle.me/resume',
-    )
-    await expect(
-      page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
-    ).toHaveAttribute('href', '/en#work')
-    await expect(
-      page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
-    ).toHaveAttribute('href', '/en/resume')
-
-    await page.goto('/vi/resume')
-    await expect(page.locator('html')).toHaveAttribute('lang', 'vi')
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-      'href',
-      'https://wilsonle.me/vi/resume',
-    )
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Experience')
-    await expect(
-      page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
-    ).toHaveAttribute('href', '/vi#work')
-    await expect(
-      page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
-    ).toHaveAttribute('href', '/vi/resume')
-  })
-
-  test('lists only home and résumé routes in the sitemap', async ({ request }) => {
+  test('lists only home routes in the sitemap', async ({ request }) => {
     const response = await request.get('/sitemap.xml')
 
     expect(response.ok()).toBeTruthy()
     const sitemap = await response.text()
     const urls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1])
     expect(urls.sort()).toEqual(
-      ['', '/en', '/vi', '/resume', '/en/resume', '/vi/resume']
-        .map((route) => `https://wilsonle.me${route}`)
-        .sort(),
+      ['', '/en', '/vi'].map((route) => `https://wilsonle.me${route}`).sort(),
     )
     expect(sitemap).not.toContain('website-templates')
     expect(sitemap).not.toContain('template-previews')
   })
 
-  test('uses the inspected social card across home and résumé metadata', async ({
-    page,
-    request,
-  }) => {
-    for (const route of ['/', '/en', '/vi', '/resume', '/en/resume', '/vi/resume']) {
+  test('uses the inspected social card across home metadata', async ({ page, request }) => {
+    for (const route of ['/', '/en', '/vi']) {
       await test.step(route, async () => {
         await page.goto(route)
         await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
@@ -385,10 +368,7 @@ test.describe('Frontend', () => {
     ]) {
       await page.setViewportSize({ width: viewport.width, height: viewport.height })
 
-      for (const route of [
-        { name: 'home', path: '/' },
-        { name: 'resume', path: '/resume' },
-      ]) {
+      for (const route of [{ name: 'home', path: '/' }]) {
         await page.goto(route.path)
 
         if (route.name === 'home') {
