@@ -87,7 +87,10 @@ export function Header({ siteSettings }: HeaderProps) {
         </div>
 
         {isMenuOpen && (
-          <div id="mobile-navigation" className="border-t border-rule pb-5 pt-3 lg:hidden">
+          <div
+            id="mobile-navigation"
+            className="max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain border-t border-rule pb-5 pt-3 lg:hidden"
+          >
             <div className="grid grid-cols-1 gap-px bg-rule sm:grid-cols-2">
               {navLinks.map((link) => (
                 <a

@@ -118,3 +118,41 @@ test('text stays readable with serif fallbacks and enlarged text', async ({ page
     }
   }
 })
+
+test('every navigation link remains reachable on short screens with enlarged text', async ({
+  page,
+}) => {
+  for (const viewport of [
+    { width: 375, height: 420 },
+    { width: 667, height: 320 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/')
+    await page.addStyleTag({ content: 'html { font-size: 200%; }' })
+    const toggle = page.getByRole('button', { name: 'Toggle navigation' })
+    await toggle.focus()
+    await page.keyboard.press('Enter')
+    const menu = page.locator('#mobile-navigation')
+    for (const name of ['Work', 'Download résumé', 'Contact']) {
+      await page.keyboard.press('Tab')
+      const link = menu.getByRole('link', { name, exact: true })
+      await expect(link).toBeFocused()
+      const bounds = await link.evaluate((element) => ({
+        top: element.getBoundingClientRect().top,
+        bottom: element.getBoundingClientRect().bottom,
+        menuTop: document.querySelector('#mobile-navigation')!.getBoundingClientRect().top,
+        viewportHeight: innerHeight,
+      }))
+      expect(bounds.top, `${name} at ${viewport.width}×${viewport.height}`).toBeGreaterThanOrEqual(
+        bounds.menuTop,
+      )
+      expect(bounds.bottom, `${name} at ${viewport.width}×${viewport.height}`).toBeLessThanOrEqual(
+        bounds.viewportHeight,
+      )
+    }
+    expect(await menu.evaluate((element) => element.scrollTop)).toBeGreaterThan(0)
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/#contact$/)
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+  }
+})

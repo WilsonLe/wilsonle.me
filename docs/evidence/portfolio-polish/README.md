@@ -15,6 +15,7 @@ The follow-up [typography audit and WebMCP integration](typography-audit.md) doc
 
 Project-only captures, including mobile Work, omit the fixed site header to keep screenshot content unobstructed; screenshots of the site itself retain it.
 
+- [Scrollable menu on a short viewport at 200% text](menu-short-enlarged.webp)
 - [Corrected hero, desktop](hero-desktop.webp)
 - [Corrected hero, mobile](hero-mobile.webp)
 - [LocalCut external-agent feature](localcut-webmcp-desktop.webp)
@@ -30,10 +31,10 @@ Project-only captures, including mobile Work, omit the fixed site header to keep
 
 - `pnpm lint`, `pnpm exec tsc --noEmit`, and `pnpm exec prettier --check .` pass.
 - `pnpm build` passes; Payload emits its existing dynamic-import dependency warning.
-- All 21 frontend Playwright checks pass and exercise all home locales, desktop/tablet/mobile overflow and anchor targets, keyboard navigation, reduced motion, palette contrast, direct PDF downloads, removed routes, sitemap, and metadata against the production build.
+- All 22 frontend Playwright checks pass and exercise all home locales, desktop/tablet/mobile overflow and anchor targets, keyboard navigation, reduced motion, palette contrast, direct PDF downloads, removed routes, sitemap, and metadata against the production build.
 - Download cases use separate visitor sessions per locale. A diagnostic reproduced Chromium throttling the eleventh rapid download in one session; that same footer link succeeds in a fresh session. All four download entry points remain covered for each locale.
 - The independent first-pass review found an invisible primary-CTA focus outline. Cyan outlines now contrast with dark surfaces, with dark outlines on paper/cyan. The added regression test failed on the reviewed candidate at contrast ratio 1, then passed after correction; it waits for the existing color transition to settle. The focused production rendering was also visually inspected.
-- Typography checks cover actual line-ink separation, clipping, 11 viewport widths on all three home routes, two serif fallbacks, 200% root text size and expanded mobile navigation. All 21 checks pass against the rebuilt production app.
+- Typography checks cover actual line-ink separation, clipping, 11 viewport widths on all three home routes, two serif fallbacks, 200% root text size and expanded mobile navigation. All 22 checks pass against the rebuilt production app.
 - Production render inspection confirms five project boundaries, all eleven inter-feature rules, the unchanged off-white token, and the cyan accent. Screenshots establish appearance; download/route tests establish behavior.
 
 No database, CMS, deployment, or production state changes are part of this delivery.
