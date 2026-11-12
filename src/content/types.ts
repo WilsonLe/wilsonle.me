@@ -67,6 +67,7 @@ export interface Project {
   contribution: string
   url?: string
   linkLabel?: string
+  showcase?: { path: string; label: string; image: string; imageAlt: string }
 }
 
 export interface Projects {

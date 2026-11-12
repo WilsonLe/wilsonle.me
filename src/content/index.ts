@@ -39,3 +39,5 @@ export function getResumeContent(locale: Locale) {
 export function getWebsiteTemplatesContent(locale: Locale) {
   return locale === 'vi' ? viWebsiteTemplatesContent : enWebsiteTemplatesContent
 }
+
+export { getCyobotContent } from '@/content/cyobot'
