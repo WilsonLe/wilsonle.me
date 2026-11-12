@@ -27,7 +27,6 @@ export const siteSettings: SiteSettings = {
     now: 'Now',
     about: 'About',
     resume: 'Résumé',
-    templates: 'Website templates',
     contact: 'Contact',
     menuLabel: 'Toggle navigation',
     footerLabel: 'Navigation',
@@ -36,5 +35,10 @@ export const siteSettings: SiteSettings = {
     eyebrow: 'Contact',
     heading: 'Get In Touch',
     emailLabel: 'Email',
+    booking: {
+      url: 'https://calendly.com/wilson-lyratechnologies/30min',
+      label: 'Booking',
+      text: 'Book a 30-minute call',
+    },
   },
 }

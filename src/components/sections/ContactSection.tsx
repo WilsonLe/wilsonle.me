@@ -14,6 +14,13 @@ export function ContactSection({ siteSettings }: ContactSectionProps) {
       external: false,
     },
     {
+      id: 'booking',
+      href: siteSettings.contact.booking.url,
+      label: siteSettings.contact.booking.label,
+      value: siteSettings.contact.booking.text,
+      external: true,
+    },
+    {
       id: 'github',
       href: siteSettings.social?.github,
       label: siteSettings.socialLabels.github,

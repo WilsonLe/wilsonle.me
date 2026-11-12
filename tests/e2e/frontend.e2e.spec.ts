@@ -120,37 +120,42 @@ test.describe('Frontend', () => {
     ).toHaveAttribute('href', '/vi/resume')
   })
 
-  test('keeps website templates in footer navigation across locales', async ({ page }) => {
-    for (const [homePath, templatesPath] of [
-      ['/', '/website-templates'],
-      ['/en', '/en/website-templates'],
-      ['/vi', '/vi/website-templates'],
-    ]) {
-      await page.goto(homePath)
-
-      await expect(
-        page.locator('header').getByRole('link', { name: 'Website templates' }),
-      ).toHaveCount(0)
-
-      const templatesLink = page
-        .locator('footer')
-        .getByRole('navigation', { name: 'Navigation' })
-        .getByRole('link', { name: 'Website templates' })
-      await expect(templatesLink).toHaveAttribute('href', templatesPath)
-      await templatesLink.click()
-      await expect(page).toHaveURL(new RegExp(`${templatesPath}$`))
-      await expect(page.getByRole('heading', { level: 1, name: 'Website templates' })).toBeVisible()
+  test('omits website templates from navigation across locales and viewports', async ({ page }) => {
+    for (const width of [1440, 375]) {
+      await page.setViewportSize({ width, height: 812 })
+      for (const route of ['/', '/en', '/vi', '/resume', '/en/resume', '/vi/resume']) {
+        await page.goto(route)
+        await expect(page.getByRole('link', { name: /website templates/i })).toHaveCount(0)
+        await expect(
+          page.locator('a[href*="website-templates"], a[href*="template-previews"]'),
+        ).toHaveCount(0)
+        await expect(page.locator('footer').getByRole('link', { name: 'Résumé' })).toBeVisible()
+        if (width === 375) {
+          await page.getByRole('button', { name: 'Toggle navigation' }).click()
+          await expect(page.locator('#mobile-navigation')).toBeVisible()
+          await expect(page.getByRole('link', { name: /website templates/i })).toHaveCount(0)
+          await expect(page.locator('#mobile-navigation a[href*="template"]')).toHaveCount(0)
+        }
+      }
     }
+  })
 
-    await page.setViewportSize({ width: 375, height: 812 })
-    await page.goto('/')
-    await page.getByRole('button', { name: 'Toggle navigation' }).click()
-    await expect(
-      page.locator('#mobile-navigation').getByRole('link', { name: 'Website templates' }),
-    ).toHaveCount(0)
-    await expect(
-      page.locator('footer').getByRole('link', { name: 'Website templates' }),
-    ).toBeVisible()
+  test('returns 404 for removed template pages and preview images', async ({ request }) => {
+    for (const route of [
+      '/website-templates',
+      '/en/website-templates',
+      '/vi/website-templates',
+      '/template-previews/en/agency',
+      '/template-previews/en/restaurant',
+      '/template-previews/vi/agency',
+      '/template-previews/vi/restaurant',
+      ...['baguette', 'dessert', 'noodles', 'rolls', 'salad', 'table'].map(
+        (image) => `/templates/restaurant/${image}.webp`,
+      ),
+    ]) {
+      const response = await request.get(route)
+      expect(response.status(), route).toBe(404)
+    }
   })
 
   test('uses Wilson Le in Person structured data', async ({ page }) => {
@@ -330,14 +335,19 @@ test.describe('Frontend', () => {
     ).toHaveAttribute('href', '/vi/resume')
   })
 
-  test('lists localized résumé routes in the sitemap', async ({ request }) => {
+  test('lists only home and résumé routes in the sitemap', async ({ request }) => {
     const response = await request.get('/sitemap.xml')
 
     expect(response.ok()).toBeTruthy()
     const sitemap = await response.text()
-    expect(sitemap).toContain('<loc>https://wilsonle.me/resume</loc>')
-    expect(sitemap).toContain('<loc>https://wilsonle.me/en/resume</loc>')
-    expect(sitemap).toContain('<loc>https://wilsonle.me/vi/resume</loc>')
+    const urls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1])
+    expect(urls.sort()).toEqual(
+      ['', '/en', '/vi', '/resume', '/en/resume', '/vi/resume']
+        .map((route) => `https://wilsonle.me${route}`)
+        .sort(),
+    )
+    expect(sitemap).not.toContain('website-templates')
+    expect(sitemap).not.toContain('template-previews')
   })
 
   test('uses the inspected social card across home and résumé metadata', async ({
