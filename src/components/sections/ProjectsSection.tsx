@@ -1,10 +1,12 @@
+import Link from 'next/link'
 import type { Projects } from '@/content/types'
 
 interface ProjectsSectionProps {
   projects: Projects
+  routeBasePath: string
 }
 
-export function ProjectsSection({ projects }: ProjectsSectionProps) {
+export function ProjectsSection({ projects, routeBasePath }: ProjectsSectionProps) {
   if (projects.items.length === 0) {
     return null
   }
@@ -46,6 +48,18 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                   <h3 className="font-display mt-8 break-words text-3xl font-medium leading-tight sm:text-4xl">
                     {project.name}
                   </h3>
+
+                  {project.showcase ? (
+                    <div className="mt-6">
+                      <Link
+                        href={`${routeBasePath}${project.showcase.path}`}
+                        className="font-label inline-flex items-center gap-5 border-b border-ink pb-2 text-xs font-bold uppercase tracking-[0.1em] hover:text-signal-deep"
+                      >
+                        {project.showcase.label}
+                        <span aria-hidden="true">→</span>
+                      </Link>
+                    </div>
+                  ) : null}
 
                   {project.url && project.linkLabel ? (
                     <a
