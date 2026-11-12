@@ -19,9 +19,6 @@ export function Header({ siteSettings }: HeaderProps) {
 
   const navLinks = [
     { href: `${homepagePath}#work`, label: navigation.work },
-    { href: `${homepagePath}#approach`, label: navigation.approach },
-    { href: `${homepagePath}#now`, label: navigation.now },
-    { href: `${homepagePath}#about`, label: navigation.about },
     { href: `${basePath}/resume`, label: navigation.resume, featured: true },
     { href: `${homepagePath}#contact`, label: navigation.contact },
   ]

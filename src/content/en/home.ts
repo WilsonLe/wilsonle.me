@@ -4,9 +4,9 @@ import { siteSettings } from '@/content/en/site'
 const hero: Hero = {
   identity: 'Wilson Le',
   heading: 'Forward Deployed Engineer at Lyra',
-  workCta: 'Explore selected work',
+  workCta: 'View work',
   resumeCta: 'View résumé',
-  skipToWorkLabel: 'Skip to selected work',
+  skipToWorkLabel: 'Skip to work',
   locationLabel: 'Based in',
   socialLabel: 'Social profiles',
 }
@@ -50,10 +50,28 @@ const projectItems: Project[] = [
     summary: 'An internal platform helped teams manage content, access, and production services.',
     contribution: 'I built content and access workflows, then added monitoring for production.',
   },
+  {
+    id: 'localcut',
+    name: 'LocalCut',
+    visibility: 'Open-source project',
+    summary: 'A video editor that works with media directly in the browser.',
+    contribution: 'I built the media engine, timeline editor and tools for external agents.',
+    url: 'https://wilsonle.github.io/LocalCut/',
+    linkLabel: 'Open LocalCut',
+  },
+  {
+    id: 'localdesign',
+    name: 'LocalDesign',
+    visibility: 'Open-source project',
+    summary: 'A browser-local canvas for designing with editable layers, text and images.',
+    contribution: 'I built the canvas engine, typography, exports and tools for external agents.',
+    url: 'https://wilsonle.github.io/LocalDesign/',
+    linkLabel: 'Open LocalDesign',
+  },
 ]
 
 const projects: Projects = {
-  heading: 'Selected work',
+  heading: 'Work',
   productLabel: 'The product',
   contributionLabel: 'My part',
   items: projectItems,
