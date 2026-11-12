@@ -2,7 +2,7 @@ export interface WorkScreen {
   id: string
   title: string
   image: { src: string; alt: string; width: number; height: number }
-  callout: { description?: string; label: string; x: number; y: number; labelX: number }
+  callout: { description: string; label: string; x: number; y: number }
 }
 export interface Work {
   slug: string
@@ -35,7 +35,6 @@ export const works: Work[] = [
           label: 'Frontend + AI services',
           x: 66,
           y: 78,
-          labelX: 68,
           description: 'Build a sentence with translation choices and explanations before sending.',
         },
       },
@@ -52,7 +51,6 @@ export const works: Work[] = [
           label: 'Frontend + AI services',
           x: 64,
           y: 63,
-          labelX: 36,
           description: 'Practise a language through a guided conversation with Pangea Bot.',
         },
       },
@@ -71,7 +69,6 @@ export const works: Work[] = [
             'Read an incoming message with its translation, without leaving the conversation.',
           x: 56,
           y: 81,
-          labelX: 50,
         },
       },
       {
@@ -87,7 +84,6 @@ export const works: Work[] = [
           label: 'Frontend · conversation discovery',
           x: 51,
           y: 70,
-          labelX: 34,
           description: 'Find conversations on the world map and practise with other people.',
         },
       },
@@ -117,9 +113,10 @@ export const works: Work[] = [
         },
         callout: {
           label: 'Built in-house · role + attribute rules',
+          description:
+            'I implemented access controls that combine roles with conditions such as the user’s clinic to determine which records they can access.',
           x: 80,
           y: 67,
-          labelX: 64,
         },
       },
       {
@@ -133,9 +130,10 @@ export const works: Work[] = [
         },
         callout: {
           label: 'My work · internal CMS + admin',
+          description:
+            'I built the internal CMS and admin workflows for managing users, organisations, sessions and exercises.',
           x: 58,
           y: 43,
-          labelX: 32,
         },
       },
       {
@@ -149,9 +147,10 @@ export const works: Work[] = [
         },
         callout: {
           label: 'API telemetry + monitoring',
+          description:
+            'I added API telemetry and monitoring for request volume, latency and errors.',
           x: 51,
           y: 45,
-          labelX: 50,
         },
       },
     ],
@@ -179,9 +178,10 @@ export const works: Work[] = [
         },
         callout: {
           label: 'My work · admin + sidebar chatbot',
+          description:
+            'An instructor workspace for managing quests, with the chatbot alongside the dashboard.',
           x: 83,
           y: 50,
-          labelX: 58,
         },
       },
       {
@@ -195,9 +195,10 @@ export const works: Work[] = [
         },
         callout: {
           label: 'My work · student coding dashboard',
+          description:
+            'Python, electronics and robotics quests, with skills and learning progress in view.',
           x: 44,
           y: 33,
-          labelX: 32,
         },
       },
       {
@@ -211,9 +212,9 @@ export const works: Work[] = [
         },
         callout: {
           label: 'Coding portal · quest + level flow',
+          description: 'A Python quest preview brings together objectives, rewards and levels.',
           x: 61,
           y: 30,
-          labelX: 50,
         },
       },
     ],
