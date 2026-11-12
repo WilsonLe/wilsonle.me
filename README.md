@@ -10,6 +10,12 @@ Production: <https://wilsonle.me>
 - **Portfolio** — identity-led home page (selected work, working principles,
   current focus, about, contact) plus a dedicated résumé, rendered from typed
   content modules.
+- **Work showcases** — Pangea Chat has a dedicated visual story at
+  `/work/pangea-chat` (also `/en/work/pangea-chat` and `/vi/work/pangea-chat`).
+  Copy lives in `src/content/{en,vi}/pangea-chat.ts`; Vietnamese currently uses an
+  explicitly marked English fallback. The shared showcase view uses real app
+  images and progressive scroll reveals, with readable no-JavaScript and
+  reduced-motion fallbacks.
 - **Blog** — authored **in code** as MDX files under `src/content/blog/<locale>/`.
   No headless CMS in front of blog posts.
 - **Payload CMS** — used as a **backend data store only** (media, contact-form

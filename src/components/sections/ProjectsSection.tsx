@@ -1,10 +1,13 @@
+import Image from 'next/image'
+import Link from 'next/link'
 import type { Projects } from '@/content/types'
 
 interface ProjectsSectionProps {
   projects: Projects
+  basePath: string
 }
 
-export function ProjectsSection({ projects }: ProjectsSectionProps) {
+export function ProjectsSection({ projects, basePath }: ProjectsSectionProps) {
   if (projects.items.length === 0) {
     return null
   }
@@ -47,16 +50,40 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                     {project.name}
                   </h3>
 
-                  {project.url && project.linkLabel ? (
-                    <a
-                      href={project.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-label mt-7 inline-flex items-center gap-2 border-b-2 border-signal-deep pb-1 text-xs font-bold uppercase tracking-[0.1em] text-ink transition-colors hover:text-signal-deep"
-                    >
-                      {project.linkLabel}
-                      <span aria-hidden="true">↗</span>
-                    </a>
+                  {project.showcase ? (
+                    <div className="mt-6 overflow-hidden rounded-lg bg-pangea-lilac px-8 pt-6">
+                      <Image
+                        {...project.showcase.image}
+                        alt={project.showcase.image.alt}
+                        sizes="(max-width: 1024px) 80vw, 360px"
+                        className="aspect-[16/10] w-full rounded-t-lg object-cover object-bottom shadow-lg shadow-ink/15"
+                      />
+                    </div>
+                  ) : null}
+
+                  {project.showcase || (project.url && project.linkLabel) ? (
+                    <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
+                      {project.showcase ? (
+                        <Link
+                          href={`${basePath}${project.showcase.path}`}
+                          className="font-label inline-flex min-h-11 items-center gap-3 border-b border-ink text-xs font-bold uppercase tracking-[0.1em] hover:text-signal-deep"
+                        >
+                          {project.showcase.label}
+                          <span aria-hidden="true">→</span>
+                        </Link>
+                      ) : null}
+                      {project.url && project.linkLabel ? (
+                        <a
+                          href={project.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-label inline-flex min-h-11 items-center gap-2 border-b-2 border-signal-deep text-xs font-bold uppercase tracking-[0.1em] text-ink transition-colors hover:text-signal-deep"
+                        >
+                          {project.linkLabel}
+                          <span aria-hidden="true">↗</span>
+                        </a>
+                      ) : null}
+                    </div>
                   ) : null}
                 </header>
 

@@ -33,6 +33,16 @@ const projectItems: Project[] = [
     contribution: 'I built the frontend, AI services, and delivery systems behind the product.',
     url: 'https://app.pangea.chat/',
     linkLabel: 'Open Pangea Chat',
+    showcase: {
+      path: '/work/pangea-chat',
+      label: 'View showcase',
+      image: {
+        src: '/images/work/pangea-chat/conversation.webp',
+        alt: 'Pangea Chat’s language-learning conversation with an AI partner.',
+        width: 626,
+        height: 763,
+      },
+    },
   },
   {
     id: 'cyobot-robotics-quest',

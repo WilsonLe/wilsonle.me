@@ -3,10 +3,12 @@ import { websiteTemplatesContent as viWebsiteTemplatesContent } from '@/content/
 import { homeContent as enHomeContent } from '@/content/en/home'
 import { resumeContent as enResumeContent } from '@/content/en/resume'
 import { siteSettings as enSiteSettings } from '@/content/en/site'
+import { pangeaChatContent as enPangeaChatContent } from '@/content/en/pangea-chat'
 import type { HomeContent, ResumeContent, SiteSettings } from '@/content/types'
 import { homeContent as viHomeContent } from '@/content/vi/home'
 import { resumeContent as viResumeContent } from '@/content/vi/resume'
 import { siteSettings as viSiteSettings } from '@/content/vi/site'
+import { pangeaChatContent as viPangeaChatContent } from '@/content/vi/pangea-chat'
 import type { Locale } from '@/lib/i18n'
 
 const homeContentByLocale: Record<Locale, HomeContent> = {
@@ -38,4 +40,8 @@ export function getResumeContent(locale: Locale) {
 
 export function getWebsiteTemplatesContent(locale: Locale) {
   return locale === 'vi' ? viWebsiteTemplatesContent : enWebsiteTemplatesContent
+}
+
+export function getPangeaChatContent(locale: Locale) {
+  return locale === 'vi' ? viPangeaChatContent : enPangeaChatContent
 }

@@ -67,6 +67,53 @@ export interface Project {
   contribution: string
   url?: string
   linkLabel?: string
+  showcase?: {
+    path: string
+    label: string
+    image: ShowcaseImage
+  }
+}
+
+export interface ShowcaseImage {
+  src: string
+  alt: string
+  width: number
+  height: number
+}
+
+export interface WorkShowcaseContent {
+  path: string
+  seo: PageSeo
+  title: string
+  introduction: string
+  backLabel: string
+  visitLabel: string
+  visitUrl: string
+  facts: { label: string; value: string }[]
+  heroImages: ShowcaseImage[]
+  imageNote: string
+  workLabel: string
+  chapters: {
+    id: string
+    label: string
+    heading: string
+    description: string
+    details: string[]
+    images: ShowcaseImage[]
+    caption: string
+  }[]
+  delivery: {
+    label: string
+    heading: string
+    description: string
+    steps: { title: string; detail: string }[]
+  }
+  impact: {
+    label: string
+    heading: string
+    items: { heading: string; description: string }[]
+  }
+  closeHeading: string
 }
 
 export interface Projects {
