@@ -4,9 +4,9 @@ import { siteSettings } from '@/content/en/site'
 const hero: Hero = {
   identity: 'Wilson Le',
   heading: 'Forward Deployed Engineer at Lyra',
-  workCta: 'Explore selected work',
+  workCta: 'View work',
   resumeCta: 'View résumé',
-  skipToWorkLabel: 'Skip to selected work',
+  skipToWorkLabel: 'Skip to work',
   locationLabel: 'Based in',
   socialLabel: 'Social profiles',
 }
@@ -53,7 +53,7 @@ const projectItems: Project[] = [
 ]
 
 const projects: Projects = {
-  heading: 'Selected work',
+  heading: 'Work',
   productLabel: 'The product',
   contributionLabel: 'My part',
   items: projectItems,

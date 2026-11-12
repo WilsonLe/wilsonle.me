@@ -7,9 +7,11 @@ import type { WorkScreen } from '@/content/work'
 export function AnnotatedScreenshot({
   screen,
   priority = false,
+  compact = false,
 }: {
   screen: WorkScreen
   priority?: boolean
+  compact?: boolean
 }) {
   const ref = useRef<HTMLElement>(null)
 
@@ -33,10 +35,11 @@ export function AnnotatedScreenshot({
   const height = (1000 * image.height) / image.width
   const targetX = callout.x * 10
   const targetY = (callout.y * height) / 100
-  const labelX = callout.labelX * 10
+  const labelPosition = compact ? 50 : callout.labelX
+  const labelX = labelPosition * 10
 
   return (
-    <figure ref={ref} className="work-capture">
+    <figure ref={ref} className={`work-capture${compact ? ' work-capture--compact' : ''}`}>
       <div className="work-capture-mat">
         <div className="work-capture-image">
           <a
@@ -48,7 +51,11 @@ export function AnnotatedScreenshot({
             <Image
               {...image}
               alt={image.alt}
-              sizes="(min-width: 1280px) 1120px, 90vw"
+              sizes={
+                compact
+                  ? '(min-width: 1280px) 560px, (min-width: 640px) 45vw, 90vw'
+                  : '(min-width: 1280px) 1120px, 90vw'
+              }
               priority={priority}
               className="h-auto w-full rounded-lg"
             />
@@ -66,7 +73,7 @@ export function AnnotatedScreenshot({
             <circle className="work-target" cx={targetX} cy={targetY} r="13" />
             <circle cx={targetX} cy={targetY} r="3" fill="currentColor" stroke="none" />
           </svg>
-          <span aria-hidden="true" className="work-callout" style={{ left: `${callout.labelX}%` }}>
+          <span aria-hidden="true" className="work-callout" style={{ left: `${labelPosition}%` }}>
             <span className="work-callout-dot" aria-hidden="true" />
             {callout.label}
           </span>

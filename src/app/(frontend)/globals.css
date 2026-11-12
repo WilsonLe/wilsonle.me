@@ -107,15 +107,15 @@
 }
 
 /* Product screenshots stay intact; annotations live in the surrounding mat. */
-.work-page {
+.work-project {
   --work-mat: #e1dbea;
   --work-accent: #7544b4;
 }
-.work-page[data-tone='sand'] {
+.work-project[data-tone='sand'] {
   --work-mat: #e4ddcd;
   --work-accent: #a64725;
 }
-.work-page[data-tone='blue'] {
+.work-project[data-tone='blue'] {
   --work-mat: #d6e3e8;
   --work-accent: #315f9f;
 }
@@ -124,10 +124,6 @@
 }
 .work-text-link:hover {
   text-decoration: underline;
-}
-.work-screen {
-  padding-bottom: clamp(3rem, 8vw, 7rem);
-  scroll-margin-top: 6.5rem;
 }
 .work-capture-mat {
   background: var(--work-mat);
@@ -191,18 +187,6 @@
   background: var(--work-accent);
   border-radius: 50%;
 }
-.work-screen-caption {
-  display: grid;
-  align-items: start;
-  gap: 1rem;
-  padding-top: 1.75rem;
-}
-@media (min-width: 900px) {
-  .work-screen-caption {
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-  }
-}
 @media (max-width: 639px) {
   .work-capture-mat {
     padding-top: 5.5rem;
@@ -259,4 +243,13 @@
     opacity: 1;
     scale: 1;
   }
+}
+
+.work-capture--compact .work-capture-mat {
+  padding: 5rem 1.5rem 1.5rem;
+}
+.work-capture--compact .work-callout {
+  top: -3.2rem;
+  max-width: 100%;
+  font-size: 0.65rem;
 }

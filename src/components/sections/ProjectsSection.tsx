@@ -1,85 +1,49 @@
-import Image from 'next/image'
-import Link from 'next/link'
 import type { Projects } from '@/content/types'
 import { works } from '@/content/work'
+import { AnnotatedScreenshot } from '@/components/AnnotatedScreenshot'
 
-export function ProjectsSection({
-  projects,
-  basePath = '',
-}: {
-  projects: Projects
-  basePath?: string
-}) {
+export function ProjectsSection({ projects }: { projects: Projects }) {
   if (projects.items.length === 0) return null
   return (
     <section
       id="work"
-      className="paper-grid bg-paper px-4 py-24 text-ink sm:px-6 lg:px-8 lg:py-32"
+      className="bg-paper px-4 py-20 text-ink sm:px-6 lg:px-8 lg:py-28"
       aria-labelledby="work-heading"
     >
       <div className="mx-auto max-w-7xl">
         <h2
           id="work-heading"
-          className="font-display text-4xl font-medium leading-[0.95] tracking-[-0.035em] sm:text-5xl lg:text-7xl"
+          className="font-display text-5xl font-medium leading-none tracking-[-0.035em] sm:text-6xl lg:text-7xl"
         >
           {projects.heading}
         </h2>
-        <ol className="mt-16 border-t border-ink lg:mt-20">
+        <ol className="mt-12 border-t border-ink">
           {projects.items.map((project, index) => {
             const work = works.find((item) => item.projectId === project.id)
             return (
               <li key={project.id} className="border-b border-ink">
-                <article className="grid min-w-0 items-center gap-8 py-10 lg:grid-cols-[1.3fr_1fr] lg:gap-14 lg:py-14">
-                  {work && (
-                    <Link
-                      href={`${basePath}/work/${work.slug}`}
-                      className="block rounded-sm bg-ink/10 p-5 sm:p-9"
-                      aria-label={`${project.name} — ${basePath === '/vi' ? 'Xem dự án' : 'View work'}`}
-                    >
-                      <Image
-                        {...work.screens[0].image}
-                        alt={work.screens[0].image.alt}
-                        sizes="(min-width: 1024px) 600px, 90vw"
-                        className="h-auto w-full rounded-md shadow-lg"
-                      />
-                    </Link>
-                  )}
-                  <div className="min-w-0">
+                <article
+                  id={work?.slug || project.id}
+                  className="work-project min-w-0 scroll-mt-24 py-10 sm:py-14 lg:py-16"
+                  data-tone={work?.tone}
+                  aria-labelledby={`${project.id}-heading`}
+                >
+                  <div className="grid items-start gap-7 pb-8 md:grid-cols-2 md:gap-14 lg:pb-10">
                     <header>
                       <div className="font-label flex items-center gap-4 text-[0.65rem] uppercase tracking-[0.12em] text-ink/70">
                         <span className="text-signal-deep">0{index + 1}</span>
                         <span>{project.visibility}</span>
                       </div>
-                      <h3 className="font-display mt-5 text-3xl leading-tight sm:text-4xl">
-                        {project.name}
+                      <h3
+                        id={`${project.id}-heading`}
+                        className="font-display mt-4 text-4xl leading-tight tracking-[-0.03em] sm:text-5xl"
+                      >
+                        {work?.name || project.name}
                       </h3>
-                    </header>
-                    <dl className="mt-5 space-y-4">
-                      <div>
-                        <dt className="sr-only">{projects.productLabel}</dt>
-                        <dd className="text-lg leading-8">{project.summary}</dd>
-                      </div>
-                      <div>
-                        <dt className="font-label mb-1 text-[0.65rem] uppercase tracking-[0.1em] text-ink/65">
-                          {projects.contributionLabel}
-                        </dt>
-                        <dd className="text-sm leading-7 text-ink/75">
-                          {work?.credit || project.contribution}
-                        </dd>
-                      </div>
-                    </dl>
-                    <div className="font-label mt-6 flex flex-wrap gap-6 text-xs font-semibold">
-                      {work && (
-                        <Link
-                          className="border-b-2 border-signal-deep pb-1"
-                          href={`${basePath}/work/${work.slug}`}
-                        >
-                          {basePath === '/vi' ? 'Xem dự án' : 'View work'} →
-                        </Link>
-                      )}
+                      <p className="mt-3 text-lg leading-7">{work?.summary || project.summary}</p>
                       {project.url && project.linkLabel && (
                         <a
-                          className="work-text-link py-1"
+                          className="font-label work-text-link mt-5 inline-flex py-1 text-xs font-semibold"
                           href={project.url}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -87,8 +51,44 @@ export function ProjectsSection({
                           {project.linkLabel} ↗
                         </a>
                       )}
-                    </div>
+                    </header>
+                    <dl>
+                      <dt className="font-label text-[0.65rem] uppercase tracking-[0.1em] text-ink/65">
+                        {projects.contributionLabel}
+                      </dt>
+                      <dd className="mt-3 text-sm leading-7 text-ink/80">
+                        {work ? (
+                          <ul className="space-y-1">
+                            {work.contributions.map((bullet) => (
+                              <li key={bullet} className="flex gap-3">
+                                <span aria-hidden="true" className="text-signal-deep">
+                                  ↳
+                                </span>
+                                <span>{bullet}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          project.contribution
+                        )}
+                      </dd>
+                    </dl>
                   </div>
+                  {work && (
+                    <div
+                      className="work-gallery grid gap-5 sm:grid-cols-2 lg:gap-7"
+                      aria-label={`${work.name} screenshots`}
+                    >
+                      {work.screens.map((screen, screenIndex) => {
+                        const lead = work.screens.length % 2 === 1 && screenIndex === 0
+                        return (
+                          <div key={screen.id} className={lead ? 'sm:col-span-2' : 'min-w-0'}>
+                            <AnnotatedScreenshot screen={screen} compact={!lead} />
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </article>
               </li>
             )

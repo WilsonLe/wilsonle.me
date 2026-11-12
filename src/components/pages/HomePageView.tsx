@@ -1,8 +1,5 @@
-import { AboutSection } from '@/components/sections/AboutSection'
 import { ContactSection } from '@/components/sections/ContactSection'
 import { HeroSection } from '@/components/sections/HeroSection'
-import { NowSection } from '@/components/sections/NowSection'
-import { PrinciplesSection } from '@/components/sections/PrinciplesSection'
 import { ProjectsSection } from '@/components/sections/ProjectsSection'
 import type { HomeContent } from '@/content/types'
 import { buildAbsoluteUrl, getSocialLinks } from '@/site-config'
@@ -36,10 +33,7 @@ export function HomePageView({ canonicalPath, content, routeBasePath }: HomePage
         hero={content.hero}
         siteSettings={content.siteSettings}
       />
-      <ProjectsSection projects={content.projects} basePath={routeBasePath} />
-      <PrinciplesSection principles={content.principles} />
-      <NowSection now={content.now} />
-      <AboutSection about={content.about} />
+      <ProjectsSection projects={content.projects} />
       <ContactSection siteSettings={content.siteSettings} />
     </>
   )

@@ -17,9 +17,6 @@ export function Footer({ siteSettings }: FooterProps) {
   const navigation = siteSettings.navigation
   const navLinks = [
     { href: `${homepagePath}#work`, label: navigation.work },
-    { href: `${homepagePath}#approach`, label: navigation.approach },
-    { href: `${homepagePath}#now`, label: navigation.now },
-    { href: `${homepagePath}#about`, label: navigation.about },
     { href: `${basePath}/resume`, label: navigation.resume },
     { href: `${basePath}/website-templates`, label: navigation.templates },
     { href: `${homepagePath}#contact`, label: navigation.contact },

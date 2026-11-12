@@ -26,106 +26,47 @@ function contrastRatio(firstColor: string, secondColor: string): number {
 }
 
 test.describe('Frontend', () => {
-  test('renders the default English homepage', async ({ page }) => {
+  test('renders the work-led landing page with annotated product screenshots', async ({ page }) => {
     await page.goto('/')
-
     const header = page.getByRole('banner')
     await expect(page).toHaveTitle('Wilson Le | Forward Deployed Engineer at Lyra')
     await expect(header.getByRole('link', { name: 'Wilson Le' })).toBeVisible()
-    await expect(page.locator('main').getByText('Wilson Le', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Forward Deployed Engineer at Lyra',
     )
-    await expect(header.getByRole('link', { name: 'About' })).toHaveAttribute('href', '/#about')
     await expect(header.getByRole('link', { name: 'Work', exact: true })).toHaveAttribute(
       'href',
       '/#work',
-    )
-    await expect(header.getByRole('link', { name: 'Approach' })).toHaveAttribute(
-      'href',
-      '/#approach',
-    )
-    await expect(header.getByRole('link', { name: 'Now', exact: true })).toHaveAttribute(
-      'href',
-      '/#now',
     )
     await expect(header.getByRole('link', { name: 'Résumé', exact: true })).toHaveAttribute(
       'href',
       '/resume',
     )
-    await expect(page.getByRole('link', { name: 'Explore selected work' })).toHaveAttribute(
+    await expect(page.getByRole('link', { name: 'View work', exact: true })).toHaveAttribute(
       'href',
       '/#work',
     )
-    await expect(page.getByRole('link', { name: 'View résumé' })).toHaveAttribute('href', '/resume')
-    await expect(page.getByRole('heading', { name: 'Selected work' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Work', exact: true })).toBeVisible()
     await expect(page.locator('#work article')).toHaveCount(3)
-    await expect(page.locator('#work').getByText('The product', { exact: true })).toHaveCount(3)
+    await expect(page.locator('#work figure')).toHaveCount(10)
     await expect(page.locator('#work').getByText('My part', { exact: true })).toHaveCount(3)
-    await expect(page.locator('#work').getByText('Across the stack', { exact: true })).toHaveCount(
-      0,
-    )
-    await expect(page.getByRole('heading', { name: 'Build. Learn. Repeat.' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Currently in Brisbane.' })).toBeVisible()
-    await expect(page.getByText('Updated September 2026', { exact: true })).toBeVisible()
     await expect(
-      page.getByRole('group', { name: 'Software development life cycle' }).getByRole('button'),
-    ).toHaveCount(6)
+      page.getByText('Built the frontend and AI assistant.', { exact: true }),
+    ).toBeVisible()
     await expect(
-      page.getByRole('link', {
-        name: 'SDLC source: W. W. Royce, Managing the Development of Large Software Systems (1970)',
-      }),
-    ).toHaveAttribute('href', 'https://cse.msu.edu/~cse435/Homework/HW3/royce1970.pdf')
+      page.getByText('One other engineer and I shared ownership', { exact: false }),
+    ).toHaveCount(0)
+    await expect(page.locator('#approach, #now, #work')).toHaveCount(0)
+    await expect(
+      page.locator('a[href*="#approach"], a[href*="#now"], a[href*="#work"], a[href^="/work/"]'),
+    ).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Open Pangea Chat' })).toHaveAttribute(
       'href',
       'https://app.pangea.chat/',
     )
-    await expect(
-      page.getByText('I built the frontend, AI services, and delivery systems behind the product.'),
-    ).toBeVisible()
-    await expect(page.getByText('1,000+ requests per second')).toHaveCount(0)
-    await expect(page.getByText('Vulcan internal platform')).toBeVisible()
-    const privateProject = page
-      .locator('#work article')
-      .filter({ hasText: 'Vulcan internal platform' })
-    await expect(privateProject.getByRole('link')).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Vulcan Augmetics', exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Experience', exact: true })).toHaveCount(0)
-    await expect(page.getByRole('heading', { name: 'Tech Stack', exact: true })).toHaveCount(0)
     await expect(page.getByRole('heading', { name: 'Education', exact: true })).toHaveCount(0)
-  })
-
-  test('moves around the SDLC loop and restarts when client needs change', async ({ page }) => {
-    await page.goto('/')
-
-    const chart = page.getByRole('group', { name: 'Software development life cycle' })
-    const understand = chart.getByRole('button', { name: '01 Understand' })
-    await expect(understand).toHaveAttribute('aria-pressed', 'true')
-    await expect(page.getByText('Iteration 01')).toBeVisible()
-
-    await page.getByRole('button', { name: 'Next stage' }).click()
-    await expect(chart.getByRole('button', { name: '02 Design' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-
-    await chart.getByRole('button', { name: '03 Build' }).click()
-    await expect(page.getByText('Build with agent support.')).toBeVisible()
-
-    await chart.getByRole('button', { name: '04 Test' }).focus()
-    await page.keyboard.press('Enter')
-    await expect(chart.getByRole('button', { name: '04 Test' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
-
-    await page.getByRole('button', { name: 'New client need' }).click()
-    await expect(understand).toHaveAttribute('aria-pressed', 'true')
-    await expect(page.getByText('Iteration 02')).toBeVisible()
-
-    await chart.getByRole('button', { name: '06 Learn' }).click()
-    await page.getByRole('button', { name: 'Next stage' }).click()
-    await expect(understand).toHaveAttribute('aria-pressed', 'true')
-    await expect(page.getByText('Iteration 03')).toBeVisible()
   })
 
   test('renders the explicit English locale route', async ({ page }) => {
@@ -134,10 +75,9 @@ test.describe('Frontend', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Forward Deployed Engineer at Lyra',
     )
-    await expect(page.getByRole('banner').getByRole('link', { name: 'About' })).toHaveAttribute(
-      'href',
-      '/en#about',
-    )
+    await expect(
+      page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
+    ).toHaveAttribute('href', '/en#work')
     await expect(
       page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
     ).toHaveAttribute('href', '/en/resume')
@@ -153,10 +93,9 @@ test.describe('Frontend', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Forward Deployed Engineer at Lyra',
     )
-    await expect(page.getByRole('banner').getByRole('link', { name: 'About' })).toHaveAttribute(
-      'href',
-      '/vi#about',
-    )
+    await expect(
+      page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
+    ).toHaveAttribute('href', '/vi#work')
     await expect(
       page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
     ).toHaveAttribute('href', '/vi/resume')
@@ -225,7 +164,7 @@ test.describe('Frontend', () => {
           expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth)
 
           if (route === '/') {
-            await page.getByRole('link', { name: 'Explore selected work' }).click()
+            await page.getByRole('link', { name: 'View work' }).click()
             await expect(page).toHaveURL(/#work$/)
             await page.waitForFunction(() => {
               const work = document.querySelector('#work')
@@ -308,26 +247,6 @@ test.describe('Frontend', () => {
     expect(scrollBehavior).toBe('auto')
   })
 
-  test('loads the portrait without blocking the personal introduction', async ({ page }) => {
-    await page.goto('/')
-
-    const portrait = page.getByAltText('Portrait of Wilson Le')
-    await portrait.scrollIntoViewIfNeeded()
-    await expect(portrait).toBeVisible()
-    await expect(portrait).toHaveAttribute('src', /wilson-portrait\.jpg/)
-    await expect(portrait).not.toHaveClass(/grayscale/)
-    await expect
-      .poll(() =>
-        portrait.evaluate((image) => image instanceof HTMLImageElement && image.naturalWidth),
-      )
-      .toBeGreaterThan(0)
-    await expect(
-      page
-        .locator('#about')
-        .getByText("I'm Wilson Le, a forward deployed engineer based in Brisbane, Queensland."),
-    ).toBeVisible()
-  })
-
   test('renders the compact default English résumé route', async ({ page }) => {
     await page.goto('/resume')
 
@@ -355,10 +274,9 @@ test.describe('Frontend', () => {
     await expect(page.getByText('DeerX', { exact: true })).toHaveCount(0)
     await expect(page.locator('#education')).toHaveCount(0)
     await expect(page.locator('#skills')).toHaveCount(0)
-    await expect(page.getByRole('banner').getByRole('link', { name: 'About' })).toHaveAttribute(
-      'href',
-      '/#about',
-    )
+    await expect(
+      page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
+    ).toHaveAttribute('href', '/#work')
     await expect(
       page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
     ).toHaveAttribute('href', '/resume')
@@ -371,10 +289,9 @@ test.describe('Frontend', () => {
       'href',
       'https://wilsonle.me/resume',
     )
-    await expect(page.getByRole('banner').getByRole('link', { name: 'About' })).toHaveAttribute(
-      'href',
-      '/en#about',
-    )
+    await expect(
+      page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
+    ).toHaveAttribute('href', '/en#work')
     await expect(
       page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
     ).toHaveAttribute('href', '/en/resume')
@@ -386,10 +303,9 @@ test.describe('Frontend', () => {
       'https://wilsonle.me/vi/resume',
     )
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Experience')
-    await expect(page.getByRole('banner').getByRole('link', { name: 'About' })).toHaveAttribute(
-      'href',
-      '/vi#about',
-    )
+    await expect(
+      page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
+    ).toHaveAttribute('href', '/vi#work')
     await expect(
       page.getByRole('banner').getByRole('link', { name: 'Résumé', exact: true }),
     ).toHaveAttribute('href', '/vi/resume')
@@ -447,13 +363,17 @@ test.describe('Frontend', () => {
         await page.goto(route.path)
 
         if (route.name === 'home') {
-          const portrait = page.getByAltText('Portrait of Wilson Le')
-          await portrait.scrollIntoViewIfNeeded()
-          await expect
-            .poll(() =>
-              portrait.evaluate((image) => image instanceof HTMLImageElement && image.naturalWidth),
-            )
-            .toBeGreaterThan(0)
+          const screenshots = page.locator('#work img')
+          for (const image of await screenshots.all()) {
+            await image.scrollIntoViewIfNeeded()
+            await expect
+              .poll(() =>
+                image.evaluate(
+                  (element) => element instanceof HTMLImageElement && element.naturalWidth,
+                ),
+              )
+              .toBeGreaterThan(0)
+          }
           await page.evaluate(() => {
             document.documentElement.style.scrollBehavior = 'auto'
             window.scrollTo(0, 0)
