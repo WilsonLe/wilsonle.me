@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { SITE_URL } from '@/site-config'
+import { works } from '@/content/work'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const templatePages: MetadataRoute.Sitemap = ['', '/en', '/vi'].map((basePath) => ({
@@ -16,6 +17,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...templatePages,
+    ...works.flatMap(({ slug }) =>
+      ['', '/en', '/vi'].map((base) => ({
+        url: new URL(`${base}/work/${slug}`, SITE_URL).toString(),
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+        alternates: {
+          languages: {
+            en: new URL(`/en/work/${slug}`, SITE_URL).toString(),
+            vi: new URL(`/vi/work/${slug}`, SITE_URL).toString(),
+          },
+        },
+      })),
+    ),
     ...['en', 'vi'].flatMap((locale) =>
       ['agency', 'restaurant'].map((template) => ({
         url: new URL(`/template-previews/${locale}/${template}`, SITE_URL).toString(),
