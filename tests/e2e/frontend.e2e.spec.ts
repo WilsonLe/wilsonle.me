@@ -81,7 +81,9 @@ test.describe('Frontend', () => {
       'https://app.pangea.chat/',
     )
     await expect(
-      page.getByText('I built the frontend, AI services, and delivery systems behind the product.'),
+      page.getByText(
+        'One other engineer and I shared ownership of the frontend, AI services, and delivery systems.',
+      ),
     ).toBeVisible()
     await expect(page.getByText('1,000+ requests per second')).toHaveCount(0)
     await expect(page.getByText('Vulcan internal platform')).toBeVisible()

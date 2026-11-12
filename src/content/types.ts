@@ -81,6 +81,11 @@ export interface ShowcaseImage {
   height: number
 }
 
+export interface ShowcaseService {
+  icon: 'github-actions' | 'ecs' | 'ec2' | 'sentry' | 'pagerduty'
+  name: string
+}
+
 export interface WorkShowcaseContent {
   path: string
   seo: PageSeo
@@ -106,12 +111,18 @@ export interface WorkShowcaseContent {
     label: string
     heading: string
     description: string
-    steps: { title: string; detail: string }[]
+    steps: { title: string; detail: string; services: ShowcaseService[] }[]
   }
   impact: {
     label: string
     heading: string
-    items: { heading: string; description: string }[]
+    items: {
+      heading: string
+      description: string
+      visual:
+        | { kind: 'image'; image: ShowcaseImage }
+        | { kind: 'services'; services: ShowcaseService[] }
+    }[]
   }
   closeHeading: string
 }

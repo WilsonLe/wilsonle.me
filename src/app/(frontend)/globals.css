@@ -26,7 +26,8 @@
     transform: translateY(1.5rem);
   }
 
-  .showcase-pipeline-signal {
+  .showcase-pipeline::after {
+    content: '';
     position: absolute;
     bottom: 0;
     left: 0;
@@ -35,7 +36,7 @@
     background: var(--color-signal);
   }
 
-  .showcase-pipeline[data-revealed='true'] .showcase-pipeline-signal {
+  .showcase-pipeline[data-revealed='true']::after {
     animation: showcase-delivery 4s ease-in-out 2;
   }
 
@@ -135,7 +136,7 @@
     transition: none;
   }
 
-  .showcase-pipeline-signal {
+  .showcase-pipeline::after {
     animation: none;
   }
 }

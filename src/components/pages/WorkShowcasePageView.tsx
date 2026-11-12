@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ShowcaseScroll } from '@/components/ShowcaseScroll'
+import { ShowcaseServiceIcon } from '@/components/ShowcaseServiceIcon'
 import type { WorkShowcaseContent } from '@/content/types'
 
 interface WorkShowcasePageViewProps {
@@ -133,7 +134,11 @@ export function WorkShowcasePageView({ content, basePath }: WorkShowcasePageView
             </section>
           ))}
 
-          <section aria-labelledby="delivery-heading" className="py-16 sm:py-24 lg:py-28">
+          <section
+            id="delivery"
+            aria-labelledby="delivery-heading"
+            className="py-16 sm:py-24 lg:py-28"
+          >
             <div className="grid gap-7 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20" data-showcase-reveal>
               <div>
                 <p className="font-label text-xs tracking-wide text-ink/65">
@@ -153,22 +158,37 @@ export function WorkShowcasePageView({ content, basePath }: WorkShowcasePageView
             </div>
 
             <ol
-              className="showcase-pipeline relative mt-14 grid gap-8 rounded-xl bg-ink px-8 py-10 text-paper sm:grid-cols-3 sm:gap-12 sm:px-12 sm:py-14"
+              className="showcase-pipeline relative mt-14 grid gap-10 overflow-hidden rounded-xl bg-ink px-7 py-10 text-paper sm:grid-cols-2 sm:px-10 lg:grid-cols-4 lg:gap-10 lg:py-14"
               data-showcase-reveal
             >
               {content.delivery.steps.map((step, index) => (
                 <li key={step.title} className="relative z-10">
-                  <span className="font-label text-xs text-paper-muted/70">0{index + 1}</span>
-                  <h3 className="font-display mt-3 text-3xl sm:text-4xl">{step.title}</h3>
-                  <p className="mt-2 text-sm text-paper-muted">{step.detail}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="font-label text-xs text-paper-muted">0{index + 1}</span>
+                    {index < content.delivery.steps.length - 1 && (
+                      <span aria-hidden="true" className="hidden text-paper-muted lg:block">
+                        →
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="font-display mt-4 text-3xl sm:text-4xl">{step.title}</h3>
+                  <ul className="mt-6 grid gap-3">
+                    {step.services.map((service) => (
+                      <li key={service.icon} className="flex items-center gap-3 text-sm">
+                        <ShowcaseServiceIcon icon={service.icon} />
+                        <span>{service.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-5 max-w-48 text-xs leading-6 text-paper-muted">{step.detail}</p>
                 </li>
               ))}
-              <li className="showcase-pipeline-signal" aria-hidden="true" />
             </ol>
           </section>
         </div>
 
         <section
+          id="impact"
           aria-labelledby="impact-heading"
           className="mx-auto max-w-7xl border-t border-ink/20 py-16 sm:py-24"
           data-showcase-reveal
@@ -182,12 +202,48 @@ export function WorkShowcasePageView({ content, basePath }: WorkShowcasePageView
           >
             {content.impact.heading}
           </h2>
-          <div className="mt-12 grid gap-10 sm:grid-cols-3 sm:gap-9">
+          <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-7">
             {content.impact.items.map((item) => (
-              <div key={item.heading}>
-                <h3 className="text-lg font-medium tracking-tight">{item.heading}</h3>
-                <p className="mt-3 max-w-sm text-sm leading-7 text-ink/65">{item.description}</p>
-              </div>
+              <figure key={item.heading} className="min-w-0">
+                {item.visual.kind === 'image' ? (
+                  <a
+                    href={item.visual.image.src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block h-72 overflow-hidden rounded-xl bg-pangea-lilac p-5 pb-0 lg:h-80 lg:p-7 lg:pb-0"
+                  >
+                    <Image
+                      {...item.visual.image}
+                      alt={item.visual.image.alt}
+                      sizes="(max-width: 767px) 90vw, 400px"
+                      className="h-full w-full rounded-t-lg object-cover object-center shadow-lg shadow-ink/10"
+                    />
+                  </a>
+                ) : (
+                  <div className="flex h-72 items-center rounded-xl bg-ink px-6 text-paper lg:h-80 lg:px-8">
+                    <ol className="grid w-full gap-1">
+                      {item.visual.services.map((service, index, services) => (
+                        <li key={service.icon} className="relative flex items-center gap-4 text-sm">
+                          <span className="relative z-10 inline-flex bg-ink">
+                            <ShowcaseServiceIcon icon={service.icon} />
+                          </span>
+                          <span>{service.name}</span>
+                          {index < services.length - 1 && (
+                            <span
+                              aria-hidden="true"
+                              className="absolute left-6 top-12 h-6 border-l border-paper-muted/45"
+                            />
+                          )}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+                <figcaption className="mt-6">
+                  <h3 className="text-lg font-medium tracking-tight">{item.heading}</h3>
+                  <p className="mt-3 max-w-sm text-sm leading-7 text-ink/65">{item.description}</p>
+                </figcaption>
+              </figure>
             ))}
           </div>
         </section>

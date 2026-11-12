@@ -15,7 +15,10 @@ Production: <https://wilsonle.me>
   Copy lives in `src/content/{en,vi}/pangea-chat.ts`; Vietnamese currently uses an
   explicitly marked English fallback. The shared showcase view uses real app
   images and progressive scroll reveals, with readable no-JavaScript and
-  reduced-motion fallbacks.
+  reduced-motion fallbacks. Shared ownership is credited to a two-engineer team;
+  locally served service icons illustrate GitHub Actions, AWS ECS/EC2, Sentry,
+  and PagerDuty. Impact pairs real app detail images with the release/response
+  workflow. Icon sources are recorded beside the assets.
 - **Blog** — authored **in code** as MDX files under `src/content/blog/<locale>/`.
   No headless CMS in front of blog posts.
 - **Payload CMS** — used as a **backend data store only** (media, contact-form

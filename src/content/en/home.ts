@@ -30,7 +30,8 @@ const projectItems: Project[] = [
     visibility: 'Public product',
     summary:
       'Friends practise new languages together through AI-powered conversations in Pangea Chat.',
-    contribution: 'I built the frontend, AI services, and delivery systems behind the product.',
+    contribution:
+      'One other engineer and I shared ownership of the frontend, AI services, and delivery systems.',
     url: 'https://app.pangea.chat/',
     linkLabel: 'Open Pangea Chat',
     showcase: {
