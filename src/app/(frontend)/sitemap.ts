@@ -15,6 +15,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }))
 
   return [
+    ...['', '/en', '/vi'].map((basePath) => ({
+      url: new URL(`${basePath}/work/vulcan-augmetics`, SITE_URL).toString(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+      alternates: {
+        languages: {
+          en: new URL('/en/work/vulcan-augmetics', SITE_URL).toString(),
+          vi: new URL('/vi/work/vulcan-augmetics', SITE_URL).toString(),
+        },
+      },
+    })),
     ...templatePages,
     ...['en', 'vi'].flatMap((locale) =>
       ['agency', 'restaurant'].map((template) => ({

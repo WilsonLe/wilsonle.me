@@ -1,10 +1,13 @@
+import Image from 'next/image'
+import Link from 'next/link'
 import type { Projects } from '@/content/types'
 
 interface ProjectsSectionProps {
   projects: Projects
+  basePath: string
 }
 
-export function ProjectsSection({ projects }: ProjectsSectionProps) {
+export function ProjectsSection({ projects, basePath }: ProjectsSectionProps) {
   if (projects.items.length === 0) {
     return null
   }
@@ -46,6 +49,27 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                   <h3 className="font-display mt-8 break-words text-3xl font-medium leading-tight sm:text-4xl">
                     {project.name}
                   </h3>
+
+                  {project.showcase ? (
+                    <Link
+                      href={`${basePath}${project.showcase.path}`}
+                      aria-label={project.showcase.label}
+                      className="group mt-7 block"
+                    >
+                      <div className="overflow-hidden bg-ink/10 p-4">
+                        <Image
+                          {...project.showcase.image}
+                          alt={project.showcase.image.alt}
+                          sizes="(min-width: 1024px) 360px, 85vw"
+                          className="h-auto w-full transition-transform duration-300 motion-safe:group-hover:scale-[1.02]"
+                        />
+                      </div>
+                      <span className="font-label mt-4 inline-flex min-h-11 items-center gap-4 border-b border-ink text-xs font-bold uppercase tracking-[0.1em] group-hover:text-signal-deep">
+                        {project.showcase.label}
+                        <span aria-hidden="true">→</span>
+                      </span>
+                    </Link>
+                  ) : null}
 
                   {project.url && project.linkLabel ? (
                     <a

@@ -45,6 +45,16 @@ const projectItems: Project[] = [
   },
   {
     id: 'vulcan-internal-platform',
+    showcase: {
+      path: '/work/vulcan-augmetics',
+      label: 'Explore the work',
+      image: {
+        src: '/images/work/vulcan-augmetics/content.webp',
+        alt: 'Vulcan’s real internal workspace for users, organisations and programme content.',
+        width: 1122,
+        height: 470,
+      },
+    },
     name: 'Vulcan internal platform',
     visibility: 'Private internal system',
     summary: 'An internal platform helped teams manage content, access, and production services.',

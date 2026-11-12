@@ -67,6 +67,14 @@ export interface Project {
   contribution: string
   url?: string
   linkLabel?: string
+  showcase?: { path: string; label: string; image: ShowcaseImage }
+}
+
+export interface ShowcaseImage {
+  src: string
+  alt: string
+  width: number
+  height: number
 }
 
 export interface Projects {
