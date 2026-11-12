@@ -28,8 +28,8 @@ export const works: Work[] = [
         image: {
           src: '/work/screenshots/pangea-translator.webp',
           alt: 'Pangea Chat sentence builder with translation choices and explanations before a message is sent.',
-          width: 1280,
-          height: 720,
+          width: 2560,
+          height: 1440,
         },
         callout: {
           label: 'Frontend + AI services',
@@ -45,8 +45,8 @@ export const works: Work[] = [
         image: {
           src: '/work/screenshots/pangea-bot.webp',
           alt: 'Pangea Bot Spanish role-play conversation with vocabulary suggestions, chat list and the world map behind it.',
-          width: 1280,
-          height: 720,
+          width: 2560,
+          height: 1440,
         },
         callout: {
           label: 'Frontend + AI services',
@@ -62,8 +62,8 @@ export const works: Work[] = [
         image: {
           src: '/work/screenshots/pangea-message-interpreter.webp',
           alt: 'Pangea Chat message interpreter showing the Spanish message ¿Cómo estás, Wilson? together with its English translation inside the chat.',
-          width: 1280,
-          height: 720,
+          width: 2560,
+          height: 1440,
         },
         callout: {
           label: 'In-chat language assistance',
@@ -80,13 +80,13 @@ export const works: Work[] = [
         image: {
           src: '/work/screenshots/pangea-map.webp',
           alt: 'Pangea Chat world map with conversation activities, search and navigation.',
-          width: 1280,
-          height: 720,
+          width: 2560,
+          height: 1440,
         },
         callout: {
           label: 'Frontend · conversation discovery',
-          x: 48,
-          y: 28,
+          x: 51,
+          y: 70,
           labelX: 34,
           description: 'Find conversations on the world map and practise with other people.',
         },

@@ -279,6 +279,7 @@
 }
 .pangea-zoom-layer {
   position: relative;
+  transform-origin: 0 0;
 }
 .pangea-zoom-layer img {
   display: block;
@@ -318,7 +319,7 @@
     transition: transform 350ms ease;
   }
   .pangea-feature:is(:hover, :focus-within) .pangea-zoom-layer {
-    transform: scale(1.65);
+    transform: translate(var(--zoom-x), var(--zoom-y)) scale(var(--zoom-scale));
   }
   .pangea-feature:is(:hover, :focus-within) .pangea-callout-copy {
     transform: scale(1.035);

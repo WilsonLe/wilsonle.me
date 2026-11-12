@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useRef } from 'react'
+import { type CSSProperties, useEffect, useRef } from 'react'
 import type { WorkScreen } from '@/content/work'
 
 export function AnnotatedScreenshot({
@@ -43,6 +43,16 @@ export function AnnotatedScreenshot({
   const labelX = labelPosition * 10
 
   if (layout === 'split') {
+    // Center the target and scale enough to keep even edge-adjacent targets covered.
+    const zoomScale = Math.max(
+      1.65,
+      50 / Math.min(callout.x, 100 - callout.x, callout.y, 100 - callout.y),
+    )
+    const zoomStyle = {
+      '--zoom-scale': zoomScale,
+      '--zoom-x': `${50 - callout.x * zoomScale}%`,
+      '--zoom-y': `${50 - callout.y * zoomScale}%`,
+    } as CSSProperties
     return (
       <figure
         ref={ref}
@@ -58,14 +68,11 @@ export function AnnotatedScreenshot({
             rel="noopener noreferrer"
             aria-label={`Open full screenshot: ${screen.title}`}
           >
-            <div
-              className="pangea-zoom-layer"
-              style={{ transformOrigin: `${callout.x}% ${callout.y}%` }}
-            >
+            <div className="pangea-zoom-layer" style={zoomStyle}>
               <Image
                 {...image}
                 alt={image.alt}
-                sizes="(min-width: 1280px) 740px, (min-width: 900px) 60vw, 90vw"
+                unoptimized
                 priority={priority}
                 className="h-auto w-full"
               />
