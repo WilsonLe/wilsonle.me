@@ -40,12 +40,15 @@ const projectItems: Project[] = [
     showcase: {
       path: '/work/cyobot',
       label: 'View the work',
-      image: '/work/cyobot/coding-portal.webp',
-      imageAlt: 'CYOBot’s Python coding portal',
+      image: '/work/cyobot/student-dashboard.webp',
+      imageAlt: 'CYOBot’s student dashboard and Python quest',
+      imageWidth: 1265,
+      imageHeight: 712,
     },
     visibility: 'Public product',
     summary: 'Students learn coding and robotics through a browser-based learning platform.',
-    contribution: 'I built its coding portal, content system, and shared sign-in flow.',
+    contribution:
+      'I built the student coding dashboard and the content system behind the instructor admin experience.',
     url: 'https://dashboard.cyobot.com/',
     linkLabel: 'Open Robotics Quest',
   },

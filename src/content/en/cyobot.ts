@@ -1,32 +1,40 @@
 import type { CyobotShowcase } from '@/content/cyobot-types'
 
-// Personal attribution: existing portfolio home/resume; product imagery and context:
-// public CYOBot pages inspected 2026-11-12. See docs/evidence/cyobot-showcase.md.
+// Attribution and scope: Wilson's explicit correction, 2026-11-12.
+// Authenticated student/instructor captures: see docs/evidence/cyobot-showcase.md.
+const studentImage = {
+  src: '/work/cyobot/student-dashboard.webp',
+  alt: 'RoboticsQuest student dashboard with the Intro to Python quest and learning levels',
+  width: 1265,
+  height: 712,
+}
+const instructorImage = {
+  src: '/work/cyobot/instructor-admin.webp',
+  alt: 'CYOBot Instructor quest administration panel with the workspace chatbot open in the right sidebar',
+  width: 1016,
+  height: 704,
+}
+
 export const cyobotContent: CyobotShowcase = {
   seo: {
     title: 'CYOBot — Selected work | Wilson Le',
     description:
-      'Coding portal, learning content and shared sign-in for CYOBot’s robotics learning platform. Selected work by Wilson Le.',
+      'A student coding dashboard for wireless robot projects, and an instructor content admin panel with a sidebar chatbot. Selected work by Wilson Le.',
   },
   name: 'CYOBot',
   category: 'Selected work / Robotics education',
-  heading: 'Robotics,\nwithin reach.',
+  heading: 'Code on screen.\nBuild in the real world.',
   introduction:
-    'A browser-based learning platform that helps students explore coding and robotics through hands-on projects.',
+    'A student coding dashboard for wireless robot projects. An instructor admin panel for creating the learning experience.',
   backLabel: 'All work',
-  visitLabel: 'Explore Robotics Quest',
+  visitLabel: 'Open student dashboard',
   url: 'https://dashboard.cyobot.com',
+  instructorLabel: 'Open instructor app',
+  instructorUrl: 'https://cyobot.com/dashboard/instructor',
   roleLabel: 'My role',
   role: 'Software Engineer',
   scopeLabel: 'My scope',
-  scope: 'Coding portal · Content system · Shared sign-in',
-  heroImage: {
-    src: '/work/cyobot/coding-portal.webp',
-    alt: 'CYOBot’s published Python portal showing a code editor, console and robot connection controls',
-    width: 1600,
-    height: 872,
-  },
-  heroCaption: 'The Python coding portal · Official CYOBot product image',
+  scope: 'Student coding portal · Instructor admin',
   robotImage: {
     src: '/work/cyobot/robot.webp',
     alt: 'CYOBot Adventurer robot with articulated legs and an LED display',
@@ -34,126 +42,66 @@ export const cyobotContent: CyobotShowcase = {
     height: 758,
   },
   workLabel: '01 / My contribution',
-  workHeading: 'Connecting the tools\nbehind the learning.',
+  workHeading: 'Two workspaces.\nOne learning experience.',
   contributions: [
     {
-      title: 'Coding portal',
-      description: 'I built the coding portal for the robotics learning platform.',
-      image: {
-        src: '/work/cyobot/coding-portal.webp',
-        alt: 'CYOBot Python coding portal',
-        width: 1600,
-        height: 872,
-      },
+      title: 'Student coding portal',
+      description:
+        'I built the student dashboard and simplified setup for connecting wirelessly to physical robots.',
+      image: studentImage,
     },
     {
-      title: 'Content system',
-      description: 'I built the content system supporting the learning experience.',
-      image: {
-        src: '/work/cyobot/learning-guides.webp',
-        alt: 'CYOBot learning paths and coding resources',
-        width: 1440,
-        height: 900,
-      },
-    },
-    {
-      title: 'Shared sign-in',
-      description: 'I built the shared sign-in flow connecting access across the platform.',
-      image: {
-        src: '/work/cyobot/sign-in.webp',
-        alt: 'The shared CYOBot sign-in entry point',
-        width: 1440,
-        height: 900,
-      },
+      title: 'Instructor admin',
+      description:
+        'I built the content system behind the instructor experience, with administration and a sidebar chatbot in one workspace.',
+      image: instructorImage,
     },
   ],
   chapters: [
     {
-      id: 'coding',
-      label: '02 / Coding portal',
-      heading: 'From an idea\nto a program.',
+      id: 'student',
+      label: '02 / Student coding portal',
+      heading: 'Connect wirelessly.\nLearn by coding.',
       description:
-        'The editor, console and robot connection controls come together in a browser workspace.',
-      image: {
-        src: '/work/cyobot/coding-portal.webp',
-        alt: 'Python code and console in the CYOBot portal; robot and Wi-Fi indicators show disconnected',
-        width: 1600,
-        height: 872,
+        'The coding portal lives in the student dashboard. Students move from a learning quest to coding with a connected physical robot.',
+      image: studentImage,
+      caption: 'The actual student dashboard · Intro to Python quest',
+      url: 'https://dashboard.cyobot.com',
+      linkLabel: 'Explore the student app',
+      workflow: {
+        heading: 'From the dashboard to a robot',
+        steps: [
+          { kind: 'dashboard', label: 'Open the student dashboard' },
+          { kind: 'wireless', label: 'Connect wirelessly' },
+          { kind: 'robot', label: 'Code with the robot' },
+        ],
+        demo: {
+          src: '/work/cyobot/motion/blinking-heart-effect.mp4',
+          poster: '/work/cyobot/motion/blinking-heart-effect.webp',
+          width: 322,
+          height: 204,
+          alt: 'Official CYOBot example of a blinking heart on a physical robot’s LED matrix',
+          caption: 'Code-driven LED output · Official CYOBot project example',
+          sourceUrl: 'https://cyobot.com/blinking-heart-effect.gif',
+        },
       },
-      caption: 'Python editor, console and connection controls.',
     },
     {
-      id: 'content',
-      label: '03 / Content system',
-      heading: 'A place to learn.\nA path to follow.',
+      id: 'instructor',
+      label: '03 / Instructor admin',
+      heading: 'Create content.\nKeep help beside it.',
       description:
-        'Learning paths connect students with coding tools, projects and a starting point.',
-      image: {
-        src: '/work/cyobot/learning-guides.webp',
-        alt: 'CYOBot’s public learning guides with Explorer, Adventurer and Pioneer learning paths',
-        width: 1440,
-        height: 900,
-      },
-      caption: 'Public learning guides · The learner-facing content experience',
-    },
-    {
-      id: 'access',
-      label: '04 / Shared sign-in',
-      heading: 'One connected\nway in.',
-      description: 'A shared entry point connects access to the dashboard and learning platform.',
-      image: {
-        src: '/work/cyobot/sign-in.webp',
-        alt: 'CYOBot’s public sign-in page with passkey, Google, GitHub, email and password options',
-        width: 1440,
-        height: 900,
-      },
-      caption: 'A shared entry point to the learning platform.',
-    },
-  ],
-  impactLabel: '05 / What this enables',
-  impactHeading: 'Learn. Code.\nKeep exploring.',
-  capabilities: [
-    {
-      title: 'Make the display respond',
-      description: 'An LED heart from CYOBot’s project examples.',
-      demo: {
-        src: '/work/cyobot/motion/blinking-heart-effect.mp4',
-        poster: '/work/cyobot/motion/blinking-heart-effect.webp',
-        width: 322,
-        height: 204,
-        alt: 'Official CYOBot demo of a blinking heart on the robot’s LED matrix',
-        sourceUrl: 'https://cyobot.com/blinking-heart-effect.gif',
-      },
-    },
-    {
-      title: 'Explore robot movement',
-      description: 'A humanoid walking example from CYOBot.',
-      demo: {
-        src: '/work/cyobot/motion/humanoid-walking.mp4',
-        poster: '/work/cyobot/motion/humanoid-walking.webp',
-        width: 300,
-        height: 170,
-        alt: 'Official CYOBot demo of a two-legged robot walking on a tabletop',
-        sourceUrl: 'https://cyobot.com/humanoid-walking.gif',
-      },
-    },
-    {
-      title: 'Build interactive activities',
-      description: 'The LED chasing game combines lights and input.',
-      demo: {
-        src: '/work/cyobot/motion/led-chasing.mp4',
-        poster: '/work/cyobot/motion/led-chasing.webp',
-        width: 280,
-        height: 162,
-        alt: 'Official CYOBot LED chasing game with changing lights and button input',
-        sourceUrl: 'https://cyobot.com/led-chasing.gif',
-      },
+        'The current instructor app brings quest administration, learning content and a workspace chatbot into the same workflow.',
+      image: instructorImage,
+      caption: 'Quest administration with the sidebar chatbot · Current Instructor app',
+      url: 'https://cyobot.com/dashboard/instructor',
+      linkLabel: 'Explore the instructor app',
     },
   ],
   demoSourceLabel: 'Original GIF',
-  closingHeading: 'Explore the learning experience.',
+  closingHeading: 'Explore both sides of CYOBot.',
   imageCredit:
-    'Product imagery, public interfaces and robot demos from CYOBot, inspected November 2026.',
+    'Student dashboard, Instructor app and robot imagery from CYOBot, inspected November 2026.',
   sourceLabel: 'Visit CYOBot',
   sourceUrl: 'https://cyobot.com/',
 }

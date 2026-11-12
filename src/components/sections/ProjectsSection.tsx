@@ -75,9 +75,9 @@ export function ProjectsSection({ projects, basePath }: ProjectsSectionProps) {
                       <Image
                         src={project.showcase.image}
                         alt={project.showcase.imageAlt}
-                        width={1600}
+                        width={project.showcase.imageWidth}
                         unoptimized
-                        height={872}
+                        height={project.showcase.imageHeight}
                         sizes="192px"
                         className="h-28 w-28 shrink-0 object-contain sm:h-32 sm:w-48 transition-transform duration-500 group-hover:-translate-y-2 motion-reduce:transform-none"
                       />

@@ -8,8 +8,8 @@ test('opens the showcase from selected work and preserves the product destinatio
   await expect(page).toHaveURL(/\/work\/cyobot$/)
   await expect(page.locator('main h1')).toHaveCount(1)
   await expect(page).toHaveTitle(/CYOBot.*Wilson Le/)
-  await expect(page.getByRole('heading', { name: /Connecting the tools/ })).toBeVisible()
-  await expect(page.getByRole('link', { name: /Explore Robotics Quest/ }).first()).toHaveAttribute(
+  await expect(page.getByRole('heading', { name: /Two workspaces/ })).toBeVisible()
+  await expect(page.getByRole('link', { name: /Open student dashboard/ }).first()).toHaveAttribute(
     'href',
     'https://dashboard.cyobot.com',
   )
@@ -91,7 +91,7 @@ test('keeps the story readable with reduced motion and without JavaScript', asyn
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/work/cyobot')
-  await page.getByRole('heading', { name: /Learn. Code./ }).scrollIntoViewIfNeeded()
+  await page.getByRole('heading', { name: /Connect wirelessly/ }).scrollIntoViewIfNeeded()
   expect(
     await page
       .locator('.work-product-image')
@@ -101,14 +101,14 @@ test('keeps the story readable with reduced motion and without JavaScript', asyn
   const context = await browser.newContext({ javaScriptEnabled: false })
   const staticPage = await context.newPage()
   await staticPage.goto('/work/cyobot')
-  await expect(staticPage.getByRole('heading', { name: /From an idea/ })).toBeVisible()
-  await expect(staticPage.getByRole('heading', { name: /Learn. Code./ })).toBeVisible()
-  const image = staticPage.getByAltText(/CYOBot’s public sign-in page/)
+  await expect(staticPage.getByRole('heading', { name: /Create content/ })).toBeVisible()
+  await expect(staticPage.getByRole('heading', { name: /Connect wirelessly/ })).toBeVisible()
+  const image = staticPage.locator('#instructor').getByRole('img')
   await image.scrollIntoViewIfNeeded()
   await expect
     .poll(() => image.evaluate((el) => el instanceof HTMLImageElement && el.naturalWidth))
     .toBeGreaterThan(0)
-  await expect(staticPage.locator('video[controls]')).toHaveCount(3)
+  await expect(staticPage.locator('video[controls]')).toHaveCount(1)
   expect(
     await staticPage
       .locator('video')
@@ -121,13 +121,22 @@ test('keeps the story readable with reduced motion and without JavaScript', asyn
 
 test('keeps the showcase scoped to Wilson’s verified CYOBot contribution', async ({ page }) => {
   await page.goto('/work/cyobot')
-  for (const title of ['Coding portal', 'Content system', 'Shared sign-in']) {
+  for (const title of ['Student coding portal', 'Instructor admin']) {
     await expect(page.getByRole('heading', { level: 3, name: title, exact: true })).toBeVisible()
   }
   await expect(page.locator('main')).not.toContainText('Pangea')
   await expect(page.locator('main')).not.toContainText('Correction services')
   await expect(page.locator('main')).not.toContainText('Bot services')
   await expect(page.locator('main')).not.toContainText('DevOps')
+  await expect(page.getByRole('heading', { name: 'Shared sign-in', exact: true })).toHaveCount(0)
+  await expect(page.locator('#student')).toContainText(
+    'The coding portal lives in the student dashboard',
+  )
+  await expect(page.locator('#student').getByRole('listitem')).toHaveCount(3)
+  await expect(page.locator('#instructor')).toContainText('workspace chatbot')
+  await expect(
+    page.getByRole('link', { name: 'Explore the instructor app', exact: true }),
+  ).toHaveAttribute('href', 'https://cyobot.com/dashboard/instructor')
 })
 
 test('leads contributions with real images and provides playable robot loops', async ({
@@ -135,10 +144,10 @@ test('leads contributions with real images and provides playable robot loops', a
   request,
 }) => {
   await page.goto('/work/cyobot')
-  const contribution = page.getByRole('region', { name: /Connecting the tools/ })
-  await expect(contribution.getByRole('img')).toHaveCount(3)
+  const contribution = page.getByRole('region', { name: /Two workspaces/ })
+  await expect(contribution.getByRole('img')).toHaveCount(2)
   const videos = page.locator('main video')
-  await expect(videos).toHaveCount(3)
+  await expect(videos).toHaveCount(1)
   for (const video of await videos.all()) {
     await video.scrollIntoViewIfNeeded()
     await expect(video).toHaveAttribute('controls', '')

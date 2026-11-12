@@ -7,6 +7,16 @@ export interface CyobotImage {
   height: number
 }
 
+export interface CyobotDemo {
+  src: string
+  poster: string
+  width: number
+  height: number
+  alt: string
+  caption: string
+  sourceUrl: string
+}
+
 export interface CyobotShowcase {
   seo: PageSeo
   name: string
@@ -16,12 +26,12 @@ export interface CyobotShowcase {
   backLabel: string
   visitLabel: string
   url: string
+  instructorLabel: string
+  instructorUrl: string
   roleLabel: string
   role: string
   scopeLabel: string
   scope: string
-  heroImage: CyobotImage
-  heroCaption: string
   robotImage: CyobotImage
   workLabel: string
   workHeading: string
@@ -33,19 +43,12 @@ export interface CyobotShowcase {
     description: string
     image: CyobotImage
     caption: string
-  }[]
-  impactLabel: string
-  impactHeading: string
-  capabilities: {
-    title: string
-    description: string
-    demo: {
-      src: string
-      poster: string
-      width: number
-      height: number
-      alt: string
-      sourceUrl: string
+    url: string
+    linkLabel: string
+    workflow?: {
+      heading: string
+      steps: { kind: 'dashboard' | 'wireless' | 'robot'; label: string }[]
+      demo: CyobotDemo
     }
   }[]
   demoSourceLabel: string
