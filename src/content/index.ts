@@ -1,5 +1,3 @@
-import { websiteTemplatesContent as enWebsiteTemplatesContent } from '@/content/en/website-templates'
-import { websiteTemplatesContent as viWebsiteTemplatesContent } from '@/content/vi/website-templates'
 import { homeContent as enHomeContent } from '@/content/en/home'
 import { resumeContent as enResumeContent } from '@/content/en/resume'
 import { siteSettings as enSiteSettings } from '@/content/en/site'
@@ -34,8 +32,4 @@ export function getSiteSettings(locale: Locale) {
 
 export function getResumeContent(locale: Locale) {
   return resumeContentByLocale[locale]
-}
-
-export function getWebsiteTemplatesContent(locale: Locale) {
-  return locale === 'vi' ? viWebsiteTemplatesContent : enWebsiteTemplatesContent
 }
