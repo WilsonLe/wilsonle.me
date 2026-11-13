@@ -160,7 +160,7 @@ test('animates the active section during streaming, wraps the loop and follows r
   await expect.poll(async () => (await indicator.boundingBox())!.x).toBeCloseTo(target!.x, 0)
   await expect(carousel.locator('[aria-live]')).toHaveText('HTML')
 
-  const tools = tabs.getByRole('tab', { name: 'AI tools & messaging', exact: true })
+  const tools = tabs.getByRole('tab', { name: 'AI tools', exact: true })
   await tools.click()
   await page.clock.runFor(11000)
   await expect(frontend).toHaveAttribute('aria-selected', 'true')
@@ -258,9 +258,9 @@ test('skips individual skills and whole sections with accessible controls and re
   await carousel.getByRole('button', { name: 'Previous skill' }).click()
   await expect.poll(() => leadingSkill(page)).toBe('HTML')
   await carousel.getByRole('button', { name: 'Previous skill' }).click()
-  await expect.poll(() => leadingSkill(page)).toBe('Apache Kafka')
+  await expect.poll(() => leadingSkill(page)).toBe('VSCode Copilot Chat')
   await expect(
-    tabs.getByRole('tab', { name: 'AI tools & messaging', exact: true }),
+    tabs.getByRole('tab', { name: 'AI tools', exact: true }),
   ).toHaveAttribute('aria-selected', 'true')
   for (const [section, skill] of [
     ['Frontend', 'HTML'],
@@ -268,7 +268,7 @@ test('skips individual skills and whole sections with accessible controls and re
     ['Data & AI', 'Redis'],
     ['Cloud & ops', 'AWS'],
     ['Languages', 'Java'],
-    ['AI tools & messaging', 'Claude Code'],
+    ['AI tools', 'Claude Code'],
   ]) {
     await tabs.getByRole('tab', { name: section, exact: true }).click()
     await expect.poll(() => leadingSkill(page)).toBe(skill)

@@ -26,7 +26,7 @@ export function HeroSection({ basePath, hero, siteSettings }: HeroSectionProps) 
       />
 
       <div className="relative mx-auto flex min-h-[calc(min(58rem,100svh)-9.5rem)] max-w-7xl flex-col justify-between">
-        <div className="grid flex-1 items-center gap-12 py-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(16rem,0.5fr)] lg:gap-16 lg:py-12">
+        <div className="grid flex-1 items-center gap-12 py-8 lg:gap-16 lg:py-12">
           <div className="min-w-0">
             <p className="font-label mb-8 text-xs font-semibold uppercase tracking-[0.16em] text-signal sm:text-sm">
               {hero.identity}
@@ -60,7 +60,7 @@ export function HeroSection({ basePath, hero, siteSettings }: HeroSectionProps) 
             </div>
           </div>
 
-          <aside className="min-w-0 border-t border-rule pt-7 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+          <aside className="min-w-0 border-t border-rule pt-7">
             <TechStackCarousel stack={hero.stack} />
           </aside>
         </div>
