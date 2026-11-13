@@ -259,9 +259,10 @@ test('skips individual skills and whole sections with accessible controls and re
   await expect.poll(() => leadingSkill(page)).toBe('HTML')
   await carousel.getByRole('button', { name: 'Previous skill' }).click()
   await expect.poll(() => leadingSkill(page)).toBe('VSCode Copilot Chat')
-  await expect(
-    tabs.getByRole('tab', { name: 'AI tools', exact: true }),
-  ).toHaveAttribute('aria-selected', 'true')
+  await expect(tabs.getByRole('tab', { name: 'AI tools', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  )
   for (const [section, skill] of [
     ['Frontend', 'HTML'],
     ['Backend', 'Express.js'],
