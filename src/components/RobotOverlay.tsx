@@ -31,11 +31,16 @@ export function RobotOverlay({ robot }: { robot: NonNullable<WorkScreen['robot']
             type="button"
             onClick={() => setPlaying(!playing)}
             aria-label={playing ? robotAnimationLabels.pause : robotAnimationLabels.play}
-            className="absolute right-1 bottom-1 flex size-7 items-center justify-center rounded-full bg-ink/85 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:size-8"
+            className="absolute inset-0 block size-full cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
           >
-            <svg viewBox="0 0 24 24" className="size-3.5" fill="currentColor" aria-hidden="true">
-              {playing ? <path d="M6 4h4v16H6zM14 4h4v16h-4z" /> : <path d="m7 4 14 8-14 8z" />}
-            </svg>
+            {!playing && (
+              <span
+                aria-hidden="true"
+                className="font-label absolute inset-0 grid place-items-center rounded-sm bg-ink/55 text-[8px] font-medium leading-none text-white sm:text-xs"
+              >
+                {robotAnimationLabels.paused}
+              </span>
+            )}
           </button>
         )}
       </div>

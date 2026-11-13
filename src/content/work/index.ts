@@ -9,6 +9,7 @@ export interface WorkScreen {
 export const robotAnimationLabels = {
   play: 'Play robot animation',
   pause: 'Pause robot animation',
+  paused: 'Paused',
 }
 export interface Work {
   slug: string

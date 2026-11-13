@@ -244,7 +244,7 @@ test.describe('Frontend', () => {
     ).toBeLessThanOrEqual(0)
   })
 
-  test('plays real CYOBot robot demos with individual pause controls and reduced-motion defaults', async ({
+  test('toggles CYOBot demos across the GIF surface and labels only paused playback', async ({
     page,
     browser,
   }) => {
@@ -254,18 +254,29 @@ test.describe('Frontend', () => {
       const robot = figure.getByRole('img', { name: /^A real CYOBot/ })
       await robot.scrollIntoViewIfNeeded()
       await expect(robot).toHaveAttribute('src', /\.gif$/)
+      await expect(figure.getByText('Paused', { exact: true })).toHaveCount(0)
       await expect
         .poll(() => robot.evaluate((image: HTMLImageElement) => image.naturalWidth))
         .toBeGreaterThan(0)
-      await figure.getByRole('button', { name: 'Pause robot animation' }).click()
+      await figure
+        .getByRole('button', { name: 'Pause robot animation' })
+        .click({ position: { x: 15, y: 15 } })
       await expect(robot).toHaveAttribute('src', /\.webp$/)
+      await expect(figure.getByText('Paused', { exact: true })).toBeVisible()
       await figure.getByRole('button', { name: 'Play robot animation' }).press('Space')
       await expect(robot).toHaveAttribute('src', /\.gif$/)
+      await expect(figure.getByText('Paused', { exact: true })).toHaveCount(0)
+      await figure.getByRole('button', { name: 'Pause robot animation' }).press('Enter')
+      await expect(figure.getByText('Paused', { exact: true })).toBeVisible()
+      await figure.getByRole('button', { name: 'Play robot animation' }).click()
+      await expect(robot).toHaveAttribute('src', /\.gif$/)
+      await expect(figure.getByText('Paused', { exact: true })).toHaveCount(0)
     }
     await page.emulateMedia({ reducedMotion: 'reduce' })
     for (const robot of await page.getByRole('img', { name: /^A real CYOBot/ }).all()) {
       await expect(robot).toHaveAttribute('src', /\.webp$/)
     }
+    await expect(page.getByText('Paused', { exact: true })).toHaveCount(3)
 
     const staticContext = await browser.newContext({ javaScriptEnabled: false })
     const staticPage = await staticContext.newPage()
