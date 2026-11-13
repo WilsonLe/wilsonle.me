@@ -29,6 +29,7 @@ Project-only captures, including mobile Work, omit the fixed site header to keep
 - [Sticky and bottom tabs, desktop](project-tabs-bottom-desktop.webp)
 - [Sticky and bottom tabs, mobile](project-tabs-bottom-mobile.webp)
 - [Skills stream at the commented width](skills-strip-tablet.webp)
+- [Full-width Skills beneath the hero, reported 1119px width](hero-reported-width.webp)
 - [Corrected hero, desktop](hero-desktop.webp)
 - [Corrected hero, mobile](hero-mobile.webp)
 - [Kalibr, desktop](kalibr-desktop.webp)
@@ -62,10 +63,12 @@ No database, CMS, deployment, or production state changes are part of this deliv
 
 ## Skills carousel and project tabs
 
-The hero metadata block becomes Skills: the same 36 résumé technologies, with local icons and names in a continuous left-to-right stream. Gray-shaded chevrons at the far edges appear on hover, a touch tap or keyboard focus, and skip individual skills. Six named tabs below skip sections. Play/Pause labels are removed. Hover temporarily pauses; focus, touch and manual selection stop motion persistently. Reduced motion and offscreen/background-page handling remain. Duplicate runs are hidden from accessibility; no-JavaScript visitors receive six static lists. Icon source revisions, hashes and licenses are in `public/skills/` and [showcase provenance](../product-showcases.md).
+Skills sits in a full-width row below the hero heading and CTA buttons at every screen size: the same 36 résumé technologies, with local icons and names in a continuous left-to-right stream. Gray-shaded chevrons at the far edges appear on hover, a touch tap or keyboard focus, and skip individual skills. Six named tabs below skip sections. Play/Pause labels are removed. Hover temporarily pauses; focus, touch and manual selection stop motion persistently. Reduced motion and offscreen/background-page handling remain. Duplicate runs are hidden from accessibility; no-JavaScript visitors receive six static lists. Icon source revisions, hashes and licenses are in `public/skills/` and [showcase provenance](../product-showcases.md).
 
 Work synchronizes two selectors. The top bar sticks below the header in a horizontally scrollable single row. Bottom selection retains its screen position and focus when project heights change. Top selection reveals the introduction with normal smooth/reduced-motion behavior. Project/feature hashes, locale/query paths and Back/Forward remain usable; each native history entry saves its selection while preserving Next's fields. No-JavaScript visitors see all articles. Footer location is removed. Pangea emphasizes team leadership and the feedback-to-spec-to-feature pipeline.
 
 Six navigation checks cover real horizontal movement, icon loading, pause conditions, item/section skipping, chevron hover/tap/keyboard discovery, sticky positioning, bottom viewport stability, deep links/history and fallbacks. Typography checks still measure intrinsic label widths and line-ink separation inside the intentional horizontal loops/tab rails; only their page-edge text comparisons are excluded. Document overflow and ordinary text bounds remain checked. A Vulcan tab initially clamped its enlarged unwrapped label; retaining its natural width makes it readable through the rail.
 
 Author checks reproduced completed entrances restarting after panel restoration and the former wrapping selector placing focus below a short/enlarged viewport. Completion markers prevent replay; the current sticky single-row rail keeps focus reachable. Independent pass1 at0164e86 found Back to the initial unqualified URL retaining Pangea. The added regression fails there, then passes with saved per-entry selections, including a native Contact hash. A document-identity regression also catches an unwanted Next reload when that native hash entry originally has null state; retained router metadata prevents it. Review history and final clearance remain in PR#34.
+
+The follow-up to issue #35 removes the desktop split entirely. Geometry checks at 375/867/1119/1440/1920px confirm Skills begins below the introduction and matches its content width, with zero document overflow. Hero/Skills screenshots now capture the stacked layout; the existing 30 frontend, navigation and typography checks pass against its production build.
