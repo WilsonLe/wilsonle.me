@@ -5,7 +5,8 @@ import type { TechStack } from '@/content/types'
 import { SectionTabs } from '@/components/SectionTabs'
 
 const STREAM_SPEED = 60
-const BROWSE_SPEED = 360
+const BROWSE_DURATION = 280
+const BROWSE_PAUSE = 1000
 
 export function TechStackCarousel({ stack }: { stack: TechStack }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -13,7 +14,8 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
   const progress = useRef(0)
   const stride = useRef(0)
   const current = useRef(0)
-  const speed = useRef(STREAM_SPEED)
+  const navigation = useRef<{ from: number; to: number; started: number } | null>(null)
+  const resumeAt = useRef(0)
   const [active, setActive] = useState(0)
   const [enhanced, setEnhanced] = useState(false)
   const [announcement, setAnnouncement] = useState('')
@@ -22,6 +24,7 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
   const [browse, setBrowse] = useState(false)
   const [visible, setVisible] = useState(false)
   const [pageVisible, setPageVisible] = useState(true)
+  const [paused, setPaused] = useState(false)
   const skills = useMemo(
     () =>
       stack.groups.flatMap((group) =>
@@ -81,29 +84,47 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
     }
   }, [paint, skills.length])
 
-  const rotating = enhanced && !keyboardFocused && !reduced && visible && pageVisible
+  const moving = enhanced && !reduced && visible && pageVisible && (!keyboardFocused || paused)
+  const rotating = moving && !keyboardFocused && !paused
   useEffect(() => {
-    if (!rotating) {
-      speed.current = STREAM_SPEED
+    if (!moving) {
+      if (reduced && navigation.current) {
+        progress.current = navigation.current.to
+        navigation.current = null
+        resumeAt.current = performance.now() + BROWSE_PAUSE
+        paint()
+      }
       return
     }
     let frame = 0
     let previous: number | undefined
     const tick = (time: number) => {
-      if (previous !== undefined && stride.current) {
-        const elapsed = Math.min(time - previous, 100)
-        // A chevron changes velocity, never position or the number of animation loops.
-        const nextSpeed = STREAM_SPEED + (speed.current - STREAM_SPEED) * Math.exp(-elapsed / 450)
-        progress.current += (elapsed * (speed.current + nextSpeed)) / 2000 / stride.current
-        speed.current = nextSpeed
+      const target = navigation.current
+      if (target) {
+        const fraction = Math.max(0, Math.min((time - target.started) / BROWSE_DURATION, 1))
+        progress.current = target.from + (target.to - target.from) * (1 - (1 - fraction) ** 3)
         paint()
+        if (fraction === 1) {
+          navigation.current = null
+          resumeAt.current = time + BROWSE_PAUSE
+        }
+      } else {
+        if (resumeAt.current && time >= resumeAt.current) {
+          resumeAt.current = 0
+          setPaused(false)
+        }
+        if (!keyboardFocused && !resumeAt.current && previous !== undefined && stride.current) {
+          const elapsed = Math.min(time - previous, 100)
+          progress.current += (elapsed * STREAM_SPEED) / 1000 / stride.current
+          paint()
+        }
       }
       previous = time
       frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [rotating, paint])
+  }, [moving, keyboardFocused, reduced, paint])
 
   useEffect(() => {
     if (!browse) return
@@ -112,15 +133,29 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
   }, [browse])
 
   function select(index: number) {
-    progress.current = (index + skills.length) % skills.length
-    speed.current = STREAM_SPEED
-    setAnnouncement(skills[progress.current].name)
-    paint()
+    const count = skills.length
+    const selected = ((index % count) + count) % count
+    let distance = selected - progress.current
+    // Choose the nearest identical run, including a single step across either end.
+    distance -= Math.round(distance / count) * count
+    resumeAt.current = performance.now() + BROWSE_PAUSE
+    setPaused(true)
+    setAnnouncement(skills[selected].name)
+    if (reduced || Math.abs(distance) < 0.001) {
+      navigation.current = null
+      progress.current = selected
+      paint()
+    } else {
+      navigation.current = {
+        from: progress.current,
+        to: progress.current + distance,
+        started: performance.now(),
+      }
+    }
   }
 
-  function accelerate(direction: number) {
-    if (reduced || keyboardFocused) select(current.current + direction)
-    else speed.current = direction * BROWSE_SPEED
+  function step(direction: number) {
+    select(Math.round(navigation.current?.to ?? progress.current) + direction)
   }
 
   return (
@@ -184,7 +219,7 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
                 type="button"
                 aria-label={stack.previousLabel}
                 aria-controls="skills-panel"
-                onClick={() => accelerate(-1)}
+                onClick={() => step(-1)}
                 className="tech-browse absolute inset-y-2 left-0 z-10 flex w-11 items-center justify-start bg-gradient-to-r from-ink-soft/95 to-transparent pl-1 text-paper"
               >
                 <svg
@@ -202,7 +237,7 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
                 type="button"
                 aria-label={stack.nextLabel}
                 aria-controls="skills-panel"
-                onClick={() => accelerate(1)}
+                onClick={() => step(1)}
                 className="tech-browse absolute inset-y-2 right-0 z-10 flex w-11 items-center justify-end bg-gradient-to-l from-ink-soft/95 to-transparent pr-1 text-paper"
               >
                 <svg

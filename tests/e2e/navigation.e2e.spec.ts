@@ -57,7 +57,44 @@ test('streams skills left at a faster steady pace, including while hovered', asy
   )
 })
 
-test('chevrons accelerate in either direction without jumping or stacking animation loops', async ({
+test('category tabs scroll quickly, hold for one second and restart the hold on selection', async ({
+  page,
+}) => {
+  await page.clock.install()
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.setViewportSize({ width: 885, height: 763 })
+  await page.goto('/')
+  const carousel = page.getByRole('region', { name: 'Skills', exact: true })
+  await carousel.hover()
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000))
+  const position = () =>
+    carousel.locator('.tech-strip').evaluate((element) => element.getBoundingClientRect().x)
+  const before = await position()
+  await carousel.getByRole('tab', { name: 'Backend', exact: true }).click()
+  expect(await position()).toBeCloseTo(before, 1)
+  await page.clock.runFor(100)
+  const during = await position()
+  expect(during).toBeLessThan(before - 50)
+  await page.clock.runFor(200)
+  await expect.poll(() => leadingSkill(page)).toBe('Express.js')
+  const settled = await position()
+  expect(settled).toBeLessThan(during - 10)
+  await expect(carousel).toHaveAttribute('data-rotating', 'false')
+  await page.clock.runFor(950)
+  expect(await position()).toBeCloseTo(settled, 1)
+  // Selecting the current category also starts a fresh hold.
+  await carousel.getByRole('tab', { name: 'Backend', exact: true }).click()
+  await page.clock.runFor(950)
+  expect(await position()).toBeCloseTo(settled, 1)
+  await page.clock.runFor(400)
+  await expect(carousel).toHaveAttribute('data-rotating', 'true')
+  const resumed = await position()
+  await page.clock.runFor(1000)
+  expect(resumed - (await position())).toBeGreaterThan(50)
+  expect(resumed - (await position())).toBeLessThan(75)
+})
+
+test('chevrons scroll one skill in either direction and hold without stacking animation loops', async ({
   page,
 }) => {
   await page.clock.install()
@@ -65,6 +102,9 @@ test('chevrons accelerate in either direction without jumping or stacking animat
   await page.goto('/')
   const carousel = page.getByRole('region', { name: 'Skills', exact: true })
   await carousel.hover()
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000))
+  await carousel.getByRole('tab', { name: 'Frontend', exact: true }).click()
+  await page.clock.runFor(300)
   const next = carousel.getByRole('button', { name: 'Next skill' })
   const previous = carousel.getByRole('button', { name: 'Previous skill' })
   const position = () =>
@@ -73,58 +113,117 @@ test('chevrons accelerate in either direction without jumping or stacking animat
       .evaluate((element) => new DOMMatrixReadOnly(getComputedStyle(element).transform).m41)
   let before = await position()
   await next.click()
-  expect(Math.abs((await position()) - before)).toBeLessThan(35)
-  await page.clock.runFor(500)
-  expect(before - (await position())).toBeGreaterThan(90)
-  await expect(carousel).toHaveAttribute('data-rotating', 'true')
+  expect(await position()).toBeCloseTo(before, 1)
+  await page.clock.runFor(100)
+  expect(before - (await position())).toBeGreaterThan(30)
+  expect(before - (await position())).toBeLessThan(150)
+  await page.clock.runFor(200)
+  await expect.poll(() => leadingSkill(page)).toBe('CSS')
+  const settled = await position()
+  await page.clock.runFor(950)
+  expect(await position()).toBeCloseTo(settled, 1)
+  await expect(carousel).toHaveAttribute('data-rotating', 'false')
   before = await position()
   await previous.click()
-  await page.clock.runFor(500)
-  expect((await position()) - before).toBeGreaterThan(70)
+  await page.clock.runFor(100)
+  expect((await position()) - before).toBeGreaterThan(30)
+  await page.clock.runFor(200)
+  await expect.poll(() => leadingSkill(page)).toBe('HTML')
+  await previous.click()
+  await page.clock.runFor(300)
+  await expect.poll(() => leadingSkill(page)).toBe('VSCode Copilot Chat')
+  await next.click()
+  await page.clock.runFor(300)
+  await expect.poll(() => leadingSkill(page)).toBe('HTML')
   before = await position()
-  await next.click({ clickCount: 3 })
-  await page.clock.runFor(500)
-  const boosted = before - (await position())
-  expect(boosted).toBeGreaterThan(90)
-  expect(boosted).toBeLessThan(180)
-  await page.clock.runFor(3000)
+  for (let click = 0; click < 3; click++) {
+    await next.click()
+    await page.clock.runFor(50)
+  }
+  await page.clock.runFor(300)
+  await expect.poll(() => leadingSkill(page)).toBe('React Native')
+  expect(before - (await position())).toBeCloseTo(3 * 156, 0)
+  const repeated = await position()
+  await page.clock.runFor(900)
+  expect(await position()).toBeCloseTo(repeated, 1)
+  await page.clock.runFor(200)
+  await expect(carousel).toHaveAttribute('data-rotating', 'true')
   before = await position()
   await page.clock.runFor(1000)
   expect(before - (await position())).toBeGreaterThan(50)
   expect(before - (await position())).toBeLessThan(75)
-  await expect(carousel.locator('[aria-live]')).toBeEmpty()
+  await expect(carousel.locator('[aria-live]')).toHaveText('React Native')
+})
+
+test('interrupts category browsing and preserves manual selection across resize and motion changes', async ({
+  page,
+}) => {
+  await page.clock.install()
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  const carousel = page.getByRole('region', { name: 'Skills', exact: true })
+  await carousel.hover()
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000))
+  await carousel.getByRole('tab', { name: 'Backend', exact: true }).click()
+  await page.clock.runFor(100)
+  await carousel.getByRole('tab', { name: 'Data & AI', exact: true }).click()
+  await page.setViewportSize({ width: 375, height: 812 })
+  await page.clock.runFor(300)
+  await expect.poll(() => leadingSkill(page)).toBe('Redis')
+  const strip = carousel.locator('.tech-strip')
+  const settled = await strip.evaluate((element) => element.getBoundingClientRect().x)
+  await page.clock.runFor(950)
+  expect(await strip.evaluate((element) => element.getBoundingClientRect().x)).toBeCloseTo(
+    settled,
+    1,
+  )
+  await carousel.getByRole('tab', { name: 'Cloud & ops', exact: true }).click()
+  await page.clock.runFor(100)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect.poll(() => leadingSkill(page)).toBe('AWS')
+  const reduced = await strip.evaluate((element) => element.getBoundingClientRect().x)
+  await page.clock.runFor(2000)
+  expect(await strip.evaluate((element) => element.getBoundingClientRect().x)).toBeCloseTo(
+    reduced,
+    1,
+  )
+  await expect(carousel).toHaveAttribute('data-rotating', 'false')
 })
 
 for (const key of ['Space', 'Enter']) {
-  test(`switches from mouse acceleration to discrete keyboard browsing with ${key}`, async ({
-    page,
-  }) => {
+  test(`keeps autoplay suspended for keyboard browsing with ${key}`, async ({ page }) => {
     await page.clock.install()
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/')
     const carousel = page.getByRole('region', { name: 'Skills', exact: true })
+    await carousel.hover()
+    await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000))
     await carousel.getByRole('tab', { name: 'Frontend', exact: true }).click()
+    await page.clock.runFor(300)
     const next = carousel.getByRole('button', { name: 'Next skill', exact: true })
     await next.click()
-    await expect(carousel).toHaveAttribute('data-rotating', 'true')
-    await page.clock.runFor(200)
+    await expect(carousel).toHaveAttribute('data-rotating', 'false')
+    await page.clock.runFor(100)
     await next.press(key)
+    await page.clock.runFor(300)
     await expect(carousel).toHaveAttribute('data-rotating', 'false')
     await expect.poll(() => leadingSkill(page)).toBe('React')
     const strip = carousel.locator('.tech-strip')
     const before = await strip.evaluate((element) => element.getBoundingClientRect().x)
-    await page.clock.runFor(1000)
+    await page.clock.runFor(2000)
     expect(await strip.evaluate((element) => element.getBoundingClientRect().x)).toBeCloseTo(
       before,
       1,
     )
     // A later pointer action switches back even though the button still has focus.
     await next.click()
-    await expect(carousel).toHaveAttribute('data-rotating', 'true')
+    await expect(carousel).toHaveAttribute('data-rotating', 'false')
     await page.clock.runFor(200)
     expect(await strip.evaluate((element) => element.getBoundingClientRect().x)).toBeLessThan(
       before - 30,
     )
+    await page.clock.runFor(1200)
+    await expect(carousel).toHaveAttribute('data-rotating', 'true')
   })
 }
 
@@ -141,6 +240,7 @@ test('animates the active section during streaming, wraps the loop and follows r
   const backend = tabs.getByRole('tab', { name: 'Backend', exact: true })
   const indicator = tabs.locator('.section-tab-indicator')
   await frontend.click()
+  await page.clock.runFor(1400)
   await page.clock.runFor(15000)
   await expect(frontend).toHaveAttribute('aria-selected', 'true')
   const start = await indicator.boundingBox()
@@ -162,6 +262,7 @@ test('animates the active section during streaming, wraps the loop and follows r
 
   const tools = tabs.getByRole('tab', { name: 'AI tools', exact: true })
   await tools.click()
+  await page.clock.runFor(1400)
   await page.clock.runFor(11000)
   await expect(frontend).toHaveAttribute('aria-selected', 'true')
   expect(
@@ -340,13 +441,22 @@ test('reveals shaded edge chevrons on hover, keyboard focus or a touch tap', asy
     .locator('.tech-strip')
     .evaluate((element) => element.getBoundingClientRect().x)
   await mobileNext.tap()
-  await mobile.clock.runFor(500)
+  await mobile.clock.runFor(300)
   expect(
     before -
       (await viewport
         .locator('.tech-strip')
         .evaluate((element) => element.getBoundingClientRect().x)),
   ).toBeGreaterThan(90)
+  const settled = await viewport
+    .locator('.tech-strip')
+    .evaluate((element) => element.getBoundingClientRect().x)
+  await mobile.clock.runFor(900)
+  expect(
+    await viewport.locator('.tech-strip').evaluate((element) => element.getBoundingClientRect().x),
+  ).toBeCloseTo(settled, 1)
+  await expect(mobileCarousel).toHaveAttribute('data-rotating', 'false')
+  await mobile.clock.runFor(200)
   await expect(mobileCarousel).toHaveAttribute('data-rotating', 'true')
   await context.close()
 })
@@ -426,7 +536,9 @@ test('browses overflowing project tabs with shaded chevrons and no horizontal sc
   await expect(page.locator('#work-panel-localdesign')).toBeVisible()
 })
 
-test('keeps the top work tabs sticky and preserves bottom selection position', async ({ page }) => {
+test('keeps the top work tabs sticky and returns bottom selections to the top navigation', async ({
+  page,
+}) => {
   test.setTimeout(60000)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   for (const viewport of [
@@ -457,15 +569,33 @@ test('keeps the top work tabs sticky and preserves bottom selection position', a
       )
       .toBe(true)
     await bottom.scrollIntoViewIfNeeded()
-    const before = await bottom.evaluate((element) => element.getBoundingClientRect().top)
-    const selected = bottom.getByRole('tab', { name: 'Pangea Chat', exact: true })
+    const before = await page.evaluate(() => scrollY)
+    const selected = bottom.getByRole('tab', { name: 'LocalCut', exact: true })
     await selected.click()
-    await expect(selected).toBeFocused()
     await expect(selected).toHaveAttribute('aria-selected', 'true')
+    await expect(top.getByRole('tab', { name: 'LocalCut', exact: true })).toBeFocused()
     await expect
-      .poll(() => bottom.evaluate((element) => element.getBoundingClientRect().top))
-      .toBeCloseTo(before, 0)
-    await expect(page).toHaveURL(/#pangea-chat$/)
+      .poll(() =>
+        page.locator('#localcut-heading').evaluate((element) => {
+          const heading = element.getBoundingClientRect()
+          const tabs = document.querySelector('.work-top-tabs')!.getBoundingClientRect()
+          return heading.top >= tabs.bottom && heading.bottom < innerHeight
+        }),
+      )
+      .toBe(true)
+    expect(await page.evaluate(() => scrollY)).toBeLessThan(before - 1000)
+    // Re-activating the selected bottom tab with the keyboard returns to the top too.
+    await bottom.scrollIntoViewIfNeeded()
+    await selected.press('Enter')
+    await expect(top.getByRole('tab', { name: 'LocalCut', exact: true })).toBeFocused()
+    await expect
+      .poll(() =>
+        page
+          .locator('#localcut-heading')
+          .evaluate((element) => element.getBoundingClientRect().bottom),
+      )
+      .toBeLessThan(viewport.height)
+    await expect(page).toHaveURL(/#localcut$/)
     await expect(page.getByRole('contentinfo')).not.toContainText('Brisbane')
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
@@ -495,6 +625,31 @@ test('keeps the top work tabs sticky and preserves bottom selection position', a
       )
       .toBe(true)
   }
+})
+
+test('smoothly returns from bottom Work tabs to the top navigation with normal motion', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.setViewportSize({ width: 885, height: 763 })
+  await page.goto('/#cyobot')
+  const bottom = page.getByRole('tablist', { name: 'Choose another project', exact: true })
+  await bottom.scrollIntoViewIfNeeded()
+  await bottom.getByRole('tab', { name: 'LocalCut', exact: true }).click()
+  await expect(page.locator('#work-tab-top-localcut')).toBeFocused()
+  await expect
+    .poll(() =>
+      page
+        .locator('#localcut-heading')
+        .evaluate((element) => element.getBoundingClientRect().bottom),
+    )
+    .toBeLessThan(763)
+  await expect
+    .poll(() =>
+      page.locator('.work-top-tabs').evaluate((element) => element.getBoundingClientRect().top),
+    )
+    .toBeCloseTo(81, 0)
+  await expect(page).toHaveURL(/#localcut$/)
 })
 
 test('preserves project and feature deep links, locale URLs and browser history', async ({

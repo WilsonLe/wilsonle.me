@@ -16,10 +16,8 @@ export function TabbedWork({
   const current = useRef(choices[0].id)
   const historyState = useRef<Record<string, unknown> | null>(null)
   const [enhanced, setEnhanced] = useState(false)
-  const bottomRef = useRef<HTMLDivElement>(null)
-  const pending = useRef<{ target?: string; origin?: 'top' | 'bottom'; bottomTop?: number } | null>(
-    null,
-  )
+  const topRef = useRef<HTMLDivElement>(null)
+  const pending = useRef<{ target?: string; origin?: 'top' | 'bottom' } | null>(null)
   const [navigation, setNavigation] = useState(0)
 
   useEffect(() => {
@@ -68,11 +66,14 @@ export function TabbedWork({
     pending.current = null
     const frame = requestAnimationFrame(() => {
       if (request.origin === 'bottom') {
-        const selected = document.getElementById(`work-tab-bottom-${activeId}`)
+        const selected = document.getElementById(`work-tab-top-${activeId}`)
         selected?.focus({ preventScroll: true })
-        const top = bottomRef.current?.getBoundingClientRect().top
-        if (top !== undefined && request.bottomTop !== undefined)
-          window.scrollBy({ top: top - request.bottomTop, behavior: 'instant' })
+        topRef.current?.scrollIntoView({
+          block: 'start',
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            ? 'instant'
+            : 'smooth',
+        })
       } else if (request.target) {
         document.getElementById(request.target)?.scrollIntoView({
           block: 'start',
@@ -99,7 +100,6 @@ export function TabbedWork({
     pending.current = {
       origin,
       target: origin === 'top' ? id : undefined,
-      bottomTop: origin === 'bottom' ? bottomRef.current?.getBoundingClientRect().top : undefined,
     }
     current.current = id
     setActiveId(id)
@@ -107,7 +107,7 @@ export function TabbedWork({
   }
 
   return (
-    <div className="mt-10 [overflow-anchor:none]">
+    <div ref={topRef} className="mt-10 scroll-mt-20 [overflow-anchor:none]">
       <div className="work-top-tabs sticky top-[calc(5rem+1px)] z-40 bg-paper pt-2">
         <SectionTabs
           choices={choices}
@@ -135,7 +135,7 @@ export function TabbedWork({
           </li>
         ))}
       </ol>
-      <div ref={bottomRef}>
+      <div>
         <SectionTabs
           choices={choices}
           activeId={activeId}
