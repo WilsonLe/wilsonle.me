@@ -131,6 +131,7 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
       aria-roledescription="carousel"
       aria-labelledby="tech-stack-heading"
       onPointerDown={() => setKeyboardFocused(false)}
+      onKeyDownCapture={() => setKeyboardFocused(true)}
       onFocusCapture={(event) => setKeyboardFocused(event.target.matches(':focus-visible'))}
       onBlurCapture={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setKeyboardFocused(false)

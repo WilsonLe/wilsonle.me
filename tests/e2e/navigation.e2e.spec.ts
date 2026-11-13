@@ -95,6 +95,39 @@ test('chevrons accelerate in either direction without jumping or stacking animat
   await expect(carousel.locator('[aria-live]')).toBeEmpty()
 })
 
+for (const key of ['Space', 'Enter']) {
+  test(`switches from mouse acceleration to discrete keyboard browsing with ${key}`, async ({
+    page,
+  }) => {
+    await page.clock.install()
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    await page.goto('/')
+    const carousel = page.getByRole('region', { name: 'Skills', exact: true })
+    await carousel.getByRole('tab', { name: 'Frontend', exact: true }).click()
+    const next = carousel.getByRole('button', { name: 'Next skill', exact: true })
+    await next.click()
+    await expect(carousel).toHaveAttribute('data-rotating', 'true')
+    await page.clock.runFor(200)
+    await next.press(key)
+    await expect(carousel).toHaveAttribute('data-rotating', 'false')
+    await expect.poll(() => leadingSkill(page)).toBe('React')
+    const strip = carousel.locator('.tech-strip')
+    const before = await strip.evaluate((element) => element.getBoundingClientRect().x)
+    await page.clock.runFor(1000)
+    expect(await strip.evaluate((element) => element.getBoundingClientRect().x)).toBeCloseTo(
+      before,
+      1,
+    )
+    // A later pointer action switches back even though the button still has focus.
+    await next.click()
+    await expect(carousel).toHaveAttribute('data-rotating', 'true')
+    await page.clock.runFor(200)
+    expect(await strip.evaluate((element) => element.getBoundingClientRect().x)).toBeLessThan(
+      before - 30,
+    )
+  })
+}
+
 test('animates the active section during streaming, wraps the loop and follows resized labels', async ({
   page,
 }) => {
