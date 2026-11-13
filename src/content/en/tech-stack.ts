@@ -70,7 +70,7 @@ export const techStack: TechStack = {
     },
     {
       id: 'tools',
-      label: 'Tools & messaging',
+      label: 'AI tools & messaging',
       technologies: [
         { name: 'Claude Code', icon: '/skills/claude.svg' },
         { name: 'VSCode Copilot Chat', icon: '/skills/githubcopilot.svg' },

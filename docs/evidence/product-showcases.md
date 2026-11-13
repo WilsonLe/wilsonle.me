@@ -59,7 +59,7 @@ Pangea's fourth contribution bullet now describes spearheading agentic software 
 
 ## Skills carousel
 
-The previous hero title/location/social metadata block becomes Skills. The same 36 technologies come from the approved `skillStack` in the full résumé at revision `f9d1363`, grouped into Frontend, Backend, Data & AI, Cloud & ops, Languages, and Tools & messaging. No skill or proficiency is invented. AWS/Google Cloud Platform abbreviate the source's cloud-provider entries. The concise PDF is unchanged.
+The previous hero title/location/social metadata block becomes Skills. The same 36 technologies come from the approved `skillStack` in the full résumé at revision `f9d1363`, grouped into Frontend, Backend, Data & AI, Cloud & ops, Languages, and AI tools & messaging. No skill or proficiency is invented. AWS/Google Cloud Platform abbreviate the source's cloud-provider entries. The concise PDF is unchanged.
 
 Icons and names form one continuous horizontal stream moving left to right at 24 CSS pixels per second. Three identical runs make wrapping seamless; duplicate runs are excluded from accessibility. Gray-shaded edge chevrons skip one skill and appear on mouse hover, a touch tap (four seconds), or keyboard focus. The Play/Pause controls and category-grid slides are removed. Named tabs below jump to each group's first skill. Hover temporarily stops motion; focus, touch and manual selection stop it persistently. Reduced motion, offscreen content and background pages disable automatic movement. Manual controls reach every skill. Without JavaScript, six static category lists expose all 36 names through native anchors.
 
