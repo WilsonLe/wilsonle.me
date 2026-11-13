@@ -1,0 +1,30 @@
+{
+  "retrievedOn": "2026-11-13",
+  "sourcePage": "https://cyobot.com/",
+  "assets": [
+    {
+      "asset": "distance-sensing.gif",
+      "source": "https://cyobot.com/simple-ultrasonic-radar.gif",
+      "sourceSha256": "db1ca4e936d93e3b42a52f19bee56bd4b1002f6e0eae7b19f0255d28155c128f",
+      "sha256": "8c4fe678c3868581cb6f08d1263b4d3c8257272ef240178fc4f38209c158df7b",
+      "bytes": 660750,
+      "processing": "Full original clip at original dimensions, sampled at 12 fps and encoded with a 128-color palette and inter-frame optimization. Infinite GIF loop. Poster is the first frame."
+    },
+    {
+      "asset": "balancing.gif",
+      "source": "https://cyobot.com/simple-imu-gimbal.gif",
+      "sourceSha256": "b8f339fc3b8142ce41e16a88f0287845b6d0384ec4574558318451c9a5ed60d7",
+      "sha256": "76199fd2aaf9b465f29516c0c476093609846b51395d4546a0e8681ff8021672",
+      "bytes": 889839,
+      "processing": "Full original clip at original dimensions, sampled at 12 fps and encoded with a 128-color palette and inter-frame optimization. Infinite GIF loop. Poster is the first frame."
+    },
+    {
+      "asset": "remote-control.gif",
+      "source": "https://cyobot.com/remote-control-demo.gif",
+      "sourceSha256": "7d30674ba3abd92028daa59213ab96f8f0bd8b342174072a98e06c12079aa117",
+      "sha256": "694f38b19eacae6149979df923a46b76aecbf6df2b243928e3b580e82f0faf4a",
+      "bytes": 1284402,
+      "processing": "Full original clip at original dimensions, sampled at 12 fps and encoded with a 128-color palette and inter-frame optimization. Infinite GIF loop. Poster is the first frame."
+    }
+  ]
+}

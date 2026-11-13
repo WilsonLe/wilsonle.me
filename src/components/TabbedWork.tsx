@@ -9,7 +9,7 @@ export function TabbedWork({
   children,
 }: {
   choices: TabChoice[]
-  labels: { top: string; bottom: string }
+  labels: { top: string; bottom: string; previous: string; next: string }
   children: ReactNode[]
 }) {
   const [activeId, setActiveId] = useState(choices[0].id)
@@ -117,6 +117,7 @@ export function TabbedWork({
           onActivate={(id) => activate(id, 'top')}
           enhanced={enhanced}
           scrollable
+          scrollLabels={labels}
         />
       </div>
       <ol>

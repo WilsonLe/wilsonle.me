@@ -150,7 +150,7 @@ test.describe('Frontend', () => {
     await expect(page.locator('#kalibr-admin-panels')).toContainText('synthetic demo data')
   })
 
-  test('keeps every image static and introduces every selected Work image and text block consistently', async ({
+  test('keeps product screenshots static and introduces every selected Work image and text block consistently', async ({
     page,
   }) => {
     async function expectEntrance(root: ReturnType<typeof page.locator>, parts: string[]) {
@@ -189,7 +189,7 @@ test.describe('Frontend', () => {
         await expectEntrance(figure, ['.work-image-mat', '.work-callout'])
         await figure.hover()
         await figure.getByRole('link').focus()
-        const image = figure.getByRole('img')
+        const image = figure.getByRole('link').getByRole('img')
         await expect(image).toHaveCSS('transform', 'none')
         const geometry = await image.evaluate((element) => ({
           image: element.getBoundingClientRect().width,
@@ -242,6 +242,51 @@ test.describe('Frontend', () => {
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
     ).toBeLessThanOrEqual(0)
+  })
+
+  test('toggles CYOBot demos across the GIF surface and labels only paused playback', async ({
+    page,
+    browser,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    await page.goto('/#cyobot')
+    for (const figure of await page.locator('#cyobot figure').all()) {
+      const robot = figure.getByRole('img', { name: /^A real CYOBot/ })
+      await robot.scrollIntoViewIfNeeded()
+      await expect(robot).toHaveAttribute('src', /\.gif$/)
+      await expect(figure.getByText('Paused', { exact: true })).toHaveCount(0)
+      await expect
+        .poll(() => robot.evaluate((image: HTMLImageElement) => image.naturalWidth))
+        .toBeGreaterThan(0)
+      await figure
+        .getByRole('button', { name: 'Pause robot animation' })
+        .click({ position: { x: 15, y: 15 } })
+      await expect(robot).toHaveAttribute('src', /\.webp$/)
+      await expect(figure.getByText('Paused', { exact: true })).toBeVisible()
+      await figure.getByRole('button', { name: 'Play robot animation' }).press('Space')
+      await expect(robot).toHaveAttribute('src', /\.gif$/)
+      await expect(figure.getByText('Paused', { exact: true })).toHaveCount(0)
+      await figure.getByRole('button', { name: 'Pause robot animation' }).press('Enter')
+      await expect(figure.getByText('Paused', { exact: true })).toBeVisible()
+      await figure.getByRole('button', { name: 'Play robot animation' }).click()
+      await expect(robot).toHaveAttribute('src', /\.gif$/)
+      await expect(figure.getByText('Paused', { exact: true })).toHaveCount(0)
+    }
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    for (const robot of await page.getByRole('img', { name: /^A real CYOBot/ }).all()) {
+      await expect(robot).toHaveAttribute('src', /\.webp$/)
+    }
+    await expect(page.getByText('Paused', { exact: true })).toHaveCount(3)
+
+    const staticContext = await browser.newContext({ javaScriptEnabled: false })
+    const staticPage = await staticContext.newPage()
+    await staticPage.goto('/#cyobot')
+    await expect(staticPage.getByRole('img', { name: /^A real CYOBot/ })).toHaveCount(3)
+    for (const robot of await staticPage.getByRole('img', { name: /^A real CYOBot/ }).all()) {
+      await expect(robot).toHaveAttribute('src', /\.webp$/)
+    }
+    await expect(staticPage.getByRole('button', { name: /robot animation/ })).toHaveCount(0)
+    await staticContext.close()
   })
 
   test('renders the explicit English locale route', async ({ page }) => {

@@ -84,6 +84,8 @@ const projects: Projects = {
   featuresLabel: 'Features',
   tabsLabel: 'Choose a project',
   bottomTabsLabel: 'Choose another project',
+  previousTabsLabel: 'Scroll projects left',
+  nextTabsLabel: 'Scroll projects right',
   items: projectItems,
 }
 

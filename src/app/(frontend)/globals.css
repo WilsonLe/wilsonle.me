@@ -159,6 +159,34 @@
   border-radius: 8px;
   box-shadow: 0 6px 16px -8px rgb(16 19 15 / 0.25);
 }
+.work-robot-overlay {
+  position: absolute;
+  z-index: 1;
+  padding: clamp(4px, 0.5vw, 6px);
+  border: 1px solid rgb(16 19 15 / 0.25);
+  border-radius: 6px;
+  background: var(--color-paper);
+  box-shadow:
+    0 16px 24px -10px rgb(16 19 15 / 0.45),
+    0 3px 8px rgb(16 19 15 / 0.18);
+  transform: rotate(-4deg);
+}
+#cyobot-instructor-dashboard .work-robot-overlay {
+  top: 73%;
+  left: 24%;
+  width: 30%;
+}
+#cyobot-student-dashboard .work-robot-overlay {
+  top: 27%;
+  left: 69%;
+  width: 22%;
+  transform: rotate(3deg);
+}
+#cyobot-python-quest .work-robot-overlay {
+  top: 65%;
+  left: 24%;
+  width: 25%;
+}
 .work-shot-view:focus-within {
   outline: 2px solid var(--color-signal-deep);
   outline-offset: 4px;
@@ -192,11 +220,13 @@
   }
 }
 
-.section-tabs[data-tone='light'] {
+.section-tabs[data-tone='light'],
+.section-tabs-shell[data-tone='light'] {
   border-color: var(--color-ink);
   color: var(--color-ink);
 }
-.section-tabs[data-tone='dark'] {
+.section-tabs[data-tone='dark'],
+.section-tabs-shell[data-tone='dark'] {
   border-color: var(--color-rule);
   color: var(--color-paper-muted);
 }
@@ -226,10 +256,10 @@
   scroll-margin-top: 9rem;
 }
 .work-top-tabs .section-tabs {
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 .work-top-tabs .section-tabs::-webkit-scrollbar {
-  height: 0.25rem;
+  display: none;
 }
 
 .tech-browse {
