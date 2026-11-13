@@ -2,39 +2,76 @@ export interface WorkScreen {
   id: string
   title: string
   image: { src: string; alt: string; width: number; height: number }
-  callout: { description: string; label: string; x: number; y: number }
+  callout: { description: string }
 }
 export interface Work {
   slug: string
   projectId: string
   name: string
   summary: string
-  contributions: string[]
-  tone: 'purple' | 'sand' | 'blue'
+  contributions?: string[]
+  features?: string[]
   screens: WorkScreen[]
 }
 
 export const works: Work[] = [
   {
+    slug: 'kalibr',
+    projectId: 'kalibr',
+    name: 'Kalibr',
+    summary: 'Competitive games, with a deeper view of how people play.',
+    contributions: [
+      'Built the game library UI and player-facing workflows.',
+      'Built analytics pipelines to process gameplay into useful reporting.',
+      'Developed admin panels for engagement, product usage and game-specific analysis.',
+    ],
+    screens: [
+      {
+        id: 'game-library',
+        title: 'A library made for finding the next challenge.',
+        image: {
+          src: '/work/screenshots/kalibr-library.webp',
+          alt: 'Kalibr game library with category filters, search, game cards, daily challenges and player-performance navigation.',
+          width: 1265,
+          height: 712,
+        },
+        callout: {
+          description:
+            'Browse games by category, search the library and choose a mode. Daily challenges, tournaments and performance sit alongside the games.',
+        },
+      },
+      {
+        id: 'admin-panels',
+        title: 'Analytics in the admin panel.',
+        image: {
+          src: '/work/screenshots/kalibr-admin.webp',
+          alt: 'Kalibr admin engagement panel with labelled synthetic demo data, activity metrics, charts and game-specific navigation.',
+          width: 1265,
+          height: 1425,
+        },
+        callout: {
+          description:
+            'Process gameplay into engagement, product-usage and game-specific reports. Inspect the results in the admin panel, with period filters and explicit coverage limits. Shown with synthetic demo data; the counts are illustrative.',
+        },
+      },
+    ],
+  },
+  {
     slug: 'pangea-chat',
     projectId: 'pangea-chat',
     name: 'Pangea Chat',
     summary: 'Learn a language through conversation.',
-    tone: 'purple',
     screens: [
       {
         id: 'sentence-builder',
         title: 'Sentence builder',
         image: {
           src: '/work/screenshots/pangea-translator.webp',
-          alt: 'Pangea Chat sentence builder with translation choices and explanations before a message is sent.',
-          width: 2560,
-          height: 1440,
+          alt: 'Close-up of the Pangea Chat sentence builder, with translation choices and explanations before sending a message.',
+          width: 1707,
+          height: 960,
         },
         callout: {
-          label: 'Frontend + AI services',
-          x: 66,
-          y: 78,
           description: 'Build a sentence with translation choices and explanations before sending.',
         },
       },
@@ -43,14 +80,11 @@ export const works: Work[] = [
         title: 'Pangea Bot',
         image: {
           src: '/work/screenshots/pangea-bot.webp',
-          alt: 'Pangea Bot Spanish role-play conversation with vocabulary suggestions, chat list and the world map behind it.',
-          width: 2560,
-          height: 1440,
+          alt: 'Close-up of a Pangea Bot Spanish role-play conversation and vocabulary suggestions.',
+          width: 1707,
+          height: 960,
         },
         callout: {
-          label: 'Frontend + AI services',
-          x: 64,
-          y: 63,
           description: 'Practise a language through a guided conversation with Pangea Bot.',
         },
       },
@@ -60,15 +94,12 @@ export const works: Work[] = [
         image: {
           src: '/work/screenshots/pangea-message-interpreter.webp',
           alt: 'Pangea Chat message interpreter showing the Spanish message ¿Cómo estás, Wilson? together with its English translation inside the chat.',
-          width: 2560,
-          height: 1440,
+          width: 1707,
+          height: 960,
         },
         callout: {
-          label: 'In-chat language assistance',
           description:
             'Read an incoming message with its translation, without leaving the conversation.',
-          x: 56,
-          y: 81,
         },
       },
       {
@@ -76,14 +107,11 @@ export const works: Work[] = [
         title: 'World-map group chats',
         image: {
           src: '/work/screenshots/pangea-map.webp',
-          alt: 'Pangea Chat world map with conversation activities, search and navigation.',
-          width: 2560,
-          height: 1440,
+          alt: 'Close-up of Pangea Chat world-map conversation activities.',
+          width: 1707,
+          height: 960,
         },
         callout: {
-          label: 'Frontend · conversation discovery',
-          x: 51,
-          y: 70,
           description: 'Find conversations on the world map and practise with other people.',
         },
       },
@@ -92,7 +120,7 @@ export const works: Work[] = [
       'Built the frontend and AI assistant.',
       'Developed FastAPI services for LLM workflows.',
       'Built CI/CD, monitoring and incident response.',
-      'Introduced spec-driven, AI-assisted workflows.',
+      'Spearheaded agentic software development across the team, streamlining our feedback-to-spec-to-feature pipeline. Agents turned feedback from 15-minute user playtests into todos; I signed off on implementation, testing and deployment, with most changes shipped the same day.',
     ],
   },
   {
@@ -100,7 +128,6 @@ export const works: Work[] = [
     projectId: 'vulcan-internal-platform',
     name: 'Vulcan Augmetics',
     summary: 'The internal platform behind the prosthetics.',
-    tone: 'sand',
     screens: [
       {
         id: 'access-control',
@@ -112,11 +139,8 @@ export const works: Work[] = [
           height: 1600,
         },
         callout: {
-          label: 'Built in-house · role + attribute rules',
           description:
             'I implemented access controls that combine roles with conditions such as the user’s clinic to determine which records they can access.',
-          x: 80,
-          y: 67,
         },
       },
       {
@@ -129,11 +153,8 @@ export const works: Work[] = [
           height: 1600,
         },
         callout: {
-          label: 'My work · internal CMS + admin',
           description:
             'I built the internal CMS and admin workflows for managing users, organisations, sessions and exercises.',
-          x: 58,
-          y: 43,
         },
       },
       {
@@ -146,18 +167,15 @@ export const works: Work[] = [
           height: 1600,
         },
         callout: {
-          label: 'API telemetry + monitoring',
           description:
             'I added API telemetry and monitoring for request volume, latency and errors.',
-          x: 51,
-          y: 45,
         },
       },
     ],
     contributions: [
-      'Implemented the internal CMS.',
-      'Built OAuth2 login and role/attribute access controls.',
-      'Added telemetry, monitoring and on-call support.',
+      'Founding software engineer.',
+      'Led the internal admin dashboard and access-control system.',
+      'Led telemetry, monitoring and the on-call support system.',
     ],
   },
   {
@@ -165,7 +183,6 @@ export const works: Work[] = [
     projectId: 'cyobot-robotics-quest',
     name: 'CYOBot',
     summary: 'From learning to building with robots.',
-    tone: 'blue',
     screens: [
       {
         id: 'instructor-dashboard',
@@ -177,11 +194,8 @@ export const works: Work[] = [
           height: 1600,
         },
         callout: {
-          label: 'My work · admin + sidebar chatbot',
           description:
             'Manage robotics quests and levels with a sample lesson-planning conversation alongside.',
-          x: 83,
-          y: 50,
         },
       },
       {
@@ -194,11 +208,8 @@ export const works: Work[] = [
           height: 2000,
         },
         callout: {
-          label: 'My work · student coding dashboard',
           description:
             'A demo student workspace with robotics quests, skill progress, rewards and a career skill map.',
-          x: 44,
-          y: 33,
         },
       },
       {
@@ -211,35 +222,31 @@ export const works: Work[] = [
           height: 1600,
         },
         callout: {
-          label: 'Coding portal · quest + level flow',
           description:
             'A demo Python quest brings together learning objectives and a three-level journey.',
-          x: 61,
-          y: 30,
         },
       },
     ],
     contributions: [
-      'Built the landing page and product analytics.',
-      'Led the coding portal and CMS.',
-      'Centralised sign-in with Keycloak SSO.',
+      'Founding software engineer.',
+      'Led the landing page, instructor dashboard and student dashboard.',
+      'Streamlined internal operational processes.',
     ],
   },
   {
     slug: 'localcut',
     projectId: 'localcut',
     name: 'LocalCut',
-    summary: 'A video editor, right in the browser.',
-    tone: 'sand',
-    contributions: [
-      'Built the local media engine and timeline editor.',
-      'Added text animation, compositing and video export.',
-      'Exposed editing tools to external agents through WebMCP.',
+    summary: 'Fully open source. Video editing entirely in your browser.',
+    features: [
+      'Trim, arrange and layer media on a multitrack timeline.',
+      'Index source clips with previews, context and transcripts for agent-assisted editing.',
+      'Let any agent with browser access control the app through WebMCP.',
     ],
     screens: [
       {
         id: 'timeline',
-        title: 'From media to a finished sequence.',
+        title: 'A timeline for the whole edit.',
         image: {
           src: '/work/screenshots/localcut-editor.webp',
           alt: 'LocalCut with a populated demo project, original landscape artwork, a video preview, three timeline tracks and a crossfade.',
@@ -247,28 +254,36 @@ export const works: Work[] = [
           height: 1600,
         },
         callout: {
-          label: 'Media engine + timeline editor',
           description:
-            'I built the editing engine and timeline for arranging media, layering titles, animating properties and applying transitions. This demo brings those tools together.',
-          x: 60,
-          y: 78,
+            'Arrange media across tracks, trim clips, layer titles and add transitions. Inspect the sequence on the timeline and let an external agent help make the edit.',
         },
       },
       {
-        id: 'typography',
-        title: 'Titles with room for detail.',
+        id: 'asset-index',
+        title: 'An asset index agents can work with.',
         image: {
-          src: '/work/screenshots/localcut-typography.webp',
-          alt: 'LocalCut title properties with an Inter text preview, font, animation and alignment controls over the demo editing workspace.',
-          width: 2560,
-          height: 2000,
+          src: '/work/screenshots/localcut-asset-index.webp',
+          alt: 'LocalCut asset-index clip editor with source ranges, named clips, video preview, context and transcript tabs.',
+          width: 1026,
+          height: 860,
         },
         callout: {
-          label: 'Typography + motion controls',
           description:
-            'I added bundled fonts, text styling and animation controls so titles can be designed alongside the edit, with a preview before applying changes.',
-          x: 50,
-          y: 50,
+            'Organise source media into named clips with in/out points, previews, context and transcripts. An external agent can use that index to find the right material and plan an edit.',
+        },
+      },
+      {
+        id: 'webmcp',
+        title: 'Edit with an external agent.',
+        image: {
+          src: '/work/screenshots/localcut-webmcp.webp',
+          alt: 'An external-agent conversation beside LocalCut, with a video preview, clip list and context dialog visible in the editor.',
+          width: 1844,
+          height: 934,
+        },
+        callout: {
+          description:
+            'Use WebMCP tools to let an external agent work in the editor. Steer the edit in conversation while clips, context and transcripts stay visible in LocalCut.',
         },
       },
     ],
@@ -277,12 +292,11 @@ export const works: Work[] = [
     slug: 'localdesign',
     projectId: 'localdesign',
     name: 'LocalDesign',
-    summary: 'Your canvas, locally.',
-    tone: 'blue',
-    contributions: [
-      'Built the canvas, layer editor and frame layouts.',
-      'Implemented portable typography and SVG/PNG exports.',
-      'Added editable backups and WebMCP authoring tools.',
+    summary: 'Fully open source. Design entirely in your browser.',
+    features: [
+      'Organise work across pages, editable layers and frames.',
+      'Compose and refine designs directly on a browser-local canvas.',
+      'Let external agents control the design through WebMCP.',
     ],
     screens: [
       {
@@ -295,28 +309,36 @@ export const works: Work[] = [
           height: 1800,
         },
         callout: {
-          label: 'Canvas engine + layer workflows',
           description:
-            'I built the canvas and layer workflows for composing frames, shapes, images and text. This editable demo shows nested layers and a layout frame in context.',
-          x: 50,
-          y: 50,
+            'Compose frames, shapes, images and text on a local canvas. Organise the design with nested layers and frame layouts, keeping every element editable.',
         },
       },
       {
-        id: 'typography',
-        title: 'Typography that travels with the design.',
+        id: 'pages-layers-frames',
+        title: 'Pages, layers and frames.',
         image: {
-          src: '/work/screenshots/localdesign-typography.webp',
-          alt: 'LocalDesign with the Field Notes headline selected and Source Serif 4 typography, font source, size, line-height and tracking controls visible.',
-          width: 2880,
-          height: 1800,
+          src: '/work/screenshots/localdesign-structure.webp',
+          alt: 'LocalDesign concept board with a Pages list, a nested Layers tree, several editable frames and the page inspector.',
+          width: 1346,
+          height: 934,
         },
         callout: {
-          label: 'Text shaping + portable exports',
           description:
-            'I implemented text layout, font handling and portable exports, with controls for type size, spacing and line height. Bundled fonts stay with the editable design.',
-          x: 87,
-          y: 40,
+            'Keep separate ideas on pages, organise objects in a layer tree and build compositions inside frames. The same editable structure is available to an external agent.',
+        },
+      },
+      {
+        id: 'webmcp',
+        title: 'Design with an external agent.',
+        image: {
+          src: '/work/screenshots/localdesign-webmcp.webp',
+          alt: 'An external-agent conversation beside LocalDesign, showing a CYOBot concept board with editable frames, layers and the design inspector.',
+          width: 1844,
+          height: 934,
+        },
+        callout: {
+          description:
+            'Use WebMCP tools to create and refine frames, layers and text with an external agent. Keep the canvas visible alongside the conversation and adjust the result in the editor.',
         },
       },
     ],

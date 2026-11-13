@@ -70,7 +70,12 @@ export function SdlcCycleChart({ principles }: SdlcCycleChartProps) {
                 refY="4.5"
                 orient="auto"
               >
-                <path d="M1 1 L7 4.5 L1 8" fill="none" stroke="#a8caff" strokeWidth="1.5" />
+                <path
+                  d="M1 1 L7 4.5 L1 8"
+                  fill="none"
+                  stroke="var(--color-blueprint)"
+                  strokeWidth="1.5"
+                />
               </marker>
               <marker
                 id={`${markerPrefix}-active-arrow`}
@@ -80,16 +85,28 @@ export function SdlcCycleChart({ principles }: SdlcCycleChartProps) {
                 refY="4.5"
                 orient="auto"
               >
-                <path d="M1 1 L7 4.5 L1 8" fill="none" stroke="#ff8052" strokeWidth="1.5" />
+                <path
+                  d="M1 1 L7 4.5 L1 8"
+                  fill="none"
+                  stroke="var(--color-signal)"
+                  strokeWidth="1.5"
+                />
               </marker>
             </defs>
-            <circle cx="200" cy="200" r="140" fill="none" stroke="#465043" strokeWidth="1" />
+            <circle
+              cx="200"
+              cy="200"
+              r="140"
+              fill="none"
+              stroke="var(--color-rule)"
+              strokeWidth="1"
+            />
             <circle
               cx="200"
               cy="200"
               r="80"
               fill="none"
-              stroke="#465043"
+              stroke="var(--color-rule)"
               strokeWidth="1"
               strokeDasharray="3 8"
             />
@@ -100,7 +117,7 @@ export function SdlcCycleChart({ principles }: SdlcCycleChartProps) {
                   key={item.id}
                   d={arcToNextStage(index)}
                   fill="none"
-                  stroke={active ? '#ff8052' : '#a8caff'}
+                  stroke={active ? 'var(--color-signal)' : 'var(--color-blueprint)'}
                   strokeWidth={active ? 3 : 1.5}
                   strokeLinecap="round"
                   markerEnd={`url(#${markerPrefix}-${active ? 'active-arrow' : 'arrow'})`}
@@ -110,7 +127,7 @@ export function SdlcCycleChart({ principles }: SdlcCycleChartProps) {
             })}
           </svg>
 
-          <div className="absolute left-1/2 top-1/2 flex h-28 w-28 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-signal bg-ink text-center shadow-[0_0_40px_rgba(255,128,82,0.15)] sm:h-36 sm:w-36">
+          <div className="absolute left-1/2 top-1/2 flex h-28 w-28 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-signal bg-ink text-center shadow-[0_0_40px_rgba(120,227,242,0.15)] sm:h-36 sm:w-36">
             <span className="font-label text-[0.65rem] font-bold uppercase tracking-[0.12em] text-signal sm:text-xs">
               {principles.agentLabel}
             </span>

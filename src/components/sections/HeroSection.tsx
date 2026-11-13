@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { TechStackCarousel } from '@/components/TechStackCarousel'
 import type { Hero, SiteSettings } from '@/content/types'
 
 interface HeroSectionProps {
@@ -9,23 +10,6 @@ interface HeroSectionProps {
 
 export function HeroSection({ basePath, hero, siteSettings }: HeroSectionProps) {
   const homepagePath = basePath || '/'
-  const socialProfiles = [
-    {
-      id: 'github',
-      label: siteSettings.socialLabels.github,
-      url: siteSettings.social?.github,
-    },
-    {
-      id: 'linkedin',
-      label: siteSettings.socialLabels.linkedin,
-      url: siteSettings.social?.linkedin,
-    },
-    {
-      id: 'twitter',
-      label: siteSettings.socialLabels.twitter,
-      url: siteSettings.social?.twitter,
-    },
-  ].filter((profile): profile is { id: string; label: string; url: string } => Boolean(profile.url))
 
   return (
     <section
@@ -49,7 +33,7 @@ export function HeroSection({ basePath, hero, siteSettings }: HeroSectionProps) 
             </p>
             <h1
               id="hero-heading"
-              className="font-display max-w-5xl text-[clamp(3.25rem,9vw,8.5rem)] font-medium leading-[0.88] tracking-[-0.055em] text-paper"
+              className="font-display max-w-5xl text-[clamp(3.25rem,9vw,8.5rem)] font-medium leading-display tracking-[-0.035em] text-paper"
             >
               {hero.heading}
             </h1>
@@ -63,53 +47,21 @@ export function HeroSection({ basePath, hero, siteSettings }: HeroSectionProps) 
                   ↓
                 </span>
               </Link>
-              <Link
-                href={`${basePath}/resume`}
+              <a
+                href={siteSettings.resumeUrl}
+                download
                 className="font-label inline-flex min-h-12 items-center justify-center border border-rule px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-paper transition-colors hover:border-blueprint hover:text-blueprint"
               >
                 {hero.resumeCta}
                 <span className="ml-3" aria-hidden="true">
-                  →
+                  ↓
                 </span>
-              </Link>
+              </a>
             </div>
           </div>
 
           <aside className="min-w-0 border-t border-rule pt-7 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
-            <p className="font-label text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-blueprint">
-              <span aria-hidden="true">01 / </span>
-              {siteSettings.title}
-            </p>
-            <dl className="mt-8 space-y-7">
-              {siteSettings.location ? (
-                <div>
-                  <dt className="font-label text-[0.68rem] uppercase tracking-[0.14em] text-paper-muted">
-                    {hero.locationLabel}
-                  </dt>
-                  <dd className="font-display mt-2 text-2xl text-paper">{siteSettings.location}</dd>
-                </div>
-              ) : null}
-              {socialProfiles.length > 0 ? (
-                <div>
-                  <dt className="font-label text-[0.68rem] uppercase tracking-[0.14em] text-paper-muted">
-                    {hero.socialLabel}
-                  </dt>
-                  <dd className="mt-3 flex flex-wrap gap-x-5 gap-y-3">
-                    {socialProfiles.map((profile) => (
-                      <a
-                        key={profile.id}
-                        href={profile.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-label text-xs font-semibold uppercase tracking-[0.1em] text-paper decoration-signal decoration-2 underline-offset-4 hover:underline"
-                      >
-                        {profile.label} <span aria-hidden="true">↗</span>
-                      </a>
-                    ))}
-                  </dd>
-                </div>
-              ) : null}
-            </dl>
+            <TechStackCarousel stack={hero.stack} />
           </aside>
         </div>
 

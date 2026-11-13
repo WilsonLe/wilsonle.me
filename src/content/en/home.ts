@@ -1,14 +1,14 @@
 import type { About, Hero, HomeContent, Now, Principles, Project, Projects } from '@/content/types'
 import { siteSettings } from '@/content/en/site'
+import { techStack } from '@/content/en/tech-stack'
 
 const hero: Hero = {
   identity: 'Wilson Le',
   heading: 'Forward Deployed Engineer at Lyra',
   workCta: 'View work',
-  resumeCta: 'View résumé',
+  resumeCta: 'Download résumé',
   skipToWorkLabel: 'Skip to work',
-  locationLabel: 'Based in',
-  socialLabel: 'Social profiles',
+  stack: techStack,
 }
 
 const about: About = {
@@ -25,9 +25,16 @@ const about: About = {
 
 const projectItems: Project[] = [
   {
+    id: 'kalibr',
+    name: 'Kalibr',
+    summary: 'Competitive games and gameplay analytics.',
+    contribution: 'Built the game library UI, analytics processing pipelines and admin panels.',
+    url: 'https://usekalibr.com',
+    linkLabel: 'Open Kalibr',
+  },
+  {
     id: 'pangea-chat',
     name: 'Pangea Chat',
-    visibility: 'Public product',
     summary:
       'Friends practise new languages together through AI-powered conversations in Pangea Chat.',
     contribution: 'I built the frontend, AI services, and delivery systems behind the product.',
@@ -37,34 +44,34 @@ const projectItems: Project[] = [
   {
     id: 'cyobot-robotics-quest',
     name: 'CYOBot Robotics Quest',
-    visibility: 'Public product',
     summary: 'Students learn coding and robotics through a browser-based learning platform.',
-    contribution: 'I built its coding portal, content system, and shared sign-in flow.',
+    contribution:
+      'Founding software engineer; led the landing page, instructor and student dashboards, and streamlined internal operations.',
     url: 'https://dashboard.cyobot.com/',
     linkLabel: 'Open Robotics Quest',
   },
   {
     id: 'vulcan-internal-platform',
     name: 'Vulcan internal platform',
-    visibility: 'Private internal system',
     summary: 'An internal platform helped teams manage content, access, and production services.',
-    contribution: 'I built content and access workflows, then added monitoring for production.',
+    contribution:
+      'Founding software engineer; led the internal admin dashboard, access control, telemetry, monitoring and on-call support.',
   },
   {
     id: 'localcut',
     name: 'LocalCut',
-    visibility: 'Open-source project',
     summary: 'A video editor that works with media directly in the browser.',
-    contribution: 'I built the media engine, timeline editor and tools for external agents.',
+    contribution:
+      'Open-source, browser-local timeline editing and asset indexing with external-agent control.',
     url: 'https://wilsonle.github.io/LocalCut/',
     linkLabel: 'Open LocalCut',
   },
   {
     id: 'localdesign',
     name: 'LocalDesign',
-    visibility: 'Open-source project',
     summary: 'A browser-local canvas for designing with editable layers, text and images.',
-    contribution: 'I built the canvas engine, typography, exports and tools for external agents.',
+    contribution:
+      'Open-source, browser-local pages, layers and frames with external-agent control.',
     url: 'https://wilsonle.github.io/LocalDesign/',
     linkLabel: 'Open LocalDesign',
   },
@@ -74,6 +81,9 @@ const projects: Projects = {
   heading: 'Work',
   productLabel: 'The product',
   contributionLabel: 'My part',
+  featuresLabel: 'Features',
+  tabsLabel: 'Choose a project',
+  bottomTabsLabel: 'Choose another project',
   items: projectItems,
 }
 

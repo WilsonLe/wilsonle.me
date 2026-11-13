@@ -8,6 +8,7 @@ export interface SiteSettings {
   location?: string
   email?: string
   phone?: string
+  resumeUrl: string
   social?: {
     github?: string
     linkedin?: string
@@ -33,7 +34,6 @@ export interface SiteSettings {
     footerLabel: string
   }
   contact: {
-    eyebrow: string
     heading: string
     emailLabel: string
     booking: {
@@ -44,14 +44,21 @@ export interface SiteSettings {
   }
 }
 
+export interface TechStack {
+  heading: string
+  categoriesLabel: string
+  previousLabel: string
+  nextLabel: string
+  groups: { id: string; label: string; technologies: { name: string; icon: string }[] }[]
+}
+
 export interface Hero {
   identity: string
   heading: string
   workCta: string
   resumeCta: string
   skipToWorkLabel: string
-  locationLabel: string
-  socialLabel: string
+  stack: TechStack
 }
 
 export interface About {
@@ -66,7 +73,6 @@ export interface About {
 export interface Project {
   id: string
   name: string
-  visibility: string
   summary: string
   contribution: string
   url?: string
@@ -77,6 +83,9 @@ export interface Projects {
   heading: string
   productLabel: string
   contributionLabel: string
+  featuresLabel: string
+  tabsLabel: string
+  bottomTabsLabel: string
   items: Project[]
 }
 
@@ -140,33 +149,6 @@ export interface Education {
 export interface PageSeo {
   title: string
   description: string
-}
-
-export interface ResumeIntro {
-  eyebrow: string
-  heading: string
-  summary: string
-  backLabel: string
-}
-
-export interface ResumeLabels {
-  experienceHeading: string
-  educationHeading: string
-  presentLabel: string
-  expectedGraduationLabel: string
-  graduatedLabel: string
-  gpaLabel: string
-  courseworkLabel: string
-}
-
-export interface ResumeContent {
-  locale: Locale
-  siteSettings: SiteSettings
-  intro: ResumeIntro
-  labels: ResumeLabels
-  experiences: Experience[]
-  education: Education[]
-  seo: PageSeo
 }
 
 export interface HomeContent {
