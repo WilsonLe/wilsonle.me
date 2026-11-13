@@ -1,12 +1,26 @@
 import { expect, test } from '@playwright/test'
 import { projectChoices, selectProject } from './helpers/work'
 
+async function installPausedClock(page: import('@playwright/test').Page) {
+  await page.clock.install({ time: new Date('2026-11-13T00:00:00Z') })
+  // Pause before navigation so a running clock tick cannot race the carousel's rAF loop.
+  await page.clock.pauseAt(new Date('2026-11-13T00:00:01Z'))
+}
+
 async function leadingSkill(page: import('@playwright/test').Page) {
   return page.locator('.tech-viewport').evaluate((viewport) => {
     const left = viewport.getBoundingClientRect().left
     return [...viewport.querySelectorAll('li')]
       .find((item) => Math.abs(item.getBoundingClientRect().left - left) < 1)
       ?.textContent?.trim()
+  })
+}
+
+async function localCutIntroInView(page: import('@playwright/test').Page) {
+  return page.locator('#localcut-heading').evaluate((element) => {
+    const heading = element.getBoundingClientRect()
+    const tabs = document.querySelector('.work-top-tabs')!.getBoundingClientRect()
+    return heading.top >= tabs.bottom && heading.bottom < innerHeight
   })
 }
 
@@ -60,13 +74,14 @@ test('streams skills left at a faster steady pace, including while hovered', asy
 test('category tabs scroll quickly, hold for one second and restart the hold on selection', async ({
   page,
 }) => {
-  await page.clock.install()
+  await installPausedClock(page)
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.setViewportSize({ width: 885, height: 763 })
   await page.goto('/')
   const carousel = page.getByRole('region', { name: 'Skills', exact: true })
   await carousel.hover()
-  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000))
+  await expect(carousel).toHaveAttribute('data-rotating', 'true')
+  await page.clock.runFor(200)
   const position = () =>
     carousel.locator('.tech-strip').evaluate((element) => element.getBoundingClientRect().x)
   const before = await position()
@@ -97,12 +112,12 @@ test('category tabs scroll quickly, hold for one second and restart the hold on 
 test('chevrons scroll one skill in either direction and hold without stacking animation loops', async ({
   page,
 }) => {
-  await page.clock.install()
+  await installPausedClock(page)
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/')
   const carousel = page.getByRole('region', { name: 'Skills', exact: true })
   await carousel.hover()
-  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000))
+  await expect(carousel).toHaveAttribute('data-rotating', 'true')
   await carousel.getByRole('tab', { name: 'Frontend', exact: true }).click()
   await page.clock.runFor(300)
   const next = carousel.getByRole('button', { name: 'Next skill' })
@@ -158,12 +173,12 @@ test('chevrons scroll one skill in either direction and hold without stacking an
 test('interrupts category browsing and preserves manual selection across resize and motion changes', async ({
   page,
 }) => {
-  await page.clock.install()
+  await installPausedClock(page)
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/')
   const carousel = page.getByRole('region', { name: 'Skills', exact: true })
   await carousel.hover()
-  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000))
+  await expect(carousel).toHaveAttribute('data-rotating', 'true')
   await carousel.getByRole('tab', { name: 'Backend', exact: true }).click()
   await page.clock.runFor(100)
   await carousel.getByRole('tab', { name: 'Data & AI', exact: true }).click()
@@ -192,12 +207,12 @@ test('interrupts category browsing and preserves manual selection across resize 
 
 for (const key of ['Space', 'Enter']) {
   test(`keeps autoplay suspended for keyboard browsing with ${key}`, async ({ page }) => {
-    await page.clock.install()
+    await installPausedClock(page)
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/')
     const carousel = page.getByRole('region', { name: 'Skills', exact: true })
     await carousel.hover()
-    await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000))
+    await expect(carousel).toHaveAttribute('data-rotating', 'true')
     await carousel.getByRole('tab', { name: 'Frontend', exact: true }).click()
     await page.clock.runFor(300)
     const next = carousel.getByRole('button', { name: 'Next skill', exact: true })
@@ -574,27 +589,13 @@ test('keeps the top work tabs sticky and returns bottom selections to the top na
     await selected.click()
     await expect(selected).toHaveAttribute('aria-selected', 'true')
     await expect(top.getByRole('tab', { name: 'LocalCut', exact: true })).toBeFocused()
-    await expect
-      .poll(() =>
-        page.locator('#localcut-heading').evaluate((element) => {
-          const heading = element.getBoundingClientRect()
-          const tabs = document.querySelector('.work-top-tabs')!.getBoundingClientRect()
-          return heading.top >= tabs.bottom && heading.bottom < innerHeight
-        }),
-      )
-      .toBe(true)
+    await expect.poll(() => localCutIntroInView(page)).toBe(true)
     expect(await page.evaluate(() => scrollY)).toBeLessThan(before - 1000)
     // Re-activating the selected bottom tab with the keyboard returns to the top too.
     await bottom.scrollIntoViewIfNeeded()
     await selected.press('Enter')
     await expect(top.getByRole('tab', { name: 'LocalCut', exact: true })).toBeFocused()
-    await expect
-      .poll(() =>
-        page
-          .locator('#localcut-heading')
-          .evaluate((element) => element.getBoundingClientRect().bottom),
-      )
-      .toBeLessThan(viewport.height)
+    await expect.poll(() => localCutIntroInView(page)).toBe(true)
     await expect(page).toHaveURL(/#localcut$/)
     await expect(page.getByRole('contentinfo')).not.toContainText('Brisbane')
     expect(
@@ -637,13 +638,7 @@ test('smoothly returns from bottom Work tabs to the top navigation with normal m
   await bottom.scrollIntoViewIfNeeded()
   await bottom.getByRole('tab', { name: 'LocalCut', exact: true }).click()
   await expect(page.locator('#work-tab-top-localcut')).toBeFocused()
-  await expect
-    .poll(() =>
-      page
-        .locator('#localcut-heading')
-        .evaluate((element) => element.getBoundingClientRect().bottom),
-    )
-    .toBeLessThan(763)
+  await expect.poll(() => localCutIntroInView(page)).toBe(true)
   await expect
     .poll(() =>
       page.locator('.work-top-tabs').evaluate((element) => element.getBoundingClientRect().top),
