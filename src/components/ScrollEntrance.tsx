@@ -41,6 +41,9 @@ export function ScrollEntrance({
       className={className}
       id={id}
       aria-labelledby={labelledBy}
+      onAnimationEnd={(event) => {
+        if (event.animationName === 'work-enter') event.currentTarget.dataset.entered = 'done'
+      }}
     >
       {children}
     </Tag>

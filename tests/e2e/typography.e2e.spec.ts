@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { projectChoices, selectProject } from './helpers/work'
 
 async function auditText(page: Page) {
   // A viewport resize must paint before measuring viewport-relative type sizes.
@@ -75,11 +76,15 @@ for (const route of ['/', '/en', '/vi']) {
     for (const width of [320, 375, 640, 768, 867, 960, 1023, 1024, 1210, 1440, 1920]) {
       await test.step(`${width}px`, async () => {
         await page.setViewportSize({ width, height: 900 })
-        const audit = await auditText(page)
-        expect(audit.measured).toBeGreaterThan(100)
-        expect(audit.collisions).toEqual([])
-        expect(audit.clippedText).toEqual([])
-        expect(audit.overflow).toBeLessThanOrEqual(0)
+        for (const project of projectChoices) {
+          await selectProject(page, project.id)
+          const audit = await auditText(page)
+          // One project is displayed at a time; measure every selected state.
+          expect(audit.measured).toBeGreaterThan(60)
+          expect(audit.collisions).toEqual([])
+          expect(audit.clippedText).toEqual([])
+          expect(audit.overflow).toBeLessThanOrEqual(0)
+        }
       })
     }
   })
@@ -94,20 +99,36 @@ test('text stays readable with serif fallbacks and enlarged text', async ({ page
     })
     for (const width of [375, 1210, 1440]) {
       await page.setViewportSize({ width, height: 900 })
-      const audit = await auditText(page)
-      expect(audit.collisions, `${family} at ${width}px`).toEqual([])
-      expect(audit.clippedText).toEqual([])
-      expect(audit.overflow).toBeLessThanOrEqual(0)
+      for (const project of projectChoices) {
+        await selectProject(page, project.id)
+        const audit = await auditText(page)
+        expect(audit.collisions, `${project.id} with ${family} at ${width}px`).toEqual([])
+        expect(audit.clippedText).toEqual([])
+        expect(audit.overflow).toBeLessThanOrEqual(0)
+      }
     }
     await override.evaluate((element) => element.parentNode?.removeChild(element))
   }
   await page.addStyleTag({ content: 'html { font-size: 200%; }' })
   for (const width of [320, 375, 768, 1210]) {
     await page.setViewportSize({ width, height: 900 })
-    const audit = await auditText(page)
-    expect(audit.collisions, `200% text at ${width}px`).toEqual([])
-    expect(audit.clippedText, `200% text at ${width}px`).toEqual([])
-    expect(audit.overflow).toBeLessThanOrEqual(0)
+    for (const project of projectChoices) {
+      await selectProject(page, project.id)
+      const audit = await auditText(page)
+      expect(audit.collisions, `${project.id} at ${width}px with 200% text`).toEqual([])
+      expect(audit.clippedText).toEqual([])
+      expect(audit.overflow).toBeLessThanOrEqual(0)
+    }
+    for (const tab of await page
+      .getByRole('tablist', { name: 'Tech stack sections' })
+      .getByRole('tab')
+      .all()) {
+      await tab.click()
+      const stackAudit = await auditText(page)
+      expect(stackAudit.collisions).toEqual([])
+      expect(stackAudit.clippedText).toEqual([])
+      expect(stackAudit.overflow).toBeLessThanOrEqual(0)
+    }
     if (width < 1024) {
       await page.getByRole('button', { name: 'Toggle navigation' }).click()
       const expanded = await auditText(page)

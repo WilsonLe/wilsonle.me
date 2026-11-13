@@ -44,14 +44,23 @@ export interface SiteSettings {
   }
 }
 
+export interface TechStack {
+  heading: string
+  categoriesLabel: string
+  playLabel: string
+  pauseLabel: string
+  playDescription: string
+  pauseDescription: string
+  groups: { id: string; label: string; technologies: string[] }[]
+}
+
 export interface Hero {
   identity: string
   heading: string
   workCta: string
   resumeCta: string
   skipToWorkLabel: string
-  locationLabel: string
-  socialLabel: string
+  stack: TechStack
 }
 
 export interface About {
@@ -77,6 +86,8 @@ export interface Projects {
   productLabel: string
   contributionLabel: string
   featuresLabel: string
+  tabsLabel: string
+  bottomTabsLabel: string
   items: Project[]
 }
 

@@ -1,5 +1,6 @@
 import type { About, Hero, HomeContent, Now, Principles, Project, Projects } from '@/content/types'
 import { siteSettings } from '@/content/en/site'
+import { techStack } from '@/content/en/tech-stack'
 
 const hero: Hero = {
   identity: 'Wilson Le',
@@ -7,8 +8,7 @@ const hero: Hero = {
   workCta: 'View work',
   resumeCta: 'Download résumé',
   skipToWorkLabel: 'Skip to work',
-  locationLabel: 'Based in',
-  socialLabel: 'Social profiles',
+  stack: techStack,
 }
 
 const about: About = {
@@ -82,6 +82,8 @@ const projects: Projects = {
   productLabel: 'The product',
   contributionLabel: 'My part',
   featuresLabel: 'Features',
+  tabsLabel: 'Choose a project',
+  bottomTabsLabel: 'Choose another project',
   items: projectItems,
 }
 

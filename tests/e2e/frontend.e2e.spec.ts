@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { expect, test } from '@playwright/test'
+import { projectChoices, selectProject } from './helpers/work'
 
 function relativeLuminance(hexColor: string): number {
   const channels = hexColor
@@ -73,6 +74,7 @@ test.describe('Frontend', () => {
       page.locator('#work').getByText('Frontend + AI services', { exact: true }),
     ).toHaveCount(0)
     await expect(page.locator('#contact').getByText('Contact', { exact: true })).toHaveCount(0)
+    await selectProject(page, 'pangea-chat')
     await expect(
       page.getByText('Built the frontend and AI assistant.', { exact: true }),
     ).toBeVisible()
@@ -92,16 +94,20 @@ test.describe('Frontend', () => {
       'href',
       'https://app.pangea.chat/',
     )
+    await selectProject(page, 'vulcan-augmetics')
     await expect(page.getByRole('heading', { name: 'Vulcan Augmetics', exact: true })).toBeVisible()
+    await selectProject(page, 'localcut')
     await expect(page.getByRole('link', { name: 'Open LocalCut' })).toHaveAttribute(
       'href',
       'https://wilsonle.github.io/LocalCut/',
     )
+    await selectProject(page, 'localdesign')
     await expect(page.getByRole('link', { name: 'Open LocalDesign' })).toHaveAttribute(
       'href',
       'https://wilsonle.github.io/LocalDesign/',
     )
     for (const project of ['localcut', 'localdesign']) {
+      await selectProject(page, project)
       const figure = page.locator(`#${project}-webmcp`)
       await figure.scrollIntoViewIfNeeded()
       await expect(figure.getByRole('heading')).toHaveText(
@@ -119,14 +125,14 @@ test.describe('Frontend', () => {
   })
 
   test('explains contribution ownership and the observed playtest workflow', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/#pangea-chat')
     const pangea = page.locator('#pangea-chat')
     await expect(pangea.getByRole('listitem')).toHaveCount(4)
-    await expect(pangea).toContainText('proactively invited existing users')
-    await expect(pangea).toContainText('15-minute playtest calls')
-    await expect(pangea).toContainText('Background agents extracted todos')
+    await expect(pangea).toContainText('Spearheaded agentic software development across the team')
+    await expect(pangea).toContainText('15-minute user playtests')
+    await expect(pangea).toContainText('feedback-to-spec-to-feature pipeline')
     await expect(pangea).toContainText('I signed off on implementation, testing and deployment')
-    await expect(pangea).toContainText('most changes shipped that day')
+    await expect(pangea).toContainText('most changes shipped the same day')
     for (const project of ['cyobot', 'vulcan-augmetics']) {
       await expect(page.locator(`#${project}`)).toContainText('Founding software engineer.')
     }
@@ -144,9 +150,24 @@ test.describe('Frontend', () => {
     await expect(page.locator('#kalibr-admin-panels')).toContainText('synthetic demo data')
   })
 
-  test('keeps every image static and introduces each Work image and text block consistently', async ({
+  test('keeps every image static and introduces every selected Work image and text block consistently', async ({
     page,
   }) => {
+    async function expectEntrance(root: ReturnType<typeof page.locator>, parts: string[]) {
+      await expect(root).toHaveAttribute('data-entered', /^(true|done)$/)
+      const states = await root.evaluate(
+        (element, selectors) =>
+          selectors.map((selector) => {
+            const target = selector ? element.querySelector(selector)! : element
+            const style = getComputedStyle(target)
+            return element.getAttribute('data-entered') === 'done'
+              ? style.animationName === 'none' && style.opacity === '1'
+              : style.animationName === 'work-enter' && style.animationDuration === '0.65s'
+          }),
+        parts,
+      )
+      expect(states).toEqual(parts.map(() => true))
+    }
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/')
     await expect(
@@ -155,31 +176,51 @@ test.describe('Frontend', () => {
     await expect(page.locator('#kalibr-analytics-pipeline, #work img[src$=".svg"]')).toHaveCount(0)
     const heading = page.locator('.work-heading')
     await heading.scrollIntoViewIfNeeded()
-    await expect(heading).toHaveAttribute('data-entered', 'true')
-    await expect(heading).toHaveCSS('animation-name', 'work-enter')
-    for (const intro of await page.locator('.work-intro').all()) {
+    await expectEntrance(heading, [''])
+    let firstAnimationStarts: string[] = []
+    for (const project of projectChoices) {
+      await selectProject(page, project.id)
+      const article = page.locator(`#${project.id}`)
+      const intro = article.locator('.work-intro')
       await intro.scrollIntoViewIfNeeded()
-      await expect(intro).toHaveAttribute('data-entered', 'true')
-      await expect(intro.locator('header')).toHaveCSS('animation-name', 'work-enter')
-      await expect(intro.locator('dl')).toHaveCSS('animation-duration', '0.65s')
-    }
-    for (const figure of await page.locator('#work figure').all()) {
-      await figure.scrollIntoViewIfNeeded()
-      await expect(figure).toHaveAttribute('data-entered', 'true')
-      for (const part of ['.work-image-mat', '.work-callout']) {
-        await expect(figure.locator(part)).toHaveCSS('animation-name', 'work-enter')
-        await expect(figure.locator(part)).toHaveCSS('animation-duration', '0.65s')
+      await expectEntrance(intro, ['header', 'dl'])
+      for (const figure of await article.locator('figure').all()) {
+        await figure.scrollIntoViewIfNeeded()
+        await expectEntrance(figure, ['.work-image-mat', '.work-callout'])
+        await figure.hover()
+        await figure.getByRole('link').focus()
+        const image = figure.getByRole('img')
+        await expect(image).toHaveCSS('transform', 'none')
+        const geometry = await image.evaluate((element) => ({
+          image: element.getBoundingClientRect().width,
+          frame: element.closest('.work-shot-view')!.clientWidth,
+        }))
+        expect(geometry.image).toBeCloseTo(geometry.frame, 0)
       }
-      await figure.hover()
-      await figure.getByRole('link').focus()
-      const image = figure.getByRole('img')
-      await expect(image).toHaveCSS('transform', 'none')
-      const geometry = await image.evaluate((element) => ({
-        image: element.getBoundingClientRect().width,
-        frame: element.closest('.work-shot-view')!.clientWidth,
-      }))
-      expect(geometry.image).toBeCloseTo(geometry.frame, 0)
+      if (project.id === 'kalibr') {
+        const mat = article.locator('#kalibr-game-library .work-image-mat')
+        await mat.scrollIntoViewIfNeeded()
+        await expect(mat).toHaveCSS('opacity', '1')
+        await page.evaluate(
+          () =>
+            new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+        )
+        firstAnimationStarts = await mat.evaluate((element) =>
+          element.getAnimations().map((animation) => String(animation.startTime)),
+        )
+      }
     }
+    await selectProject(page, 'kalibr')
+    await page.evaluate(
+      () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+    )
+    expect(
+      await page
+        .locator('#kalibr-game-library .work-image-mat')
+        .evaluate((element) =>
+          element.getAnimations().map((animation) => String(animation.startTime)),
+        ),
+    ).toEqual(firstAnimationStarts)
     for (const image of await page.locator('#pangea-chat img').all()) {
       await expect(image).toHaveJSProperty('naturalWidth', 1707)
       await expect(image).toHaveJSProperty('naturalHeight', 960)
@@ -192,6 +233,7 @@ test.describe('Frontend', () => {
       )
     }
     await page.setViewportSize({ width: 375, height: 812 })
+    await selectProject(page, 'kalibr')
     await page.locator('#kalibr-admin-panels a').focus()
     await expect(page.locator('#kalibr-admin-panels .work-shot-view')).toHaveCSS(
       'transform',
@@ -340,7 +382,7 @@ test.describe('Frontend', () => {
   })
 
   test('keeps keyboard focus visible against its surrounding surfaces', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/#pangea-chat')
     await page.keyboard.press('Tab')
 
     const toHex = (rgb: string) =>
@@ -536,16 +578,18 @@ test.describe('Frontend', () => {
         await page.goto(route.path)
 
         if (route.name === 'home') {
-          const screenshots = page.locator('#work img')
-          for (const image of await screenshots.all()) {
-            await image.scrollIntoViewIfNeeded()
-            await expect
-              .poll(() =>
-                image.evaluate(
-                  (element) => element instanceof HTMLImageElement && element.naturalWidth,
-                ),
-              )
-              .toBeGreaterThan(0)
+          for (const project of projectChoices) {
+            await selectProject(page, project.id)
+            for (const image of await page.locator(`#${project.id} img`).all()) {
+              await image.scrollIntoViewIfNeeded()
+              await expect
+                .poll(() =>
+                  image.evaluate(
+                    (element) => element instanceof HTMLImageElement && element.naturalWidth,
+                  ),
+                )
+                .toBeGreaterThan(0)
+            }
           }
           await page.evaluate(() => {
             document.documentElement.style.scrollBehavior = 'auto'

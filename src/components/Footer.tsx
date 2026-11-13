@@ -56,7 +56,6 @@ export function Footer({ siteSettings }: FooterProps) {
           <p>
             © {currentYear} {siteSettings.name}
           </p>
-          {siteSettings.location && <p>{siteSettings.location}</p>}
         </div>
       </div>
     </footer>

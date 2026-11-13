@@ -120,7 +120,7 @@ export const works: Work[] = [
       'Built the frontend and AI assistant.',
       'Developed FastAPI services for LLM workflows.',
       'Built CI/CD, monitoring and incident response.',
-      'Introduced spec-driven, AI-assisted workflows: proactively invited existing users to 15-minute playtest calls to record interactions, ask questions and gather feedback. Background agents extracted todos; I signed off on implementation, testing and deployment, with most changes shipped that day.',
+      'Spearheaded agentic software development across the team, streamlining our feedback-to-spec-to-feature pipeline. Agents turned feedback from 15-minute user playtests into todos; I signed off on implementation, testing and deployment, with most changes shipped the same day.',
     ],
   },
   {

@@ -38,11 +38,13 @@ The hosted LocalCut demo project (`a0bb2ce1-333c-4524-abd8-417b426b36b8`) and Lo
 
 The new Kalibr harness serves only local fixture data. It does not weaken an application authorization path or alter a production account, collection policy, analytics provider or saved record. Its owned local server is stopped after capture.
 
-## Static crops and entrance contract
+## Project navigation and static entrances
 
-All eighteen feature images are static on hover and keyboard focus. There are no zoom controls, pan regions, scaling styles or focus-only caption tab stops. Full-size asset links remain ordinary links. Kalibr shows its public library and actual analytics/admin component; the architecture diagram and duplicate admin row are removed.
+Work shows one active project with six labelled tabs at both its top and bottom. Both selectors share the same state; selecting from the bottom returns focus and scroll to the top selector below the fixed header. On short/enlarged layouts, the selected tab is additionally revealed when the full selector cannot fit. Keyboard navigation uses Left/Right/Home/End to move focus and Enter/Space to select. Active panels have tabpanel relationships; hidden panels do not expose interactive content. The six articles remain server-rendered. Without JavaScript all projects remain readable and both selectors become native hash links.
 
-Pangea uses the former post-zoom view as a permanent source-pixel crop. At the previous 1.5× scale, the old bounded transform corresponds to these rectangles in the original 2560 ×1440 screenshots (rounded to the nearest source pixel):
+Project/feature anchors, locale paths, query strings and browser Back/Forward remain supported. Direct feature hashes reveal the containing project before scrolling to the requested row. Unknown or malformed hashes leave the default Kalibr view available. All eighteen feature images remain in the catalogue, with twelve inter-feature rules across the six projects.
+
+All feature images are static on hover/focus, with ordinary full-size links and no custom zoom controls, pan regions, scaling styles or focus-only caption stops. Kalibr shows its public library and actual analytics/admin component, without an architecture diagram. Pangea's permanent post-zoom views are exact source-pixel crops corresponding to the previous bounded 1.5× transform (nearest source pixel):
 
 | Screenshot            | Left | Top | Width | Height |
 | --------------------- | ---- | --- | ----- | ------ |
@@ -51,12 +53,16 @@ Pangea uses the former post-zoom view as a permanent source-pixel crop. At the p
 | Message interpreter   | 580  | 480 | 1707  | 960    |
 | World-map group chats | 452  | 480 | 1707  | 960    |
 
-Exact decoded crop equality is verified against preserved source assets. No screenshot is upscaled or reconstructed. The four Pangea workflow bullets are condensed into one bullet while retaining proactive existing-user recruitment, a 15-minute playtest call, interactions/questions/feedback, background agent todos, Wilson's implementation/testing/deployment sign-off and mostly same-day shipment.
+Every row follows the Vulcan CMS image-left/caption-right format, stacking below 900px. The Work heading, project introduction and each image/caption pair share the existing once-only 650ms entrance. Selecting a new project exposes its still-pending observers; returning to a completed entrance does not replay it. A completion marker removes the finished animation before a panel is hidden, preventing CSS from restarting it on restoration. Reduced motion, missing observers and absent JavaScript leave content readable. Full-size links have a visible focus cue outside the rounded image clip.
 
-The shared screenshot row now follows the Vulcan CMS format everywhere: image left, caption right, stacked below 900px. One shared `ScrollEntrance` observer applies the existing 650ms cubic-bezier entrance to each labelled image and its caption together, and to the Work heading and every project introduction's text. It plays once and disconnects. Hover and focus never restart it or scale an image. Reduced motion disables entry animation; absent JavaScript/observer support leaves content visible. The ordinary image links retain a visible focus cue outside the rounded image clip.
+Pangea's fourth contribution bullet now describes spearheading agentic software development and streamlining the feedback-to-spec-to-feature pipeline, with 15-minute user playtests, agent-extracted todos, Wilson's implementation/testing/deployment sign-off and mostly same-day shipment. CYOBot/Vulcan founding roles and the LocalCut/LocalDesign feature emphasis remain.
 
-The previous zoom-opening P2 is recorded in PR #34: opening a tall image from its bottom could focus it off-screen. The latest explicit user direction removes that entire interaction. The final candidate verifies that removed controls/state/scaling cannot be reached, alongside the new static/entrance behavior; the old candidate remains historical.
+## Hero tech stack
 
-The former resume routes remain removed; all header, hero, mobile-menu and footer entry points download the existing one-page PDF. Theme, contact, footer, locale handling and typography fixes are preserved. No new dependencies, migrations, CMS changes or tracking scripts are introduced. No ADR is needed: this extends the existing catalogue/row and extracts its observer for reuse. Rollback is a scoped revert.
+The previous hero title/location/social metadata block is replaced by a tech-stack carousel. Its 36 technologies come from the approved `skillStack` in the full résumé at repository revision `f9d1363`; no new skill or proficiency claim is invented. The same entries are regrouped into Frontend, Backend, Data & AI, Cloud & ops, Languages, and Tools & messaging. AWS and Google Cloud Platform are concise labels for the source's cloud-provider entries; detailed service lists are not repeated in the cards. The current concise PDF is unchanged.
 
-Current local checks, visual captures, independent review and delivery status are recorded in PR #34 and [portfolio evidence](portfolio-polish/README.md).
+The carousel rotates category slides every six seconds while visible on an active page. Labelled category tabs sit underneath the cards. Explicit Play/Pause controls, hover pausing, permanent pause on keyboard focus/manual selection, offscreen/background-page pausing, and reduced-motion handling keep it controllable. Resuming after keyboard interaction requires Play. Manual category selection works with pointer and keyboard. Stable grid sizing prevents slide changes from moving adjacent content. Without JavaScript, the default Frontend cards plus the remaining static categories expose all 36 technologies and the category links reach those sections.
+
+The footer omits location. Contact links and the PDF's approved facts remain. No new dependencies, backend changes, migrations, CMS changes or tracking scripts are introduced. No ADR is needed: native React state and browser hash navigation extend the existing server catalogue/client-leaf model. Rollback is a scoped revert.
+
+Current checks, screenshots, independent review and delivery status are recorded in PR #34 and [portfolio evidence](portfolio-polish/README.md).
