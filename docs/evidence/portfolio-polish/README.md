@@ -22,10 +22,13 @@ The follow-up [typography audit and WebMCP integration](typography-audit.md) doc
 Project-only captures, including mobile Work, omit the fixed site header to keep screenshot content unobstructed; screenshots of the site itself retain it.
 
 - [Scrollable menu on a short viewport at 200% text](menu-short-enlarged.webp)
-- [Tech-stack carousel, desktop](tech-stack-desktop.webp)
-- [Tech-stack carousel, mobile](tech-stack-mobile.webp)
+- [Skills carousel, desktop](tech-stack-desktop.webp)
+- [Skills carousel, mobile](tech-stack-mobile.webp)
 - [Project tabs, desktop](project-tabs-desktop.webp)
 - [Project tabs, mobile](project-tabs-mobile.webp)
+- [Sticky and bottom tabs, desktop](project-tabs-bottom-desktop.webp)
+- [Sticky and bottom tabs, mobile](project-tabs-bottom-mobile.webp)
+- [Skills stream at the commented width](skills-strip-tablet.webp)
 - [Corrected hero, desktop](hero-desktop.webp)
 - [Corrected hero, mobile](hero-mobile.webp)
 - [Kalibr, desktop](kalibr-desktop.webp)
@@ -46,10 +49,10 @@ Project-only captures, including mobile Work, omit the fixed site header to keep
 
 - `pnpm lint`, `pnpm exec tsc --noEmit`, and `pnpm exec prettier --check .` pass.
 - `pnpm build` passes; Payload emits its existing dynamic-import dependency warning.
-- All 29 frontend Playwright checks pass and exercise all home locales, desktop/tablet/mobile overflow and anchor targets, keyboard navigation, reduced motion, palette contrast, direct PDF downloads, removed routes, sitemap, and metadata against the production build.
+- All 30 frontend Playwright checks pass and exercise all home locales, desktop/tablet/mobile overflow and anchor targets, keyboard navigation, reduced motion, palette contrast, direct PDF downloads, removed routes, sitemap, and metadata against the production build.
 - Download cases use separate visitor sessions per locale. A diagnostic reproduced Chromium throttling the eleventh rapid download in one session; that same footer link succeeds in a fresh session. All four download entry points remain covered for each locale.
 - The independent first-pass review found an invisible primary-CTA focus outline. Cyan outlines now contrast with dark surfaces, with dark outlines on paper/cyan. The added regression test failed on the reviewed candidate at contrast ratio 1, then passed after correction; it waits for the existing color transition to settle. The focused production rendering was also visually inspected.
-- Typography checks cover actual line-ink separation, clipping, 11 viewport widths on all three home routes, two serif fallbacks, 200% root text size and expanded mobile navigation. All 29 checks pass against the rebuilt production app.
+- Typography checks cover actual line-ink separation, clipping, 11 viewport widths on all three home routes, two serif fallbacks, 200% root text size and expanded mobile navigation. All 30 checks pass against the rebuilt production app.
 - A new focus regression reproduces the image-link outline being clipped by the new scroll viewport. The shared frame draws its focus cue outside the clip. The later zoom-opening review finding is removed with the entire custom zoom interaction under the latest user instruction.
 - New content checks cover Kalibr-first ordering, the supplied contribution details, native crop dimensions, condensed workflow bullet and feature captions. Static-image/entrance checks cover all eighteen rows, matching image/caption timing, all project introductions, hover/focus invariance, Pangea source dimensions and reduced motion.
 - Actual entrance sampling confirms image and caption opacity/translation progress together: both reached opacity 0.84 together and ended fully visible with zero translation. Static hover/focus and reduced-motion states are covered separately.
@@ -57,10 +60,12 @@ Project-only captures, including mobile Work, omit the fixed site header to keep
 
 No database, CMS, deployment, or production state changes are part of this delivery.
 
-## Carousel and project tabs
+## Skills carousel and project tabs
 
-The hero metadata block is replaced by a 36-technology carousel sourced from the full approved résumé at f9d1363. Six labelled category tabs replace dots, with Play/Pause, hover/focus/offscreen pausing and reduced-motion support. The PDF remains unchanged. Work tabs select one project, synchronize the top/bottom controls, and preserve project/feature hashes, locale/query paths and Back/Forward. Selecting from the bottom reveals the top selector below the fixed header. Without JavaScript, all Work articles and all 36 tech entries remain readable through native links. Pangea's fourth bullet emphasizes team leadership and the feedback-to-spec-to-feature pipeline.
+The hero metadata block becomes Skills: the same 36 résumé technologies, with local icons and names in a continuous left-to-right stream. Gray-shaded chevrons at the far edges appear on hover, a touch tap or keyboard focus, and skip individual skills. Six named tabs below skip sections. Play/Pause labels are removed. Hover temporarily pauses; focus, touch and manual selection stop motion persistently. Reduced motion and offscreen/background-page handling remain. Duplicate runs are hidden from accessibility; no-JavaScript visitors receive six static lists. Icon source revisions, hashes and licenses are in `public/skills/` and [showcase provenance](../product-showcases.md).
 
-Five dedicated navigation checks cover real rotation and pausing with a controlled browser clock, keyboard category selection, both project selectors, tall-project bottom switching, deep links/history, reduced motion and no-JavaScript fallback. The existing typography matrix now audits each selected project rather than hidden panels; it also checks every tech category at enlarged text sizes.
+Work synchronizes two selectors. The top bar sticks below the header in a horizontally scrollable single row. Bottom selection retains its screen position and focus when project heights change. Top selection reveals the introduction with normal smooth/reduced-motion behavior. Project/feature hashes, locale/query paths and Back/Forward remain usable; each native history entry saves its selection while preserving Next's fields. No-JavaScript visitors see all articles. Footer location is removed. Pangea emphasizes team leadership and the feedback-to-spec-to-feature pipeline.
 
-The project-tab change exposed two regression branches during author checks. Restoring a hidden panel restarted finished CSS entrances (animation start time changed and opacity fell to 0.11); completion markers now remove finished animations. A wrapped selector on 375×420 at 200% text could focus its final tab below the screen (y672..760); selection and arrow-key movement now reveal that tab below the fixed header with a bottom margin. Both scenarios have failing-before/passing-after checks retained in local task evidence and current regressions.
+Six navigation checks cover real horizontal movement, icon loading, pause conditions, item/section skipping, chevron hover/tap/keyboard discovery, sticky positioning, bottom viewport stability, deep links/history and fallbacks. Typography checks still measure intrinsic label widths and line-ink separation inside the intentional horizontal loops/tab rails; only their page-edge text comparisons are excluded. Document overflow and ordinary text bounds remain checked. A Vulcan tab initially clamped its enlarged unwrapped label; retaining its natural width makes it readable through the rail.
+
+Author checks reproduced completed entrances restarting after panel restoration and the former wrapping selector placing focus below a short/enlarged viewport. Completion markers prevent replay; the current sticky single-row rail keeps focus reachable. Independent pass1 at0164e86 found Back to the initial unqualified URL retaining Pangea. The added regression fails there, then passes with saved per-entry selections, including a native Contact hash. A document-identity regression also catches an unwanted Next reload when that native hash entry originally has null state; retained router metadata prevents it. Review history and final clearance remain in PR#34.

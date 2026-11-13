@@ -47,11 +47,9 @@ export interface SiteSettings {
 export interface TechStack {
   heading: string
   categoriesLabel: string
-  playLabel: string
-  pauseLabel: string
-  playDescription: string
-  pauseDescription: string
-  groups: { id: string; label: string; technologies: string[] }[]
+  previousLabel: string
+  nextLabel: string
+  groups: { id: string; label: string; technologies: { name: string; icon: string }[] }[]
 }
 
 export interface Hero {

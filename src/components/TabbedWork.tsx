@@ -13,25 +13,43 @@ export function TabbedWork({
   children: ReactNode[]
 }) {
   const [activeId, setActiveId] = useState(choices[0].id)
+  const current = useRef(choices[0].id)
+  const historyState = useRef<Record<string, unknown> | null>(null)
   const [enhanced, setEnhanced] = useState(false)
-  const topRef = useRef<HTMLDivElement>(null)
-  const pending = useRef<{ target?: string; selection?: boolean } | null>(null)
+  const bottomRef = useRef<HTMLDivElement>(null)
+  const pending = useRef<{ target?: string; origin?: 'top' | 'bottom'; bottomTop?: number } | null>(
+    null,
+  )
   const [navigation, setNavigation] = useState(0)
 
   useEffect(() => {
     function readHash() {
-      let hash: string
+      let hash = ''
       try {
         hash = decodeURIComponent(window.location.hash.slice(1))
       } catch {
-        return
+        /* An invalid fragment still has a default/saved selection. */
       }
       const target = document.getElementById(hash)
       const projectId =
         choices.find((choice) => choice.id === hash)?.id ?? target?.closest('article')?.id
-      if (!projectId || !choices.some((choice) => choice.id === projectId)) return
-      pending.current = { target: hash }
-      setActiveId(projectId)
+      const saved = window.history.state?.portfolioProject
+      const id = choices.some((choice) => choice.id === projectId)
+        ? projectId!
+        : choices.some((choice) => choice.id === saved)
+          ? saved
+          : current.current
+      // Native fragment navigation can create a null state. Retain the previous router fields
+      // so restoring this entry does not make Next treat it as an external document.
+      if (saved !== id)
+        window.history.replaceState(
+          { ...(window.history.state ?? historyState.current), portfolioProject: id },
+          '',
+        )
+      historyState.current = window.history.state
+      if (projectId === id) pending.current = { target: hash }
+      current.current = id
+      setActiveId(id)
       setNavigation((value) => value + 1)
     }
     readHash()
@@ -49,37 +67,56 @@ export function TabbedWork({
     const request = pending.current
     pending.current = null
     const frame = requestAnimationFrame(() => {
-      if (request.selection) {
-        const selected = document.getElementById(`work-tab-top-${activeId}`)
+      if (request.origin === 'bottom') {
+        const selected = document.getElementById(`work-tab-bottom-${activeId}`)
         selected?.focus({ preventScroll: true })
-        topRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' })
-        selected?.scrollIntoView({ block: 'nearest', behavior: 'instant' })
+        const top = bottomRef.current?.getBoundingClientRect().top
+        if (top !== undefined && request.bottomTop !== undefined)
+          window.scrollBy({ top: top - request.bottomTop, behavior: 'instant' })
       } else if (request.target) {
-        document
-          .getElementById(request.target)
-          ?.scrollIntoView({ block: 'start', behavior: 'instant' })
+        document.getElementById(request.target)?.scrollIntoView({
+          block: 'start',
+          behavior:
+            request.origin === 'top' &&
+            !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+              ? 'smooth'
+              : 'instant',
+        })
       }
     })
     return () => cancelAnimationFrame(frame)
   }, [activeId, enhanced, navigation])
 
-  function activate(id: string) {
-    if (window.location.hash !== `#${id}`) window.history.pushState(null, '', `#${id}`)
-    pending.current = { selection: true }
+  function activate(id: string, origin: 'top' | 'bottom') {
+    if (window.location.hash !== `#${id}`) {
+      window.history.replaceState(
+        { ...window.history.state, portfolioProject: current.current },
+        '',
+      )
+      window.history.pushState({ portfolioProject: id }, '', `#${id}`)
+      historyState.current = window.history.state
+    }
+    pending.current = {
+      origin,
+      target: origin === 'top' ? id : undefined,
+      bottomTop: origin === 'bottom' ? bottomRef.current?.getBoundingClientRect().top : undefined,
+    }
+    current.current = id
     setActiveId(id)
     setNavigation((value) => value + 1)
   }
 
   return (
-    <div className="mt-10">
-      <div ref={topRef} className="scroll-mt-24">
+    <div className="mt-10 [overflow-anchor:none]">
+      <div className="work-top-tabs sticky top-[calc(5rem+1px)] z-40 bg-paper pt-2">
         <SectionTabs
           choices={choices}
           activeId={activeId}
           label={labels.top}
           idPrefix="work-tab-top"
-          onActivate={activate}
+          onActivate={(id) => activate(id, 'top')}
           enhanced={enhanced}
+          scrollable
         />
       </div>
       <ol>
@@ -97,14 +134,16 @@ export function TabbedWork({
           </li>
         ))}
       </ol>
-      <SectionTabs
-        choices={choices}
-        activeId={activeId}
-        label={labels.bottom}
-        idPrefix="work-tab-bottom"
-        onActivate={activate}
-        enhanced={enhanced}
-      />
+      <div ref={bottomRef}>
+        <SectionTabs
+          choices={choices}
+          activeId={activeId}
+          label={labels.bottom}
+          idPrefix="work-tab-bottom"
+          onActivate={(id) => activate(id, 'bottom')}
+          enhanced={enhanced}
+        />
+      </div>
     </div>
   )
 }

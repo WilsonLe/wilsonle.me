@@ -214,18 +214,31 @@
   border-color: var(--color-signal);
   color: var(--color-signal);
 }
-@media (prefers-reduced-motion: no-preference) {
-  .tech-panel[aria-hidden='false'] {
-    animation: tech-slide-enter 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
+
+.work-project,
+.work-feature {
+  scroll-margin-top: 9rem;
 }
-@keyframes tech-slide-enter {
-  from {
-    opacity: 0;
-    translate: 1rem 0;
-  }
-  to {
+.work-top-tabs .section-tabs {
+  scrollbar-width: thin;
+}
+.work-top-tabs .section-tabs::-webkit-scrollbar {
+  height: 0.25rem;
+}
+
+.tech-browse {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms;
+}
+.tech-carousel[data-browse='true'] .tech-browse,
+.tech-browse:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+@media (hover: hover) {
+  .tech-carousel:hover .tech-browse {
     opacity: 1;
-    translate: 0 0;
+    pointer-events: auto;
   }
 }

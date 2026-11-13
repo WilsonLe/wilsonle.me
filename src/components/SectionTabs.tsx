@@ -17,6 +17,7 @@ export function SectionTabs({
   onActivate,
   enhanced,
   tone = 'light',
+  scrollable = false,
 }: {
   choices: TabChoice[]
   activeId: string
@@ -25,6 +26,7 @@ export function SectionTabs({
   onActivate: (id: string) => void
   enhanced: boolean
   tone?: 'light' | 'dark'
+  scrollable?: boolean
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [focusedId, setFocusedId] = useState(activeId)
@@ -60,7 +62,8 @@ export function SectionTabs({
       ref={ref}
       role={enhanced ? 'tablist' : undefined}
       aria-label={label}
-      className="section-tabs flex flex-wrap gap-x-2 gap-y-1 border-b"
+      className={`section-tabs flex gap-x-2 gap-y-1 border-b ${scrollable ? 'flex-nowrap overflow-x-auto overscroll-x-contain px-1' : 'flex-wrap'}`}
+      data-scroll={scrollable ? 'true' : undefined}
       data-tone={tone}
     >
       {choices.map((choice, index) => (
@@ -73,7 +76,7 @@ export function SectionTabs({
           aria-controls={enhanced ? choice.panelId : undefined}
           data-selected={activeId === choice.id ? 'true' : undefined}
           tabIndex={enhanced ? (focusedId === choice.id ? 0 : -1) : undefined}
-          className="font-label flex min-h-11 min-w-0 scroll-mb-2 scroll-mt-24 max-w-full items-center border-b-2 border-transparent px-3 py-2 text-xs leading-5 [overflow-wrap:anywhere] transition-colors"
+          className={`font-label flex min-h-11 min-w-0 scroll-mb-2 scroll-mt-24 items-center border-b-2 border-transparent px-3 py-2 text-xs leading-5 [overflow-wrap:anywhere] transition-colors ${scrollable ? 'shrink-0 whitespace-nowrap' : 'max-w-full'}`}
           onKeyDown={(event) => handleKey(event, index)}
           onClick={(event) => {
             if (!enhanced || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)

@@ -14,7 +14,12 @@ async function auditText(page: Page) {
     let node: Node | null
     while ((node = walker.nextNode())) {
       const parent = node.parentElement
-      if (!parent || parent.closest('script, style, svg') || !node.textContent?.trim()) continue
+      if (
+        !parent ||
+        parent.closest('script, style, svg, [aria-hidden="true"], .sr-only') ||
+        !node.textContent?.trim()
+      )
+        continue
       if (!parent.getClientRects().length || getComputedStyle(parent).visibility === 'hidden')
         continue
       const style = getComputedStyle(parent)
@@ -29,7 +34,11 @@ async function auditText(page: Page) {
         range.setEnd(node, index + 1)
         const rect = range.getBoundingClientRect()
         if (!rect.width || !rect.height) continue
-        if (rect.left < -1 || rect.right > document.documentElement.clientWidth + 1) {
+        // Skill loops and the sticky tab rail deliberately scroll horizontally; each label still passes intrinsic/ink checks.
+        if (
+          !parent.closest('.tech-strip, .section-tabs[data-scroll="true"]') &&
+          (rect.left < -1 || rect.right > document.documentElement.clientWidth + 1)
+        ) {
           clippedText.add(`${parent.id || parent.tagName}: ${node.textContent.trim()}`)
         }
         let line = lines.find((entry) => Math.abs(entry.top - rect.top) < 1)
@@ -120,7 +129,7 @@ test('text stays readable with serif fallbacks and enlarged text', async ({ page
       expect(audit.overflow).toBeLessThanOrEqual(0)
     }
     for (const tab of await page
-      .getByRole('tablist', { name: 'Tech stack sections' })
+      .getByRole('tablist', { name: 'Skill sections' })
       .getByRole('tab')
       .all()) {
       await tab.click()
