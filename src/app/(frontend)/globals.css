@@ -214,6 +214,12 @@
   border-color: var(--color-signal);
   color: var(--color-signal);
 }
+.section-tabs[data-animated='true'] a[data-selected='true'] {
+  border-color: transparent;
+}
+.section-tabs[data-tone='dark'] .section-tab-indicator {
+  color: var(--color-signal);
+}
 
 .work-project,
 .work-feature {

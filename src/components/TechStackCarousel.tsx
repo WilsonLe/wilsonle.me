@@ -4,17 +4,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { TechStack } from '@/content/types'
 import { SectionTabs } from '@/components/SectionTabs'
 
+const STREAM_SPEED = 60
+const BROWSE_SPEED = 360
+
 export function TechStackCarousel({ stack }: { stack: TechStack }) {
   const ref = useRef<HTMLDivElement>(null)
   const strip = useRef<HTMLDivElement>(null)
   const progress = useRef(0)
   const stride = useRef(0)
   const current = useRef(0)
+  const speed = useRef(STREAM_SPEED)
   const [active, setActive] = useState(0)
   const [enhanced, setEnhanced] = useState(false)
-  const [interacted, setInteracted] = useState(false)
+  const [announcement, setAnnouncement] = useState('')
   const [reduced, setReduced] = useState(true)
-  const [hovered, setHovered] = useState(false)
+  const [keyboardFocused, setKeyboardFocused] = useState(false)
   const [browse, setBrowse] = useState(false)
   const [visible, setVisible] = useState(false)
   const [pageVisible, setPageVisible] = useState(true)
@@ -30,8 +34,8 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
   const paint = useCallback(() => {
     if (!strip.current || !stride.current) return
     const count = skills.length
-    progress.current %= count
-    // Three identical runs keep left-to-right motion seamless across the loop boundary.
+    progress.current = ((progress.current % count) + count) % count
+    // Identical runs keep either direction seamless across the loop boundary.
     const x = -(count + progress.current) * stride.current
     strip.current.style.transform = `translateX(${x}px)`
     const index = ((Math.ceil(progress.current) % count) + count) % count
@@ -43,10 +47,7 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
 
   useEffect(() => {
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const changeMotion = () => {
-      setReduced(motion.matches)
-      if (motion.matches) setInteracted(true)
-    }
+    const changeMotion = () => setReduced(motion.matches)
     setReduced(motion.matches)
     const changeVisibility = () => setPageVisible(!document.hidden)
     changeVisibility()
@@ -80,14 +81,21 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
     }
   }, [paint, skills.length])
 
-  const rotating = enhanced && !interacted && !reduced && !hovered && visible && pageVisible
+  const rotating = enhanced && !keyboardFocused && !reduced && visible && pageVisible
   useEffect(() => {
-    if (!rotating) return
+    if (!rotating) {
+      speed.current = STREAM_SPEED
+      return
+    }
     let frame = 0
     let previous: number | undefined
     const tick = (time: number) => {
       if (previous !== undefined && stride.current) {
-        progress.current -= (Math.min(time - previous, 100) * 0.024) / stride.current
+        const elapsed = Math.min(time - previous, 100)
+        // A chevron changes velocity, never position or the number of animation loops.
+        const nextSpeed = STREAM_SPEED + (speed.current - STREAM_SPEED) * Math.exp(-elapsed / 450)
+        progress.current += (elapsed * (speed.current + nextSpeed)) / 2000 / stride.current
+        speed.current = nextSpeed
         paint()
       }
       previous = time
@@ -104,9 +112,15 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
   }, [browse])
 
   function select(index: number) {
-    setInteracted(true)
     progress.current = (index + skills.length) % skills.length
+    speed.current = STREAM_SPEED
+    setAnnouncement(skills[progress.current].name)
     paint()
+  }
+
+  function accelerate(direction: number) {
+    if (reduced || keyboardFocused) select(current.current + direction)
+    else speed.current = direction * BROWSE_SPEED
   }
 
   return (
@@ -116,9 +130,12 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
       role="region"
       aria-roledescription="carousel"
       aria-labelledby="tech-stack-heading"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocusCapture={() => setInteracted(true)}
+      onPointerDown={() => setKeyboardFocused(false)}
+      onKeyDownCapture={() => setKeyboardFocused(true)}
+      onFocusCapture={(event) => setKeyboardFocused(event.target.matches(':focus-visible'))}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setKeyboardFocused(false)
+      }}
       data-rotating={rotating ? 'true' : 'false'}
       data-browse={browse ? 'true' : undefined}
     >
@@ -143,6 +160,7 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
           idPrefix="tech-tab"
           enhanced={enhanced}
           tone="dark"
+          animatedIndicator
           onActivate={(id) => select(skills.findIndex((skill) => skill.groupId === id))}
         />
       </div>
@@ -157,7 +175,6 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
           onPointerDown={(event) => {
             if (event.pointerType !== 'mouse') {
               setBrowse(true)
-              setInteracted(true)
             }
           }}
         >
@@ -167,7 +184,7 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
                 type="button"
                 aria-label={stack.previousLabel}
                 aria-controls="skills-panel"
-                onClick={() => select(current.current - 1)}
+                onClick={() => accelerate(-1)}
                 className="tech-browse absolute inset-y-2 left-0 z-10 flex w-11 items-center justify-start bg-gradient-to-r from-ink-soft/95 to-transparent pl-1 text-paper"
               >
                 <svg
@@ -185,7 +202,7 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
                 type="button"
                 aria-label={stack.nextLabel}
                 aria-controls="skills-panel"
-                onClick={() => select(current.current + 1)}
+                onClick={() => accelerate(1)}
                 className="tech-browse absolute inset-y-2 right-0 z-10 flex w-11 items-center justify-end bg-gradient-to-l from-ink-soft/95 to-transparent pr-1 text-paper"
               >
                 <svg
@@ -235,7 +252,7 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
           </div>
         </div>
         <span className="sr-only" aria-live="polite">
-          {interacted ? skills[active].name : ''}
+          {announcement}
         </span>
       </div>
       <noscript>

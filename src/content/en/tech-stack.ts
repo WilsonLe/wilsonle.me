@@ -29,6 +29,9 @@ export const techStack: TechStack = {
         { name: 'FastAPI', icon: '/skills/fastapi.svg' },
         { name: 'Flask', icon: '/skills/flask.svg' },
         { name: 'Django', icon: '/skills/django.svg' },
+        { name: 'Celery', icon: '/skills/celery.svg' },
+        { name: 'RabbitMQ', icon: '/skills/rabbitmq.svg' },
+        { name: 'Apache Kafka', icon: '/skills/apachekafka.svg' },
       ],
     },
     {
@@ -70,13 +73,10 @@ export const techStack: TechStack = {
     },
     {
       id: 'tools',
-      label: 'Tools & messaging',
+      label: 'AI tools',
       technologies: [
         { name: 'Claude Code', icon: '/skills/claude.svg' },
         { name: 'VSCode Copilot Chat', icon: '/skills/githubcopilot.svg' },
-        { name: 'Celery', icon: '/skills/celery.svg' },
-        { name: 'RabbitMQ', icon: '/skills/rabbitmq.svg' },
-        { name: 'Apache Kafka', icon: '/skills/apachekafka.svg' },
       ],
     },
   ],
