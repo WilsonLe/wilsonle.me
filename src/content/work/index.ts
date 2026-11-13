@@ -200,11 +200,11 @@ export const works: Work[] = [
           height: 1600,
         },
         robot: {
-          src: '/work/robots/humanoid-walking.gif',
-          poster: '/work/robots/humanoid-walking.webp',
-          alt: 'A real CYOBot humanoid robot walking on a desk.',
-          width: 300,
-          height: 169,
+          src: '/work/robots/distance-sensing.gif',
+          poster: '/work/robots/distance-sensing.webp',
+          alt: 'A real CYOBot quadruped using its distance sensor on a wooden floor.',
+          width: 255,
+          height: 144,
         },
         callout: {
           description:

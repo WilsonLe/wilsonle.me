@@ -351,6 +351,81 @@ test('reveals shaded edge chevrons on hover, keyboard focus or a touch tap', asy
   await context.close()
 })
 
+test('browses overflowing project tabs with shaded chevrons and no horizontal scrollbar', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 375, height: 812 })
+  await page.goto('/#cyobot')
+  const tabs = page.getByRole('tablist', { name: 'Choose a project', exact: true })
+  const previous = page.getByRole('button', { name: 'Scroll projects left' })
+  const next = page.getByRole('button', { name: 'Scroll projects right' })
+  await expect(next).toBeVisible()
+  await expect(tabs).toHaveCSS('scrollbar-width', 'none')
+  await expect
+    .poll(() => tabs.evaluate((element) => element.getBoundingClientRect().top))
+    .toBeLessThan(100)
+  const pageTop = await page.evaluate(() => scrollY)
+
+  for (let click = 0; click < projectChoices.length; click++) {
+    if (
+      await tabs.evaluate(
+        (element) => element.scrollLeft + element.clientWidth >= element.scrollWidth - 1,
+      )
+    )
+      break
+    const before = await tabs.evaluate((element) => element.scrollLeft)
+    await expect(next).toBeEnabled()
+    await next.click()
+    await expect.poll(() => tabs.evaluate((element) => element.scrollLeft)).toBeGreaterThan(before)
+  }
+  await expect(next).toBeDisabled()
+  const last = tabs.getByRole('tab', { name: 'LocalDesign', exact: true })
+  expect(
+    await last.evaluate((element) => element.getBoundingClientRect().right),
+  ).toBeLessThanOrEqual(await tabs.evaluate((element) => element.getBoundingClientRect().right))
+  for (let click = 0; click < projectChoices.length; click++) {
+    const before = await tabs.evaluate((element) => element.scrollLeft)
+    if (before <= 1) break
+    await expect(previous).toBeEnabled()
+    await previous.click()
+    await expect.poll(() => tabs.evaluate((element) => element.scrollLeft)).toBeLessThan(before)
+  }
+  await expect(previous).toBeDisabled()
+  await expect.poll(() => tabs.evaluate((element) => element.scrollLeft)).toBe(0)
+  await expect(tabs.getByRole('tab', { name: 'CYOBot', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  )
+  await expect(page).toHaveURL(/#cyobot$/)
+  expect(await page.evaluate(() => scrollY)).toBe(pageTop)
+
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/#cyobot-python-quest')
+  await expect(page.locator('#cyobot-python-quest')).toHaveAttribute('data-entered', 'done')
+  const normalPageTop = await page.evaluate(() => scrollY)
+  const beforeSmoothScroll = await tabs.evaluate((element) => element.scrollLeft)
+  await next.click()
+  await expect
+    .poll(() => tabs.evaluate((element) => element.scrollLeft))
+    .toBeGreaterThan(beforeSmoothScroll)
+  expect(await page.evaluate(() => scrollY)).toBe(normalPageTop)
+  await expect(page).toHaveURL(/#cyobot-python-quest$/)
+
+  await page.setViewportSize({ width: 1440, height: 812 })
+  await expect(previous).toHaveCount(0)
+  await expect(next).toHaveCount(0)
+  await page.setViewportSize({ width: 375, height: 812 })
+  await expect(next).toBeVisible()
+  const selected = tabs.getByRole('tab', { name: 'CYOBot', exact: true })
+  await selected.focus()
+  await page.keyboard.press('End')
+  await expect(last).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(page).toHaveURL(/#localdesign$/)
+  await expect(page.locator('#work-panel-localdesign')).toBeVisible()
+})
+
 test('keeps the top work tabs sticky and preserves bottom selection position', async ({ page }) => {
   test.setTimeout(60000)
   await page.emulateMedia({ reducedMotion: 'reduce' })

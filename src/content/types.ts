@@ -86,6 +86,8 @@ export interface Projects {
   featuresLabel: string
   tabsLabel: string
   bottomTabsLabel: string
+  previousTabsLabel: string
+  nextTabsLabel: string
   items: Project[]
 }
 

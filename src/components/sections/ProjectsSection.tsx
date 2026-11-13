@@ -32,7 +32,12 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
               href: `#${id}`,
             }
           })}
-          labels={{ top: projects.tabsLabel, bottom: projects.bottomTabsLabel }}
+          labels={{
+            top: projects.tabsLabel,
+            bottom: projects.bottomTabsLabel,
+            previous: projects.previousTabsLabel,
+            next: projects.nextTabsLabel,
+          }}
         >
           {projects.items.map((project) => {
             const work = works.find((item) => item.projectId === project.id)

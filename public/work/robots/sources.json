@@ -3,11 +3,11 @@
   "sourcePage": "https://cyobot.com/",
   "assets": [
     {
-      "asset": "humanoid-walking.gif",
-      "source": "https://cyobot.com/humanoid-walking.gif",
-      "sourceSha256": "b97300c47fd2803d861f03b62cc833bb13baf94c2fe85c9048028a8efe22a54e",
-      "sha256": "f3d3a536876471dc10618a20a736706a816e544d600ec2603eb701ad7fec6252",
-      "bytes": 584984,
+      "asset": "distance-sensing.gif",
+      "source": "https://cyobot.com/simple-ultrasonic-radar.gif",
+      "sourceSha256": "db1ca4e936d93e3b42a52f19bee56bd4b1002f6e0eae7b19f0255d28155c128f",
+      "sha256": "8c4fe678c3868581cb6f08d1263b4d3c8257272ef240178fc4f38209c158df7b",
+      "bytes": 660750,
       "processing": "Full original clip at original dimensions, sampled at 12 fps and encoded with a 128-color palette and inter-frame optimization. Infinite GIF loop. Poster is the first frame."
     },
     {

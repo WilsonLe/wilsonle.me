@@ -13,16 +13,18 @@ export function AnnotatedScreenshot({ screen, id }: { screen: WorkScreen; id: st
       labelledBy={`${id}-title`}
     >
       <div className="work-image-mat">
-        <div className="work-shot-view">
-          <a
-            className="block"
-            href={image.src}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Open full screenshot: ${screen.title}`}
-          >
-            <Image {...image} alt={image.alt} unoptimized className="h-auto w-full" />
-          </a>
+        <div className="relative">
+          <div className="work-shot-view">
+            <a
+              className="block"
+              href={image.src}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Open full screenshot: ${screen.title}`}
+            >
+              <Image {...image} alt={image.alt} unoptimized className="h-auto w-full" />
+            </a>
+          </div>
           {screen.robot && <RobotOverlay robot={screen.robot} />}
         </div>
       </div>
