@@ -2,7 +2,13 @@ export interface WorkScreen {
   id: string
   title: string
   image: { src: string; alt: string; width: number; height: number }
+  robot?: { src: string; poster: string; alt: string; width: number; height: number }
   callout: { description: string }
+}
+
+export const robotAnimationLabels = {
+  play: 'Play robot animation',
+  pause: 'Pause robot animation',
 }
 export interface Work {
   slug: string
@@ -193,6 +199,13 @@ export const works: Work[] = [
           width: 2560,
           height: 1600,
         },
+        robot: {
+          src: '/work/robots/humanoid-walking.gif',
+          poster: '/work/robots/humanoid-walking.webp',
+          alt: 'A real CYOBot humanoid robot walking on a desk.',
+          width: 300,
+          height: 169,
+        },
         callout: {
           description:
             'Manage robotics quests and levels with a sample lesson-planning conversation alongside.',
@@ -207,6 +220,13 @@ export const works: Work[] = [
           width: 2560,
           height: 2000,
         },
+        robot: {
+          src: '/work/robots/balancing.gif',
+          poster: '/work/robots/balancing.webp',
+          alt: 'A real CYOBot robot balancing as its support is tilted.',
+          width: 304,
+          height: 228,
+        },
         callout: {
           description:
             'A demo student workspace with robotics quests, skill progress, rewards and a career skill map.',
@@ -220,6 +240,13 @@ export const works: Work[] = [
           alt: 'CYOBot Python Mission Control demo quest preview with learning objectives and a three-level learning journey over the student dashboard.',
           width: 2560,
           height: 1600,
+        },
+        robot: {
+          src: '/work/robots/remote-control.gif',
+          poster: '/work/robots/remote-control.webp',
+          alt: 'A real CYOBot robot operated with a handheld controller.',
+          width: 300,
+          height: 232,
         },
         callout: {
           description:

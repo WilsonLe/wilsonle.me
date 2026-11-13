@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { WorkScreen } from '@/content/work'
 import { ScrollEntrance } from '@/components/ScrollEntrance'
+import { RobotOverlay } from '@/components/RobotOverlay'
 
 export function AnnotatedScreenshot({ screen, id }: { screen: WorkScreen; id: string }) {
   const { image, callout } = screen
@@ -22,6 +23,7 @@ export function AnnotatedScreenshot({ screen, id }: { screen: WorkScreen; id: st
           >
             <Image {...image} alt={image.alt} unoptimized className="h-auto w-full" />
           </a>
+          {screen.robot && <RobotOverlay robot={screen.robot} />}
         </div>
       </div>
       <figcaption className="work-callout">
