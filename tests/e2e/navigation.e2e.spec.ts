@@ -610,6 +610,29 @@ test('keeps keyboard scrolling available from focused portfolio links', async ({
   await expect(booking).toBeFocused()
 })
 
+test('keeps city movement available from the Skills heading and arrow navigation in the tabs', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/#skills')
+  const skills = page.getByRole('heading', { name: 'Skills', exact: true })
+  const city = page.locator('.descent-page')
+  await expect(skills).toBeFocused()
+  const initialX = Number(await city.getAttribute('data-player-x'))
+  await page.keyboard.down('ArrowLeft')
+  try {
+    await expect
+      .poll(async () => Number(await city.getAttribute('data-player-x')))
+      .toBeLessThan(initialX - 10)
+  } finally {
+    await page.keyboard.up('ArrowLeft')
+  }
+  const frontend = page.getByRole('tab', { name: 'Frontend', exact: true })
+  await frontend.focus()
+  await page.keyboard.press('ArrowRight')
+  await expect(page.getByRole('tab', { name: 'Backend', exact: true })).toBeFocused()
+})
+
 test('supports touch movement, a held jetpack and a tap-to-open billboard', async ({ browser }) => {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },

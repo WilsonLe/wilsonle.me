@@ -465,7 +465,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       if (selectedRef.current || event.metaKey || event.ctrlKey || event.altKey) return
       if (
         event.target instanceof HTMLElement &&
-        event.target.closest('input, textarea, select, [contenteditable], dialog, .descent-skills')
+        event.target.closest('input, textarea, select, [contenteditable], dialog, .tech-carousel')
       )
         return
       const direction = moveKey(event.code)
