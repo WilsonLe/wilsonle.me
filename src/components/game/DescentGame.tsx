@@ -243,6 +243,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     let showTouchPad = false
     let workLedge: Platform | undefined
     let contactFloor: Platform | undefined
+    let contactApproachHeight = 0
     let interactionTargets: Billboard[] = []
     let crossingTops: CrossingTops | undefined
     let travel: {
@@ -295,6 +296,15 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         if (promptRef.current) promptRef.current.style.transform = transform
       }
     }
+    const writeScroll = (top: number) => {
+      scroller.scrollTop = top
+      scrollTop = scroller.scrollTop
+    }
+    const contactLandingInset = () => {
+      const preferred = viewportWidth < 700 || touch.matches ? 130 : 27
+      const approachHeight = Math.max(contactApproachHeight, PLAYER_HEIGHT * scale)
+      return Math.min(preferred, Math.max(0, viewportHeight - headerHeight - approachHeight - 12))
+    }
     const publish = () => {
       const next: Snapshot = {
         x: Math.round(state.player.x),
@@ -315,6 +325,13 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     }
     const resize = () => {
       if (scroller.clientWidth <= 0 || scroller.clientHeight <= 0) return
+      const onContactFloor =
+        state.started &&
+        state.player.grounded &&
+        !travel &&
+        playerVisible() &&
+        contactFloor !== undefined &&
+        Math.abs(state.player.y + PLAYER_HEIGHT - contactFloor.y) < 1
       viewportWidth = scroller.clientWidth
       viewportHeight = scroller.clientHeight
       headerHeight = header.offsetHeight
@@ -360,6 +377,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       const floor = worldY(contact.getBoundingClientRect().bottom + floorGap)
       contact.style.setProperty('--contact-floor-gap', `${floorGap}px`)
       const firstContact = contactTargets[0]
+      contactApproachHeight = firstContact ? (floor - firstContact.y) * scale : 0
       contactFloor = {
         x: firstContact?.x ?? width * 0.1,
         y: floor,
@@ -387,6 +405,16 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         billboards,
       }
       fitCity(state, width, layout)
+      if (onContactFloor) {
+        const link = contactTargets.find((target) => target.id === lastNearby)
+        const center = state.player.x + PLAYER_WIDTH / 2
+        const keepLink = link && (center < link.x + 1 || center > link.x + link.width - 1)
+        landPlayer(state, keepLink ? link.x + link.width / 2 : center, floor)
+        const feet = floor * scale
+        const minScroll = feet - viewportHeight + contactLandingInset()
+        const maxScroll = feet - PLAYER_HEIGHT * scale - headerHeight - 12
+        writeScroll(Math.max(minScroll, Math.min(maxScroll, scroller.scrollTop)))
+      }
       boards.forEach((element, index) => {
         const board = billboards[index]
         element.dataset.district = zoneAt(layout, board.y + board.height / 2)
@@ -403,10 +431,6 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       positionPrompt()
       publish()
     }
-    const writeScroll = (top: number) => {
-      scroller.scrollTop = top
-      scrollTop = scroller.scrollTop
-    }
     const sections = { top: hero, work, contact, skills }
     const arrivalLedge = (destination: Destination) => {
       if (destination === 'work') return workLedge
@@ -418,8 +442,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         sections[destination].getBoundingClientRect().top - scroller.getBoundingClientRect().top
       const anchor = scroller.scrollTop + offset - headerHeight - 24
       const feet = arrivalLedge(destination)?.y
-      const landingInset =
-        destination === 'contact' && (viewportWidth < 700 || touch.matches) ? 130 : 27
+      const landingInset = destination === 'contact' ? contactLandingInset() : 27
       const showLanding = feet === undefined ? 0 : feet * scale - viewportHeight + landingInset
       const rooftop = (state.layout.roof - PLAYER_HEIGHT) * scale - headerHeight - 8
       const target =
@@ -490,6 +513,10 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     }
     const press = (source: string, direction: MoveKey, at: number, touch?: boolean) => {
       if (selectedRef.current || travel) return
+      const active = document.activeElement
+      if (active instanceof HTMLAnchorElement && contactAnchors.includes(active)) {
+        scroller.focus({ preventScroll: true })
+      }
       if (!following && !playerVisible()) {
         const top = state.camera + (headerHeight + 12) / scale
         const bottom = state.camera + viewHeight - 75 / scale
@@ -596,6 +623,10 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     let previous = performance.now()
     let accumulator = 0
     const render = (now: number) => {
+      // A viewport resize can clamp scroll before ResizeObserver delivers the new layout.
+      if (scroller.clientWidth !== viewportWidth || scroller.clientHeight !== viewportHeight) {
+        resize()
+      }
       const dt = Math.min((now - previous) / 1000, 0.045)
       previous = now
       if ((travel && selectedRef.current) || Math.abs(scroller.scrollTop - scrollTop) > 0.5) {

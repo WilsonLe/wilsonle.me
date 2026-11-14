@@ -1174,6 +1174,12 @@
     background: #4c93a6;
     color: #08151d;
   }
+  @media (orientation: landscape) and (max-height: 300px) {
+    .descent-page:has(.descent-interact[data-contact-prompt]) .descent-touch-pad {
+      right: max(12px, env(safe-area-inset-right));
+      left: auto;
+    }
+  }
 }
 @media (max-width: 339px) {
   .descent-guide-layout {

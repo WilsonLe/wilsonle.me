@@ -585,6 +585,7 @@ test('walking along the reactor floor lets E open each Contact link', async ({ p
     await page.context().route(url, (route) => route.fulfill({ body: 'Contact destination' }))
   }
   await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/#contact')
   const contact = page.getByRole('region', { name: 'Contact', exact: true })
   await expect(contact.getByRole('heading')).toBeFocused()
@@ -607,9 +608,30 @@ test('walking along the reactor floor lets E open each Contact link', async ({ p
     await expect(prompt).toBeVisible()
     await expect(city).toHaveAttribute('data-player-y', startY!)
     const [popup] = await Promise.all([page.waitForEvent('popup'), page.keyboard.press('e')])
-    await popup.waitForURL(url)
+    await popup.waitForLoadState()
+    expect(popup.url()).toBe(url)
     await popup.close()
+    if (index === 0) {
+      const [clicked] = await Promise.all([
+        page.waitForEvent('popup'),
+        contact.getByRole('link', { name, exact: true }).click(),
+      ])
+      await clicked.waitForURL(url)
+      await clicked.close()
+    }
   }
+
+  const bookingPrompt = page.getByRole('link', { name: 'Book a 30-minute call (E)', exact: true })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(bookingPrompt).toBeInViewport()
+  const [mobileBooking] = await Promise.all([page.waitForEvent('popup'), page.keyboard.press('e')])
+  await mobileBooking.waitForURL(destinations[2][1])
+  await mobileBooking.close()
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await expect(bookingPrompt).toBeInViewport()
+  const [desktopBooking] = await Promise.all([page.waitForEvent('popup'), page.keyboard.press('e')])
+  await desktopBooking.waitForURL(destinations[2][1])
+  await desktopBooking.close()
 
   await page.keyboard.down('ArrowRight')
   try {
@@ -622,6 +644,43 @@ test('walking along the reactor floor lets E open each Contact link', async ({ p
   const [popup] = await Promise.all([page.waitForEvent('popup'), page.keyboard.press('e')])
   await popup.waitForURL(destinations[0][1])
   await popup.close()
+})
+
+test('keeps the character next to Contact when the city reflows', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/#contact')
+  const prompt = page.getByRole('link', { name: 'GitHub (E)', exact: true })
+  await expect(prompt).toBeInViewport()
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.getByRole('heading', { name: 'Contact', exact: true })).toBeInViewport()
+  await expect(prompt).toBeInViewport()
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await expect(prompt).toBeInViewport()
+})
+
+test('offers the Contact shortcut above the touch controls in a short landscape viewport', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    viewport: { width: 844, height: 230 },
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: 'reduce',
+  })
+  try {
+    const page = await context.newPage()
+    await page.goto('/#contact')
+    const prompt = page.getByRole('link', { name: 'GitHub (E)', exact: true })
+    await expect(prompt).toBeInViewport()
+    await expect(prompt).toBeVisible()
+    await page
+      .getByRole('link', { name: 'GitHub', exact: true })
+      .tap({ trial: true, timeout: 5000 })
+    await prompt.tap({ trial: true, timeout: 5000 })
+  } finally {
+    await context.close()
+  }
 })
 
 test('uses the keyboard to jump and activate the jetpack', async ({ page }) => {
