@@ -300,6 +300,12 @@
   .descent-page a {
     cursor: pointer;
   }
+  .descent-page button,
+  .descent-jetpack-keys {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
   .descent-page :focus-visible {
     outline: 2px solid var(--descent-cyan);
     outline-offset: 5px;
@@ -790,7 +796,6 @@
     grid-template-rows: repeat(2, var(--key-size));
     gap: 4px;
     flex-shrink: 0;
-    user-select: none;
   }
   .descent-direction-pad [data-direction],
   .descent-jetpack-keys kbd {
@@ -846,18 +851,18 @@
     margin: 60px 6% 0;
   }
   .descent-skills {
-    position: relative;
-    width: min(720px, 88%);
-    margin: 60px 6% 0;
-    padding: 10px 20px;
+    --billboard-trim: #527786;
+    --billboard-light: #9cdeeb;
+    width: min(940px, 88%);
+    margin: 0 6% 64px;
+    padding: 16px 20px 14px;
+    background: #0d171f;
     pointer-events: auto;
   }
-  .descent-skills summary {
-    cursor: pointer;
-    padding-block: 9px;
-  }
-  .descent-skills[open] > .tech-carousel {
-    margin-block: 16px 10px;
+  .descent-skills h2 {
+    font-size: clamp(25px, 3.4vw, 34px);
+    line-height: 1.15;
+    letter-spacing: -0.04em;
   }
   .descent-world-footer {
     position: relative;
@@ -909,11 +914,12 @@
   }
   .descent-interact {
     position: absolute;
+    top: 0;
+    left: 0;
     z-index: 24;
     display: flex;
     align-items: center;
     gap: 8px;
-    transform: translate(-50%, -50%);
     max-width: 190px;
     padding: 6px 10px;
     border: 1px solid #5f8c9d;
@@ -1030,6 +1036,53 @@
     border: 1px solid #456572;
   }
 }
+@media (prefers-reduced-motion: no-preference) {
+  .descent-dialog[open] {
+    animation: descent-tv-open 380ms cubic-bezier(0.22, 0.7, 0.25, 1) backwards;
+  }
+  .descent-dialog[open]::after {
+    content: '';
+    position: absolute;
+    inset: calc(50% - 1px) 0 auto;
+    height: 2px;
+    background: var(--descent-cyan);
+    box-shadow: 0 0 12px var(--descent-cyan);
+    pointer-events: none;
+    animation: descent-tv-scanline 380ms ease-out both;
+  }
+  .descent-dialog[open]::backdrop {
+    animation: descent-tv-dim 200ms ease-out both;
+  }
+}
+@keyframes descent-tv-open {
+  0% {
+    clip-path: inset(calc(50% - 1px) 46%);
+  }
+  24% {
+    clip-path: inset(calc(50% - 1px) 0%);
+  }
+  100% {
+    clip-path: inset(0);
+  }
+}
+@keyframes descent-tv-scanline {
+  0%,
+  24% {
+    opacity: 0.9;
+  }
+  65%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes descent-tv-dim {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 @media (max-width: 699px) {
   .descent-rooftop {
     display: flex;
@@ -1049,6 +1102,11 @@
   .descent-work {
     width: calc(100% - 32px);
     margin-inline: 16px;
+  }
+  .descent-skills {
+    width: calc(100% - 32px);
+    margin: 0 16px 54px;
+    padding: 13px 12px 12px;
   }
   .descent-contact {
     width: calc(100% - 50px);
