@@ -13,10 +13,11 @@ content, with no game engine or new dependencies.
 Run `pnpm exec next dev --hostname 127.0.0.1 --port 3117` using pnpm 9 or 10,
 then open <http://127.0.0.1:3117>. Use the local environment described below.
 
-Use WASD or the arrow keys. Up jumps. Double tap Up or W and hold the second
-press to fly with the jetpack. Down drops through ledges. On a touchscreen, tap
-or hold the on-screen controls to move, or swipe to scroll through the portfolio.
-Double tap the up control and hold the second tap to fly.
+Use WASD or the arrow keys to move. Press Space, Up, or W to jump. Double-tap a
+jump key and hold the second press to fly with the jetpack. Down or S drops
+through ledges. On a touchscreen, tap or hold the on-screen controls to move,
+or swipe to scroll through the portfolio. Double-tap the up control and hold
+the second tap to fly.
 
 Press **E** beside a project billboard, or click or tap a billboard, to see the
 project and its screenshots. The portfolio navigation scrolls to each section

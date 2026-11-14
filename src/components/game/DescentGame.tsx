@@ -470,14 +470,17 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         return
       const direction = moveKey(event.code)
       if (direction && pressRef.current) {
-        // Let focused portfolio links and controls keep their native scrolling keys.
-        if (
-          event.target instanceof HTMLElement &&
-          event.target.matches(':focus-visible') &&
-          event.target.closest('a, button, summary') &&
-          !event.target.closest('.descent-direction-pad, .descent-interact')
-        )
+        const target = event.target instanceof HTMLElement ? event.target : null
+        if (event.code === 'Space') {
+          if (event.shiftKey || event.defaultPrevented || target?.closest('button, summary')) return
+        } else if (
+          target?.matches(':focus-visible') &&
+          target.closest('a, button, summary') &&
+          !target.closest('.descent-direction-pad, .descent-interact')
+        ) {
+          // Let focused portfolio links and controls keep their native scrolling keys.
           return
+        }
         event.preventDefault()
         if (!event.repeat) press(event.code, direction, event.timeStamp)
       } else if (event.code === 'KeyE' && !event.repeat) {
@@ -796,7 +799,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         className="descent-scrollport"
         tabIndex={0}
         role="region"
-        aria-label="Interactive portfolio. Move with WASD, the arrow keys, or the on-screen controls. Double tap Up or W and hold the second press to fly."
+        aria-label={copy.regionLabel}
       >
         <div ref={worldRef} className="descent-world">
           <div className="descent-rooftop">

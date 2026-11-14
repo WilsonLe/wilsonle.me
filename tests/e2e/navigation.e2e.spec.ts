@@ -590,6 +590,65 @@ test('uses the keyboard to jump and activate the jetpack', async ({ page }) => {
   await expect(city).toHaveAttribute('data-jetpack', 'false')
 })
 
+test('Shift+Space scrolls up while the character stays idle', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await scroller.focus()
+  const initialScroll = await scroller.evaluate((element) => {
+    element.scrollTop = 500
+    return element.scrollTop
+  })
+
+  await page.keyboard.press('Shift+Space')
+  await expect
+    .poll(() => scroller.evaluate((element) => element.scrollTop))
+    .toBeLessThan(initialScroll - 100)
+  await expect(city).toHaveAttribute('data-started', 'false')
+})
+
+test('Space jumps without scrolling and a held second press flies', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await scroller.focus()
+  const playerY = async () => Number(await city.getAttribute('data-player-y'))
+  const initialY = await playerY()
+
+  await page.keyboard.down('Space')
+  await page.keyboard.down('Space')
+  await expect.poll(playerY).toBeLessThan(initialY - 12)
+  await expect(city).toHaveAttribute('data-jetpack', 'false')
+  expect(await scroller.evaluate((element) => element.scrollTop)).toBe(0)
+  await page.keyboard.up('Space')
+  await expect(city).toHaveAttribute('data-player-y', String(initialY))
+
+  await page.getByRole('link', { name: 'View work', exact: true }).focus()
+  await page.keyboard.press('Space')
+  await page.keyboard.down('Space')
+  await expect(city).toHaveAttribute('data-jetpack', 'true')
+  await expect.poll(playerY).toBeLessThan(initialY - 100)
+  await page.keyboard.up('Space')
+  await expect(city).toHaveAttribute('data-jetpack', 'false')
+  expect(await scroller.evaluate((element) => element.scrollTop)).toBe(0)
+})
+
+test('Space activates a focused sound button', async ({ page }) => {
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  const sound = page.getByRole('button', { name: /Turn sound (on|off)/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await sound.click()
+  await expect(sound).toHaveAttribute('aria-pressed', 'true')
+  await page.keyboard.press('Space')
+  await expect(sound).toHaveAttribute('aria-pressed', 'false')
+  await expect(city).toHaveAttribute('data-started', 'false')
+})
+
 test('keeps keyboard scrolling available from focused portfolio links', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/#contact')
