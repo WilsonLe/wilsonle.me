@@ -541,6 +541,25 @@ test('uses the keyboard to jump and activate the jetpack', async ({ page }) => {
   await expect(city).toHaveAttribute('data-jetpack', 'false')
 })
 
+test('Shift+Space scrolls up while the character stays idle', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await scroller.focus()
+  const initialScroll = await scroller.evaluate((element) => {
+    element.scrollTop = 500
+    return element.scrollTop
+  })
+
+  await page.keyboard.press('Shift+Space')
+  await expect
+    .poll(() => scroller.evaluate((element) => element.scrollTop))
+    .toBeLessThan(initialScroll - 100)
+  await expect(city).toHaveAttribute('data-started', 'false')
+})
+
 test('Space jumps without scrolling and a held second press flies', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto('/')
@@ -599,25 +618,6 @@ test('keeps keyboard scrolling available from focused portfolio links', async ({
     .toBeLessThan(initialScroll)
   await expect(city).toHaveAttribute('data-player-y', playerY!)
   await expect(booking).toBeFocused()
-})
-
-test('Shift+Space scrolls up while the character stays idle', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/')
-  const city = page.locator('.descent-page')
-  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
-  await expect(city).toHaveAttribute('data-ready', 'true')
-  await scroller.focus()
-  const initialScroll = await scroller.evaluate((element) => {
-    element.scrollTop = 500
-    return element.scrollTop
-  })
-
-  await page.keyboard.press('Shift+Space')
-  await expect
-    .poll(() => scroller.evaluate((element) => element.scrollTop))
-    .toBeLessThan(initialScroll - 100)
-  await expect(city).toHaveAttribute('data-started', 'false')
 })
 
 test('supports touch movement, a held jetpack and a tap-to-open billboard', async ({ browser }) => {
