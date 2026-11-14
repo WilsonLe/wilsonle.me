@@ -3,9 +3,11 @@ export const PLAYER_HEIGHT = 44
 
 export type Direction = -1 | 1
 export type SoundEvent = 'jump' | 'jetpack'
-export type Platform = { x: number; y: number; width: number }
 export type Billboard = { id: string; x: number; y: number; width: number; height: number }
+export type Platform = { x: number; y: number; width: number; billboards?: Billboard[] }
 export type Zone = 'skyline' | 'streets' | 'transit' | 'sewers' | 'reactor'
+
+const PLATFORM_OVERLAP_INSET = 3
 
 export type CityLayout = {
   height: number
@@ -17,6 +19,7 @@ export type CityLayout = {
   reactor: number
   workAwning?: Platform
   contactLedge?: Platform
+  skillsBillboard?: Billboard
   billboards: Billboard[]
 }
 
@@ -65,8 +68,31 @@ export function floorY(layout: CityLayout) {
   return layout.height - 32
 }
 
-export function billboardLedgeY(board: Billboard) {
-  return board.y + board.height + PLAYER_HEIGHT + 6
+export function billboardFloorY(bottom: number) {
+  return bottom + PLAYER_HEIGHT + 6
+}
+
+function billboardFloors(width: number, layout: CityLayout): Platform[] {
+  const rows = new Map<number, Billboard[]>()
+  for (const board of layout.billboards) {
+    const row = rows.get(board.y)
+    if (row) row.push(board)
+    else rows.set(board.y, [board])
+  }
+  const floors = [...rows.values()].sort(([first], [second]) => first.y - second.y)
+  if (layout.skillsBillboard) floors.unshift([layout.skillsBillboard])
+
+  const gapWidth = 96
+  return floors.flatMap((billboards, index) => {
+    const y = billboardFloorY(Math.max(...billboards.map((board) => board.y + board.height)))
+    // Keep the right opening clear of the side ledges, and off the opening above it.
+    const gapLeft = width * (index % 2 === 0 ? 0.2 : 0.65) - gapWidth / 2
+    const gapRight = gapLeft + gapWidth
+    return [
+      { x: 0, y, width: gapLeft, billboards },
+      { x: gapRight, y, width: width - gapRight, billboards },
+    ]
+  })
 }
 
 function cityPlatforms(width: number, layout: CityLayout): Platform[] {
@@ -79,11 +105,7 @@ function cityPlatforms(width: number, layout: CityLayout): Platform[] {
           y: y + 148,
           width: width * 0.18,
         }))),
-    ...layout.billboards.map((board) => ({
-      x: Math.max(12, board.x - 12),
-      y: billboardLedgeY(board),
-      width: board.width + 24,
-    })),
+    ...billboardFloors(width, layout),
     ...(layout.workAwning ? [layout.workAwning] : []),
     ...(layout.contactLedge ? [layout.contactLedge] : []),
     { x: 0, y: floorY(layout), width },
@@ -131,17 +153,41 @@ export function fitCity(state: GameState, width: number, layout: CityLayout) {
     Object.assign(state, createGame(width, layout))
     return
   }
-  state.player.x = Math.max(
-    12,
-    Math.min(width - PLAYER_WIDTH - 12, (state.player.x / state.width) * width),
+  const player = state.player
+  const feet = player.y + PLAYER_HEIGHT
+  const center = player.x + PLAYER_WIDTH / 2
+  const floor = player.grounded
+    ? state.platforms.find(
+        (platform) =>
+          platform.billboards &&
+          Math.abs(platform.y - feet) < 1 &&
+          overlapsPlatform(platform, player.x),
+      )
+    : undefined
+  const anchor = floor?.billboards?.reduce((nearest, board) =>
+    horizontalDistance(board, center) < horizontalDistance(nearest, center) ? board : nearest,
   )
-  state.player.y = Math.max(
-    layout.ceiling,
-    Math.min(floorY(layout) - PLAYER_HEIGHT, state.player.y),
-  )
+  player.x = Math.max(12, Math.min(width - PLAYER_WIDTH - 12, (player.x / state.width) * width))
+  player.y = Math.max(layout.ceiling, Math.min(floorY(layout) - PLAYER_HEIGHT, player.y))
   state.width = width
   state.layout = layout
   state.platforms = cityPlatforms(width, layout)
+
+  if (!anchor) return
+  const [left, right] = state.platforms.filter((platform) =>
+    platform.billboards?.some((board) => board.id === anchor.id),
+  )
+  if (!left || !right) return
+  player.y = left.y - PLAYER_HEIGHT
+  if (overlapsPlatform(left, player.x) || overlapsPlatform(right, player.x)) return
+  // If a reflow put the player in the opening, move to its nearest edge.
+  const leftX = Math.ceil(left.width - PLATFORM_OVERLAP_INSET) - 1
+  const rightX = Math.floor(right.x - PLAYER_WIDTH + PLATFORM_OVERLAP_INSET) + 1
+  player.x = player.x - leftX <= rightX - player.x ? leftX : rightX
+}
+
+function horizontalDistance(board: Billboard, x: number) {
+  return Math.max(board.x - x, 0, x - board.x - board.width)
 }
 
 export function zoneAt(layout: CityLayout, y: number): Zone {
@@ -158,7 +204,7 @@ export function nearbyBillboard(state: GameState): string | undefined {
   let nearest: string | undefined
   let closest = 64 ** 2
   for (const board of state.layout.billboards) {
-    const dx = Math.max(board.x - x, 0, x - board.x - board.width)
+    const dx = horizontalDistance(board, x)
     const dy = Math.max(board.y - y, 0, y - board.y - board.height)
     const distance = dx ** 2 + dy ** 2
     if (distance < closest) {
@@ -175,6 +221,13 @@ export function followCamera(state: GameState, viewHeight: number, blend = 1) {
     Math.min(state.layout.height - viewHeight, state.player.y - viewHeight * 0.57),
   )
   state.camera += (target - state.camera) * blend
+}
+
+function overlapsPlatform(platform: Platform, playerX: number) {
+  return (
+    playerX + PLAYER_WIDTH - PLATFORM_OVERLAP_INSET > platform.x &&
+    playerX + PLATFORM_OVERLAP_INSET < platform.x + platform.width
+  )
 }
 
 export function stepGame(state: GameState, input: Controls, dt: number, viewHeight: number) {
@@ -212,13 +265,13 @@ export function stepGame(state: GameState, input: Controls, dt: number, viewHeig
     p.y = state.layout.ceiling
     p.vy = 0
   }
-  if (p.vy >= 0 && state.time >= p.dropUntil) {
+  if (p.vy >= 0) {
     for (const platform of state.platforms) {
       if (
+        (platform.billboards || state.time >= p.dropUntil) &&
         previousFeet <= platform.y + 3 &&
         p.y + PLAYER_HEIGHT >= platform.y &&
-        p.x + PLAYER_WIDTH - 3 > platform.x &&
-        p.x + 3 < platform.x + platform.width
+        overlapsPlatform(platform, p.x)
       ) {
         p.y = platform.y - PLAYER_HEIGHT
         p.vy = 0

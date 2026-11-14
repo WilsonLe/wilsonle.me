@@ -656,10 +656,15 @@ test('Space activates the sound button and Up still jumps after clicking it', as
   expect(await playerY()).toBeLessThan(initialY - 15)
 })
 
-test('Down drops the character after closing a project opened with the mouse', async ({ page }) => {
+test('Down drops from the Work awning after closing a project opened with the mouse', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 515 })
+  await installPausedClock(page)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   await page.getByRole('link', { name: 'View work', exact: true }).click()
+  await page.clock.runFor(150)
   const city = page.locator('.descent-page')
   const project = page.getByRole('link', { name: 'View project: Kalibr', exact: true })
   const dialog = page.getByRole('dialog', { name: 'Kalibr', exact: true })
@@ -669,11 +674,22 @@ test('Down drops the character after closing a project opened with the mouse', a
   await expect(dialog).toBeHidden()
   await expect(page).toHaveURL(/#work$/)
   await expect(project).toBeFocused()
+  await page.clock.runFor(150)
 
   const playerY = async () => Number(await city.getAttribute('data-player-y'))
   const initialY = await playerY()
+  const floorY = await project.evaluate((link) => {
+    const world = document.querySelector('.descent-world')!.getBoundingClientRect()
+    const billboard = link.closest('article')!.getBoundingClientRect()
+    return Math.round((billboard.bottom - world.top) / (world.width / 1200) + 6)
+  })
+  expect(initialY).toBeLessThan(floorY - 15)
   await page.keyboard.press('ArrowDown')
-  await expect.poll(playerY).toBeGreaterThan(initialY + 15)
+  await page.clock.runFor(1500)
+  expect(await playerY()).toBe(floorY)
+  await page.keyboard.press('ArrowDown')
+  await page.clock.runFor(500)
+  expect(await playerY()).toBe(floorY)
 })
 
 test('keeps keyboard scrolling available from focused portfolio links', async ({ page }) => {

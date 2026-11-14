@@ -1,5 +1,5 @@
 import {
-  billboardLedgeY,
+  billboardFloorY,
   floorY,
   zoneAt,
   type CityLayout,
@@ -570,7 +570,9 @@ function platform(ctx: Canvas, p: Platform, light: string) {
   for (let x = p.x + 11; x < p.x + p.width - 12; x += 23) {
     block(ctx, x, p.y + 11, 7, 2, '#0d1a24')
   }
-  if (p.width < 600) {
+  if (p.billboards) {
+    block(ctx, p.x === 0 ? p.width - 4 : p.x, p.y, 4, 17, light)
+  } else if (p.width < 600) {
     block(ctx, p.x + p.width - 27, p.y + 17, 4, 40, '#395565')
     block(ctx, p.x + p.width - 42, p.y + 54, 19, 4, '#395565')
   }
@@ -646,7 +648,7 @@ export function drawGame(
       const nextRow = first && boards.find((board) => board.y >= first.y + first.height)
       // A single-column grid leaves more room between rows than before the district seam.
       tracks = nextRow
-        ? Math.min(billboardLedgeY(first), nextRow.y - 4)
+        ? Math.min(billboardFloorY(first.y + first.height), nextRow.y - 4)
         : Math.min(end - 18, Math.max(tracks, billboardBottom(state.layout, rail, drains) + 49))
     }
     transit(ctx, width, rail, end, time, tracks)
