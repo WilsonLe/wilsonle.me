@@ -1,7 +1,5 @@
 import type { Projects } from '@/content/types'
 import { works } from '@/content/work'
-import { ScrollEntrance } from '@/components/ScrollEntrance'
-import { TabbedWork } from '@/components/TabbedWork'
 import { AnnotatedScreenshot } from '@/components/AnnotatedScreenshot'
 
 export function ProjectsSection({ projects }: { projects: Projects }) {
@@ -13,32 +11,25 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
       aria-labelledby="work-heading"
     >
       <div className="mx-auto max-w-7xl">
-        <ScrollEntrance className="work-heading">
+        <header>
           <h2
             id="work-heading"
             className="font-display text-5xl font-medium leading-display tracking-[-0.035em] sm:text-6xl lg:text-7xl"
           >
             {projects.heading}
           </h2>
-        </ScrollEntrance>
-        <TabbedWork
-          choices={projects.items.map((project) => {
+        </header>
+        <nav aria-label={projects.tabsLabel} className="my-8 flex flex-wrap gap-4">
+          {projects.items.map((project) => {
             const work = works.find((item) => item.projectId === project.id)
-            const id = work?.slug || project.id
-            return {
-              id,
-              label: work?.name || project.name,
-              panelId: `work-panel-${id}`,
-              href: `#${id}`,
-            }
+            return (
+              <a className="underline" key={project.id} href={`#${work?.slug || project.id}`}>
+                {work?.name || project.name}
+              </a>
+            )
           })}
-          labels={{
-            top: projects.tabsLabel,
-            bottom: projects.bottomTabsLabel,
-            previous: projects.previousTabsLabel,
-            next: projects.nextTabsLabel,
-          }}
-        >
+        </nav>
+        <div>
           {projects.items.map((project) => {
             const work = works.find((item) => item.projectId === project.id)
             const highlights = work?.features ?? work?.contributions
@@ -49,7 +40,7 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
                 className="work-project min-w-0 scroll-mt-24 py-10 sm:py-14 lg:py-16"
                 aria-labelledby={`${project.id}-heading`}
               >
-                <ScrollEntrance className="work-intro grid items-start gap-7 pb-8 md:grid-cols-2 md:gap-14 lg:pb-10">
+                <div className="grid items-start gap-7 pb-8 md:grid-cols-2 md:gap-14 lg:pb-10">
                   <header>
                     <h3
                       id={`${project.id}-heading`}
@@ -90,7 +81,7 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
                       )}
                     </dd>
                   </dl>
-                </ScrollEntrance>
+                </div>
                 {work && (
                   <div className="work-features" aria-label={`${work.name} screenshots`}>
                     {work.screens.map((screen) => (
@@ -105,7 +96,7 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
               </article>
             )
           })}
-        </TabbedWork>
+        </div>
       </div>
     </section>
   )

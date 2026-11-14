@@ -1,6 +1,8 @@
+import { DescentGame } from '@/components/game/DescentGame'
 import { ContactSection } from '@/components/sections/ContactSection'
 import { HeroSection } from '@/components/sections/HeroSection'
 import { ProjectsSection } from '@/components/sections/ProjectsSection'
+import { descentContent } from '@/content/en/descent'
 import type { HomeContent } from '@/content/types'
 import { buildAbsoluteUrl, getSocialLinks } from '@/site-config'
 
@@ -28,13 +30,17 @@ export function HomePageView({ canonicalPath, content, routeBasePath }: HomePage
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
       />
-      <HeroSection
-        basePath={routeBasePath}
-        hero={content.hero}
-        siteSettings={content.siteSettings}
-      />
-      <ProjectsSection projects={content.projects} />
-      <ContactSection siteSettings={content.siteSettings} />
+      <DescentGame content={content} copy={descentContent} />
+      <noscript>
+        <style>{'.descent-page[data-ready]{display:none}'}</style>
+        <HeroSection
+          basePath={routeBasePath}
+          hero={content.hero}
+          siteSettings={content.siteSettings}
+        />
+        <ProjectsSection projects={content.projects} />
+        <ContactSection siteSettings={content.siteSettings} />
+      </noscript>
     </>
   )
 }

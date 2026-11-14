@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { TechStackCarousel } from '@/components/TechStackCarousel'
 import type { Hero, SiteSettings } from '@/content/types'
 
 interface HeroSectionProps {
@@ -61,7 +60,17 @@ export function HeroSection({ basePath, hero, siteSettings }: HeroSectionProps) 
           </div>
 
           <aside className="min-w-0 border-t border-rule pt-7">
-            <TechStackCarousel stack={hero.stack} />
+            <h2 className="font-display text-3xl text-paper">{hero.stack.heading}</h2>
+            <div className="mt-6 space-y-6">
+              {hero.stack.groups.map((group) => (
+                <section key={group.id} id={`skills-fallback-${group.id}`}>
+                  <h3 className="font-display text-2xl text-paper">{group.label}</h3>
+                  <p className="mt-2 text-sm leading-7 text-paper-muted">
+                    {group.technologies.map((technology) => technology.name).join(' · ')}
+                  </p>
+                </section>
+              ))}
+            </div>
           </aside>
         </div>
 

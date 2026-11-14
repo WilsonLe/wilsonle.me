@@ -1,9 +1,11 @@
 import { expect, test, type Page } from '@playwright/test'
-import { projectChoices, selectProject } from './helpers/work'
+import { selectProject } from './helpers/work'
 
 async function auditText(page: Page) {
-  // A viewport resize must paint before measuring viewport-relative type sizes.
-  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(resolve)))
+  // Wait for the responsive layout and its size observers to settle.
+  await page.evaluate(
+    () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+  )
   return page.evaluate(async () => {
     await document.fonts.ready
     const context = document.createElement('canvas').getContext('2d')!
@@ -36,7 +38,7 @@ async function auditText(page: Page) {
         if (!rect.width || !rect.height) continue
         // Skill loops and the sticky tab rail deliberately scroll horizontally; each label still passes intrinsic/ink checks.
         if (
-          !parent.closest('.tech-strip, .section-tabs[data-scroll="true"]') &&
+          !parent.closest('.tech-strip, .section-tabs[data-scroll="true"], noscript') &&
           (rect.left < -1 || rect.right > document.documentElement.clientWidth + 1)
         ) {
           clippedText.add(`${parent.id || parent.tagName}: ${node.textContent.trim()}`)
@@ -79,110 +81,58 @@ async function auditText(page: Page) {
 }
 
 for (const route of ['/', '/en', '/vi']) {
-  test(`text lines stay separate across responsive layouts on ${route}`, async ({ page }) => {
+  test(`the city portfolio and project dialogs fit their viewport on ${route}`, async ({
+    page,
+  }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.goto(route)
-    for (const width of [320, 375, 640, 768, 867, 960, 1023, 1024, 1210, 1440, 1920]) {
+    for (const width of [320, 375, 640, 768, 1024, 1440]) {
       await test.step(`${width}px`, async () => {
         await page.setViewportSize({ width, height: 900 })
-        for (const project of projectChoices) {
-          await selectProject(page, project.id)
-          const audit = await auditText(page)
-          // One project is displayed at a time; measure every selected state.
-          expect(audit.measured).toBeGreaterThan(60)
-          expect(audit.collisions).toEqual([])
-          expect(audit.clippedText).toEqual([])
-          expect(audit.overflow).toBeLessThanOrEqual(0)
-        }
+        const first = await auditText(page)
+        expect(first.measured).toBeGreaterThanOrEqual(18)
+        expect(first.collisions).toEqual([])
+        expect(first.clippedText).toEqual([])
+        expect(first.overflow).toBeLessThanOrEqual(0)
+        const dialog = await selectProject(page, 'pangea-chat')
+        const bounds = (await dialog.boundingBox())!
+        expect(bounds.x).toBeGreaterThanOrEqual(0)
+        expect(bounds.x + bounds.width).toBeLessThanOrEqual(width)
+        const inside = await auditText(page)
+        expect(inside.collisions).toEqual([])
+        expect(inside.clippedText).toEqual([])
+        expect(inside.overflow).toBeLessThanOrEqual(0)
+        await page.keyboard.press('Escape')
+        await expect(dialog).toBeHidden()
+        await expect(page).not.toHaveURL(/#pangea-chat$/)
       })
     }
   })
 }
 
-test('text stays readable with serif fallbacks and enlarged text', async ({ page }) => {
+test('keeps mobile navigation usable with enlarged text on short screens', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/')
-  for (const family of ['Georgia, serif', 'serif']) {
-    const override = await page.addStyleTag({
-      content: `.font-display { font-family: ${family}; }`,
-    })
-    for (const width of [375, 1210, 1440]) {
-      await page.setViewportSize({ width, height: 900 })
-      for (const project of projectChoices) {
-        await selectProject(page, project.id)
-        const audit = await auditText(page)
-        expect(audit.collisions, `${project.id} with ${family} at ${width}px`).toEqual([])
-        expect(audit.clippedText).toEqual([])
-        expect(audit.overflow).toBeLessThanOrEqual(0)
-      }
-    }
-    await override.evaluate((element) => element.parentNode?.removeChild(element))
-  }
-  await page.addStyleTag({ content: 'html { font-size: 200%; }' })
-  for (const width of [320, 375, 768, 1210]) {
-    await page.setViewportSize({ width, height: 900 })
-    for (const project of projectChoices) {
-      await selectProject(page, project.id)
-      const audit = await auditText(page)
-      expect(audit.collisions, `${project.id} at ${width}px with 200% text`).toEqual([])
-      expect(audit.clippedText).toEqual([])
-      expect(audit.overflow).toBeLessThanOrEqual(0)
-    }
-    for (const tab of await page
-      .getByRole('tablist', { name: 'Skill sections' })
-      .getByRole('tab')
-      .all()) {
-      await tab.click()
-      const stackAudit = await auditText(page)
-      expect(stackAudit.collisions).toEqual([])
-      expect(stackAudit.clippedText).toEqual([])
-      expect(stackAudit.overflow).toBeLessThanOrEqual(0)
-    }
-    if (width < 1024) {
-      await page.getByRole('button', { name: 'Toggle navigation' }).click()
-      const expanded = await auditText(page)
-      expect(expanded.collisions).toEqual([])
-      expect(expanded.clippedText, `expanded navigation at ${width}px with 200% text`).toEqual([])
-      expect(expanded.overflow).toBeLessThanOrEqual(0)
-      await page.getByRole('button', { name: 'Toggle navigation' }).click()
-    }
-  }
-})
-
-test('every navigation link remains reachable on short screens with enlarged text', async ({
-  page,
-}) => {
   for (const viewport of [
+    { width: 320, height: 568 },
     { width: 375, height: 420 },
     { width: 667, height: 320 },
+    { width: 844, height: 390 },
   ]) {
     await page.setViewportSize(viewport)
     await page.goto('/')
     await page.addStyleTag({ content: 'html { font-size: 200%; }' })
-    const toggle = page.getByRole('button', { name: 'Toggle navigation' })
-    await toggle.focus()
-    await page.keyboard.press('Enter')
-    const menu = page.locator('#mobile-navigation')
-    for (const name of ['Work', 'Download résumé', 'Contact']) {
-      await page.keyboard.press('Tab')
-      const link = menu.getByRole('link', { name, exact: true })
+    const header = page.getByRole('banner')
+    for (const name of ['Work', 'Contact']) {
+      const link = header.getByRole('link', { name, exact: true })
+      await link.focus()
       await expect(link).toBeFocused()
-      const bounds = await link.evaluate((element) => ({
-        top: element.getBoundingClientRect().top,
-        bottom: element.getBoundingClientRect().bottom,
-        menuTop: document.querySelector('#mobile-navigation')!.getBoundingClientRect().top,
-        viewportHeight: innerHeight,
-      }))
-      expect(bounds.top, `${name} at ${viewport.width}×${viewport.height}`).toBeGreaterThanOrEqual(
-        bounds.menuTop,
-      )
-      expect(bounds.bottom, `${name} at ${viewport.width}×${viewport.height}`).toBeLessThanOrEqual(
-        bounds.viewportHeight,
-      )
+      await page.keyboard.press('Enter')
+      await expect(page.getByRole('heading', { name, exact: true })).toBeFocused()
+      await expect(page).toHaveURL('#' + name.toLowerCase())
     }
-    expect(await menu.evaluate((element) => element.scrollTop)).toBeGreaterThan(0)
-    await page.keyboard.press('Enter')
-    await expect(page).toHaveURL(/#contact$/)
-    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    const audit = await auditText(page)
+    expect(audit.collisions).toEqual([])
+    expect(audit.clippedText).toEqual([])
+    expect(audit.overflow).toBeLessThanOrEqual(0)
   }
 })

@@ -11,10 +11,17 @@ export const projectChoices = [
 
 export async function selectProject(page: Page, id: string) {
   const project = projectChoices.find((item) => item.id === id)!
-  const tab = page
-    .getByRole('tablist', { name: 'Choose a project', exact: true })
-    .getByRole('tab', { name: project.name, exact: true })
-  await tab.click()
-  await expect(tab).toHaveAttribute('aria-selected', 'true')
-  await expect(page.locator(`#work-panel-${id}`)).toBeVisible()
+  const open = page.getByRole('dialog')
+  if (await open.isVisible()) {
+    await open.getByRole('button', { name: 'Close project' }).click()
+    await expect(open).toBeHidden()
+    await expect(page).not.toHaveURL(/#[^#]*(localcut|localdesign|cyobot|vulcan|pangea|kalibr)/)
+  }
+  await page
+    .getByRole('region', { name: 'Work', exact: true })
+    .getByRole('link', { name: `View project: ${project.name}`, exact: true })
+    .click()
+  const dialog = page.getByRole('dialog', { name: project.name, exact: true })
+  await expect(dialog).toBeVisible()
+  return dialog
 }
