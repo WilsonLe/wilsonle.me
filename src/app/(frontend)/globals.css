@@ -820,16 +820,23 @@
   .descent-contact::after {
     height: var(--contact-floor-gap, 24px);
   }
+  .descent-contact h2 {
+    padding-inline: 7px;
+  }
+  .descent-contact :focus-visible {
+    outline-offset: -2px;
+  }
   .descent-contact-links {
     display: grid;
-    grid-template-columns: minmax(max-content, 1fr) minmax(max-content, 1fr) minmax(0, 1.5fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
     margin-top: 12px;
   }
   .descent-contact-links a {
     min-height: 44px;
-    gap: 7px;
-    padding: 7px 12px;
+    gap: 3px;
+    padding: 7px 6px;
+    font-size: 13px;
     line-height: 1.3;
   }
   .descent-contact-links a > span {
@@ -1111,8 +1118,8 @@
     gap: 6px;
   }
   .descent-contact-links a {
-    gap: 5px;
-    padding-inline: 7px;
+    gap: 4px;
+    padding-inline: 6px;
     font-size: 12px;
   }
   .descent-world-footer {
@@ -1184,6 +1191,9 @@
 @media (max-width: 339px) {
   .descent-guide-layout {
     gap: 10px;
+  }
+  .descent-contact-links a > span {
+    display: none;
   }
 }
 @media (max-width: 339px), (max-width: 699px) and (orientation: landscape) and (max-height: 500px) {
