@@ -50,4 +50,11 @@ test('the city animates at rest and freezes its current scenery with reduced mot
   expect(underground).not.toBe(active)
   await page.clock.runFor(1100)
   expect(await scenery()).toBe(underground)
+  await scroller.evaluate((element, top) => (element.scrollTop = top), scroll)
+  await page.clock.runFor(250)
+  expect(await scenery()).toBe(active)
+
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.clock.runFor(1100)
+  expect(await scenery()).not.toBe(active)
 })
