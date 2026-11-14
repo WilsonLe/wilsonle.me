@@ -1,3 +1,4 @@
+import { getContactLinks } from '@/content/contact'
 import type { SiteSettings } from '@/content/types'
 
 interface ContactSectionProps {
@@ -5,40 +6,6 @@ interface ContactSectionProps {
 }
 
 export function ContactSection({ siteSettings }: ContactSectionProps) {
-  const contactLinks = [
-    {
-      id: 'email',
-      href: siteSettings.email ? `mailto:${siteSettings.email}` : undefined,
-      label: siteSettings.contact.emailLabel,
-      value: siteSettings.email,
-      external: false,
-    },
-    {
-      id: 'booking',
-      href: siteSettings.contact.booking.url,
-      label: siteSettings.contact.booking.label,
-      value: siteSettings.contact.booking.text,
-      external: true,
-    },
-    {
-      id: 'github',
-      href: siteSettings.social?.github,
-      label: siteSettings.socialLabels.github,
-      value: siteSettings.socialLabels.github,
-      external: true,
-    },
-    {
-      id: 'linkedin',
-      href: siteSettings.social?.linkedin,
-      label: siteSettings.socialLabels.linkedin,
-      value: siteSettings.socialLabels.linkedin,
-      external: true,
-    },
-  ].filter(
-    (link): link is { id: string; href: string; label: string; value: string; external: boolean } =>
-      Boolean(link.href && link.value),
-  )
-
   return (
     <section
       id="contact"
@@ -56,18 +23,18 @@ export function ContactSection({ siteSettings }: ContactSectionProps) {
         </div>
 
         <ul className="border-t border-ink">
-          {contactLinks.map((link) => (
+          {getContactLinks(siteSettings).map((link) => (
             <li key={link.id} className="border-b border-ink">
               <a
                 href={link.href}
-                target={link.external ? '_blank' : undefined}
-                rel={link.external ? 'noopener noreferrer' : undefined}
+                target="_blank"
+                rel="noreferrer"
                 className="group grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-3 py-4 transition-colors hover:bg-ink hover:text-signal sm:grid-cols-[5.5rem_minmax(0,1fr)_auto]"
               >
                 <span className="font-label col-span-2 text-[0.65rem] font-bold uppercase tracking-[0.12em] opacity-80 sm:col-span-1">
                   {link.label}
                 </span>
-                <span className="min-w-0 break-words text-sm sm:text-base">{link.value}</span>
+                <span className="min-w-0 break-words text-sm sm:text-base">{link.text}</span>
                 <span aria-hidden="true">↗</span>
               </a>
             </li>

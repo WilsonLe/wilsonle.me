@@ -575,6 +575,55 @@ test('E opens a nearby billboard only and restores focus after Escape', async ({
   await expect(prompt).toBeFocused()
 })
 
+test('walking along the reactor floor lets E open each Contact link', async ({ page }) => {
+  const destinations = [
+    ['GitHub', 'https://github.com/WilsonLe'],
+    ['LinkedIn', 'https://linkedin.com/in/wilsonle02'],
+    ['Book a 30-minute call', 'https://calendly.com/wilson-lyratechnologies/30min'],
+  ] as const
+  for (const [, url] of destinations) {
+    await page.context().route(url, (route) => route.fulfill({ body: 'Contact destination' }))
+  }
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/#contact')
+  const contact = page.getByRole('region', { name: 'Contact', exact: true })
+  await expect(contact.getByRole('heading')).toBeFocused()
+  await expect(page.getByRole('link', { name: 'GitHub (E)', exact: true })).toBeVisible()
+  await expect(contact.getByRole('link')).toHaveCount(3)
+  await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0)
+  const city = page.locator('.descent-page')
+  const startY = await city.getAttribute('data-player-y')
+
+  for (const [index, [name, url]] of destinations.entries()) {
+    const prompt = page.getByRole('link', { name: name + ' (E)', exact: true })
+    if (index > 0) {
+      await page.keyboard.down('ArrowRight')
+      try {
+        await expect(prompt).toBeVisible()
+      } finally {
+        await page.keyboard.up('ArrowRight')
+      }
+    }
+    await expect(prompt).toBeVisible()
+    await expect(city).toHaveAttribute('data-player-y', startY!)
+    const [popup] = await Promise.all([page.waitForEvent('popup'), page.keyboard.press('e')])
+    await popup.waitForURL(url)
+    await popup.close()
+  }
+
+  await page.keyboard.down('ArrowRight')
+  try {
+    await expect(page.locator('.descent-interact')).toBeHidden()
+  } finally {
+    await page.keyboard.up('ArrowRight')
+  }
+  // A focused link still accepts the shortcut when the character is elsewhere.
+  await contact.getByRole('link', { name: 'GitHub', exact: true }).focus()
+  const [popup] = await Promise.all([page.waitForEvent('popup'), page.keyboard.press('e')])
+  await popup.waitForURL(destinations[0][1])
+  await popup.close()
+})
+
 test('uses the keyboard to jump and activate the jetpack', async ({ page }) => {
   await page.goto('/')
   const city = page.locator('.descent-page')
@@ -697,8 +746,11 @@ test('keeps keyboard scrolling available from focused portfolio links', async ({
   await page.goto('/#contact')
   await expect(page.getByRole('heading', { name: 'Contact', exact: true })).toBeFocused()
   await page.keyboard.press('Tab')
+  await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toBeFocused()
   await page.keyboard.press('Tab')
-  const booking = page.getByRole('link', { name: 'Book a 30-minute call' })
+  await expect(page.getByRole('link', { name: 'LinkedIn', exact: true })).toBeFocused()
+  await page.keyboard.press('Tab')
+  const booking = page.getByRole('link', { name: 'Book a 30-minute call', exact: true })
   await expect(booking).toBeFocused()
   const city = page.locator('.descent-page')
   const playerY = await city.getAttribute('data-player-y')
@@ -902,9 +954,21 @@ test('keeps work, technologies and contact available without JavaScript', async 
       'href',
       '/wilson-le-resume.pdf',
     )
-    await expect(
-      page.getByRole('region', { name: 'Get In Touch' }).getByRole('link', { name: /^Email/ }),
-    ).toHaveAttribute('href', /^mailto:/)
+    const contact = page.getByRole('region', { name: 'Get In Touch' })
+    await expect(contact.getByRole('link')).toHaveCount(3)
+    await expect(contact.getByRole('link', { name: /GitHub/ })).toHaveAttribute(
+      'href',
+      'https://github.com/WilsonLe',
+    )
+    await expect(contact.getByRole('link', { name: /LinkedIn/ })).toHaveAttribute(
+      'href',
+      'https://linkedin.com/in/wilsonle02',
+    )
+    await expect(contact.getByRole('link', { name: /Book a 30-minute call/ })).toHaveAttribute(
+      'href',
+      'https://calendly.com/wilson-lyratechnologies/30min',
+    )
+    await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0)
   } finally {
     await context.close()
   }

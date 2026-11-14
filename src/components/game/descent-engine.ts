@@ -11,6 +11,7 @@ const PLATFORM_OVERLAP_INSET = 3
 
 export type CityLayout = {
   height: number
+  floor?: number
   ceiling: number
   roof: number
   streets: number
@@ -18,7 +19,6 @@ export type CityLayout = {
   sewers: number
   reactor: number
   workAwning?: Platform
-  contactLedge?: Platform
   skillsBillboard?: Billboard
   billboards: Billboard[]
 }
@@ -65,7 +65,7 @@ export const INITIAL_CITY: CityLayout = {
 }
 
 export function floorY(layout: CityLayout) {
-  return layout.height - 32
+  return layout.floor ?? layout.height - 32
 }
 
 export function billboardFloorY(bottom: number) {
@@ -107,7 +107,6 @@ function cityPlatforms(width: number, layout: CityLayout): Platform[] {
         }))),
     ...billboardFloors(width, layout),
     ...(layout.workAwning ? [layout.workAwning] : []),
-    ...(layout.contactLedge ? [layout.contactLedge] : []),
     { x: 0, y: floorY(layout), width },
   ].sort((first, second) => first.y - second.y)
 }
@@ -198,12 +197,15 @@ export function zoneAt(layout: CityLayout, y: number): Zone {
   return 'skyline'
 }
 
-export function nearbyBillboard(state: GameState): string | undefined {
+export function nearbyBillboard(
+  state: GameState,
+  targets = state.layout.billboards,
+): string | undefined {
   const x = state.player.x + PLAYER_WIDTH / 2
   const y = state.player.y + PLAYER_HEIGHT / 2
   let nearest: string | undefined
   let closest = 64 ** 2
-  for (const board of state.layout.billboards) {
+  for (const board of targets) {
     const dx = horizontalDistance(board, x)
     const dy = Math.max(board.y - y, 0, y - board.y - board.height)
     const distance = dx ** 2 + dy ** 2

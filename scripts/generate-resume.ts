@@ -23,7 +23,7 @@ const date = (value: string) =>
     timeZone: 'UTC',
   })
 
-const contact = [siteSettings.location, siteSettings.email, siteSettings.phone]
+const contact = [siteSettings.location, siteSettings.phone]
   .filter((value): value is string => Boolean(value))
   .map(escapeHtml)
   .join(' · ')

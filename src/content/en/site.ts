@@ -5,7 +5,6 @@ export const siteSettings: SiteSettings = {
   title: 'Forward Deployed Engineer at Lyra',
   tagline: 'I build software systems',
   location: 'Brisbane, Queensland',
-  email: 'minhle02.work@gmail.com',
   phone: '+61 452-685-096',
   resumeUrl: '/wilson-le-resume.pdf',
   social: {
@@ -34,7 +33,6 @@ export const siteSettings: SiteSettings = {
   },
   contact: {
     heading: 'Get In Touch',
-    emailLabel: 'Email',
     booking: {
       url: 'https://calendly.com/wilson-lyratechnologies/30min',
       label: 'Booking',

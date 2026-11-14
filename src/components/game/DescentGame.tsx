@@ -11,6 +11,7 @@ import {
 } from 'react'
 import Image from 'next/image'
 import { TechStackCarousel } from '@/components/TechStackCarousel'
+import { getContactLinks } from '@/content/contact'
 import type { HomeContent } from '@/content/types'
 import type { DescentCopy } from '@/content/en/descent'
 import { works, type Work } from '@/content/work'
@@ -25,6 +26,7 @@ import {
   zoneAt,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
+  type Billboard,
   type CityLayout,
   type Platform,
   type SoundEvent,
@@ -213,12 +215,16 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     const bulkhead = world.querySelector<HTMLElement>('[data-crossing="reactor"]')
     if (!deck || !station || !drains || !bulkhead) return
     const crossings = { streets: deck, transit: station, sewers: drains, reactor: bulkhead }
+    const contactAnchors = Array.from(
+      contact.querySelectorAll<HTMLAnchorElement>('a[data-contact-id]'),
+    )
     const ctx = canvas.getContext('2d', { alpha: false })
     const foregroundCtx = foreground.getContext('2d')
     setPlaying(Boolean(ctx && foregroundCtx))
 
     const state = createGame(1200)
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const touch = window.matchMedia('(pointer: coarse)')
     let scale = 1
     let viewHeight = 800
     let viewportWidth = 0
@@ -236,6 +242,8 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     let visibility = 1
     let showTouchPad = false
     let workLedge: Platform | undefined
+    let contactFloor: Platform | undefined
+    let interactionTargets: Billboard[] = []
     let crossingTops: CrossingTops | undefined
     let travel: {
       destination: Destination
@@ -255,7 +263,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       state.player.y + PLAYER_HEIGHT - state.camera <= viewHeight
     const inspectable = () =>
       ctx && foregroundCtx && !travel && state.started && playerVisible()
-        ? nearbyBillboard(state)
+        ? nearbyBillboard(state, interactionTargets)
         : undefined
     const positionPrompt = () => {
       const nearby = inspectable()
@@ -271,12 +279,16 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         ((Math.round(state.player.y - state.camera) + PLAYER_HEIGHT / 2) * viewportHeight) /
         Math.ceil(viewHeight)
       const besidePlayer = centerX + (centerX < viewportWidth / 2 ? 96 : -96)
-      const aboveTouchPad = showTouchPad && centerY > viewportHeight - 132
+      const contactPrompt = contactAnchors.some((anchor) => anchor.dataset.contactId === nearby)
+      const promptY = centerY + (contactPrompt ? 12 : 0)
+      const inset = contactPrompt ? 110 : 78
+      const aboveTouchPad =
+        showTouchPad && (viewportWidth < 700 || touch.matches) && promptY > viewportHeight - 132
       const x = Math.max(
-        78,
-        Math.min(viewportWidth - 78, aboveTouchPad ? Math.max(208, besidePlayer) : besidePlayer),
+        inset,
+        Math.min(viewportWidth - inset, aboveTouchPad ? Math.max(208, besidePlayer) : besidePlayer),
       )
-      const y = Math.max(90, Math.min(viewportHeight - 26, centerY))
+      const y = Math.max(90, Math.min(viewportHeight - 26, promptY))
       const transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`
       if (transform !== promptTransform.current) {
         promptTransform.current = transform
@@ -319,17 +331,23 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         (Math.max(hero.getBoundingClientRect().bottom - 10, guideBottom + (compact ? 50 : 76)) -
           bounds.top) /
         scale
-      const boards = Array.from(work.querySelectorAll<HTMLElement>('[data-project-id]'))
-      const [skillsBillboard, ...billboards] = [skills, ...boards].map((element) => {
+      const measure = (element: HTMLElement, id: string): Billboard => {
         const rect = element.getBoundingClientRect()
         return {
-          id: element.dataset.projectId ?? element.id,
+          id,
           x: (rect.left - bounds.left) / scale,
-          y: (rect.top - bounds.top) / scale,
+          y: worldY(rect.top),
           width: rect.width / scale,
           height: rect.height / scale,
         }
-      })
+      }
+      const boards = Array.from(work.querySelectorAll<HTMLElement>('[data-project-id]'))
+      const skillsBillboard = measure(skills, skills.id)
+      const billboards = boards.map((element) => measure(element, element.dataset.projectId!))
+      const contactTargets = contactAnchors.map((anchor) =>
+        measure(anchor, anchor.dataset.contactId!),
+      )
+      interactionTargets = [...billboards, ...contactTargets]
       const tops = {} as CrossingTops
       const districtStarts = {} as CrossingTops
       for (const zone of CROSSINGS) {
@@ -338,16 +356,14 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         districtStarts[zone] = Math.round(worldY(rect.bottom))
       }
       crossingTops = tops
-      const contactBounds = contact.getBoundingClientRect()
-      const contactHasSide = bounds.right - contactBounds.right >= viewportWidth * 0.24
-      const contactLedge = {
-        x: contactHasSide
-          ? Math.max(width * 0.69, (contactBounds.right - bounds.left + 24) / scale)
-          : width * 0.71,
-        y: contactHasSide
-          ? y(contact) + Math.min(136, viewportHeight * 0.35) / scale
-          : (contactBounds.bottom - bounds.top + 44) / scale,
-        width: width * 0.2,
+      const floorGap = Math.max(16, (PLAYER_HEIGHT - 10) * scale)
+      const floor = worldY(contact.getBoundingClientRect().bottom + floorGap)
+      contact.style.setProperty('--contact-floor-gap', `${floorGap}px`)
+      const firstContact = contactTargets[0]
+      contactFloor = {
+        x: firstContact?.x ?? width * 0.1,
+        y: floor,
+        width: firstContact?.width ?? 0,
       }
       const first = billboards[0]
       const firstLedge = first && {
@@ -362,11 +378,11 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       workLedge = workAwning ?? firstLedge
       const layout: CityLayout = {
         height: bounds.height / scale,
+        floor,
         ceiling: (headerHeight + 10) / scale,
         roof,
         ...districtStarts,
         workAwning,
-        contactLedge,
         skillsBillboard,
         billboards,
       }
@@ -394,7 +410,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     const sections = { top: hero, work, contact, skills }
     const arrivalLedge = (destination: Destination) => {
       if (destination === 'work') return workLedge
-      if (destination === 'contact') return state.layout.contactLedge
+      if (destination === 'contact') return contactFloor
     }
     const targetScroll = (destination: Destination) => {
       if (destination === 'top') return 0
@@ -402,7 +418,9 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         sections[destination].getBoundingClientRect().top - scroller.getBoundingClientRect().top
       const anchor = scroller.scrollTop + offset - headerHeight - 24
       const feet = arrivalLedge(destination)?.y
-      const showLanding = feet === undefined ? 0 : feet * scale - viewportHeight + 27
+      const landingInset =
+        destination === 'contact' && (viewportWidth < 700 || touch.matches) ? 130 : 27
+      const showLanding = feet === undefined ? 0 : feet * scale - viewportHeight + landingInset
       const rooftop = (state.layout.roof - PLAYER_HEIGHT) * scale - headerHeight - 8
       const target =
         destination === 'skills' ? Math.min(anchor, rooftop) : Math.max(anchor, showLanding)
@@ -530,11 +548,26 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
           press(event.code, direction, event.timeStamp)
         }
       } else if (!inSkills && event.code === 'KeyE' && !event.repeat) {
+        if (
+          target instanceof HTMLAnchorElement &&
+          (contactAnchors.includes(target) ||
+            (target === promptRef.current && target.hasAttribute('data-contact-prompt')))
+        ) {
+          event.preventDefault()
+          target.click()
+          return
+        }
         const id = inspectable()
         if (id) {
           event.preventDefault()
-          const work = works.find((item) => item.projectId === id)
-          showProject(id, work, promptRef.current)
+          const contactLink = contactAnchors.find((anchor) => anchor.dataset.contactId === id)
+          if (contactLink) contactLink.click()
+          else
+            showProject(
+              id,
+              works.find((item) => item.projectId === id),
+              promptRef.current,
+            )
         }
       }
     }
@@ -797,10 +830,21 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
 
   const project = content.projects.items.find((item) => item.id === selected)
   const showcase = works.find((item) => item.projectId === selected)
-  const nearby = content.projects.items.find((item) => item.id === nearbyId)
-  const nearbyName =
-    nearby && (works.find((item) => item.projectId === nearby.id)?.name || nearby.name)
-  const nearbyWork = nearby && works.find((item) => item.projectId === nearby.id)
+  const contactLinks = getContactLinks(content.siteSettings)
+  const nearbyContact = contactLinks.find((link) => link.id === nearbyId)
+  const nearbyProject = content.projects.items.find((item) => item.id === nearbyId)
+  const nearbyWork = nearbyProject && works.find((item) => item.projectId === nearbyProject.id)
+  const action = nearbyProject
+    ? {
+        href: '#' + (nearbyWork?.slug || nearbyProject.id),
+        text: copy.viewProject,
+        label: copy.viewProject + ': ' + (nearbyWork?.name || nearbyProject.name) + ' (E)',
+      }
+    : nearbyContact && {
+        href: nearbyContact.href,
+        text: nearbyContact.text,
+        label: nearbyContact.text + ' (E)',
+      }
   const projectsPerDistrict = Math.ceil(content.projects.items.length / WORK_DISTRICTS.length)
   const billboards = content.projects.items.map((item) => {
     const work = works.find((entry) => entry.projectId === item.id)
@@ -810,7 +854,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       <article
         key={item.id}
         data-project-id={item.id}
-        data-approached={nearby?.id === item.id}
+        data-approached={nearbyId === item.id}
         className="descent-project descent-billboard"
       >
         <div className="descent-billboard-lights" aria-hidden="true">
@@ -844,7 +888,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       data-ready={ready}
       data-started={snapshot.started}
       data-zone={snapshot.zone}
-      data-nearby={nearby?.id}
+      data-nearby={nearbyId}
       data-jetpack={snapshot.jetpack}
       data-player-x={snapshot.x}
       data-player-y={snapshot.y}
@@ -997,34 +1041,33 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
           <section
             ref={contactRef}
             id="descent-contact"
-            className="descent-contact descent-sign"
+            className="descent-contact descent-billboard"
             aria-labelledby="descent-contact-title"
           >
+            <div className="descent-billboard-lights" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </div>
             <h2 id="descent-contact-title" tabIndex={-1}>
               {content.siteSettings.navigation.contact}
             </h2>
-            <a className="descent-email" href={'mailto:' + content.siteSettings.email}>
-              {content.siteSettings.email}
-              <span aria-hidden="true">↗</span>
-            </a>
-            <a
-              className="descent-outline-link"
-              href={content.siteSettings.contact.booking.url}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {content.siteSettings.contact.booking.text}
-              <span aria-hidden="true">↗</span>
-            </a>
-            <div className="descent-socials">
-              <a href={content.siteSettings.social?.github} target="_blank" rel="noreferrer">
-                {content.siteSettings.socialLabels.github}
-                <span aria-hidden="true">↗</span>
-              </a>
-              <a href={content.siteSettings.social?.linkedin} target="_blank" rel="noreferrer">
-                {content.siteSettings.socialLabels.linkedin}
-                <span aria-hidden="true">↗</span>
-              </a>
+            <div className="descent-contact-links">
+              {contactLinks.map((link) => (
+                <a
+                  key={link.id}
+                  className="descent-outline-link"
+                  data-contact-id={link.id}
+                  data-approached={nearbyId === link.id}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-keyshortcuts="E"
+                >
+                  {link.text}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              ))}
             </div>
           </section>
 
@@ -1045,18 +1088,24 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         </div>
       </div>
 
-      {nearby && (
+      {action && (
         <a
+          key={nearbyContact ? 'contact' : 'project'}
           ref={mountPrompt}
-          href={'#' + (nearbyWork?.slug || nearby.id)}
+          href={action.href}
           className="descent-interact"
-          aria-haspopup="dialog"
-          aria-label={copy.viewProject + ': ' + nearbyName + ' (E)'}
+          data-contact-prompt={nearbyContact ? '' : undefined}
+          target={nearbyContact ? '_blank' : undefined}
+          rel={nearbyContact ? 'noreferrer' : undefined}
+          aria-haspopup={nearbyProject ? 'dialog' : undefined}
+          aria-label={action.label}
           aria-keyshortcuts="E"
-          onClick={(event) => openProject(event, nearby.id, nearbyWork)}
+          onClick={
+            nearbyProject ? (event) => openProject(event, nearbyProject.id, nearbyWork) : undefined
+          }
         >
           <kbd aria-hidden="true">E</kbd>
-          <span>{copy.viewProject}</span>
+          <span>{action.text}</span>
           <span aria-hidden="true">↗</span>
         </a>
       )}
