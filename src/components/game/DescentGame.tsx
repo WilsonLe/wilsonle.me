@@ -320,10 +320,10 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
           bounds.top) /
         scale
       const boards = Array.from(work.querySelectorAll<HTMLElement>('[data-project-id]'))
-      const billboards = boards.map((element) => {
+      const [skillsBillboard, ...billboards] = [skills, ...boards].map((element) => {
         const rect = element.getBoundingClientRect()
         return {
-          id: element.dataset.projectId!,
+          id: element.dataset.projectId ?? element.id,
           x: (rect.left - bounds.left) / scale,
           y: (rect.top - bounds.top) / scale,
           width: rect.width / scale,
@@ -367,7 +367,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         ...districtStarts,
         workAwning,
         contactLedge,
-        skillsBottom: worldY(skills.getBoundingClientRect().bottom),
+        skillsBillboard,
         billboards,
       }
       fitCity(state, width, layout)

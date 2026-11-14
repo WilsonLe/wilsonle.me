@@ -175,7 +175,7 @@ test('a fall through an opening lands on the next billboard floor at the same x'
   for (const width of [600, 1200]) {
     const layout = {
       ...INITIAL_CITY,
-      skillsBottom: 750,
+      skillsBillboard: { id: 'skills', x: 50, y: 620, width: 500, height: 130 },
       billboards: [
         { id: 'first', x: 60, y: 880, width: 210, height: 160 },
         { id: 'second', x: 300, y: 880, width: 210, height: 180 },
@@ -201,6 +201,47 @@ test('a fall through an opening lands on the next billboard floor at the same x'
       assert.equal(state.player.grounded, true)
     }
   }
+})
+
+test('resizing keeps a grounded player on their billboard floor when rows reflow', () => {
+  const stacked = {
+    ...INITIAL_CITY,
+    skillsBillboard: { id: 'skills', x: 40, y: 600, width: 500, height: 200 },
+    billboards: [
+      { id: 'first', x: 40, y: 900, width: 500, height: 200 },
+      { id: 'second', x: 40, y: 1200, width: 500, height: 200 },
+    ],
+  }
+  const sideBySide = {
+    ...INITIAL_CITY,
+    skillsBillboard: { id: 'skills', x: 60, y: 490, width: 680, height: 150 },
+    billboards: [
+      { id: 'first', x: 60, y: 780, width: 300, height: 160 },
+      { id: 'second', x: 390, y: 780, width: 300, height: 160 },
+    ],
+  }
+  const state = createGame(600, stacked)
+  state.started = true
+  landPlayer(state, 500, 850)
+  fitCity(state, 600, { ...stacked, skillsBillboard: { ...stacked.skillsBillboard, height: 120 } })
+  tick(state, {}, 300)
+  assert.equal(state.player.y, 726)
+
+  landPlayer(state, 390, 1450)
+  assert.equal(nearbyBillboard(state), 'second')
+  fitCity(state, 1200, sideBySide)
+  tick(state, {}, 300)
+  assert.equal(state.player.y, 946, 'the new opening should not swallow the player')
+  assert.equal(state.player.grounded, true)
+  tick(state, { right: true }, 8)
+  tick(state, {}, 300)
+  assert.equal(state.player.y, floorY(sideBySide) - PLAYER_HEIGHT)
+
+  landPlayer(state, 580, 990)
+  fitCity(state, 600, stacked)
+  tick(state, {}, 300)
+  assert.equal(state.player.y, 1406)
+  assert.equal(nearbyBillboard(state), 'second')
 })
 
 test('all five districts follow the measured layout after a viewport change', () => {

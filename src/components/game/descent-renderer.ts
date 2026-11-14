@@ -570,7 +570,7 @@ function platform(ctx: Canvas, p: Platform, light: string) {
   for (let x = p.x + 11; x < p.x + p.width - 12; x += 23) {
     block(ctx, x, p.y + 11, 7, 2, '#0d1a24')
   }
-  if (p.billboardFloor) {
+  if (p.billboards) {
     block(ctx, p.x === 0 ? p.width - 4 : p.x, p.y, 4, 17, light)
   } else if (p.width < 600) {
     block(ctx, p.x + p.width - 27, p.y + 17, 4, 40, '#395565')
