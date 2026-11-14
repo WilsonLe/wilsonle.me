@@ -713,7 +713,9 @@ test('keeps city movement available from the Skills heading', async ({ page }) =
   }
 })
 
-test('keeps Left and Right for Skills tabs and lets Up jump after a click', async ({ page }) => {
+test('hands arrow control back to the city when jumping from a clicked Skills tab', async ({
+  page,
+}) => {
   await installPausedClock(page)
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/#skills')
@@ -729,6 +731,13 @@ test('keeps Left and Right for Skills tabs and lets Up jump after a click', asyn
   await page.keyboard.press('ArrowUp')
   await page.clock.runFor(180)
   expect(await playerY()).toBeLessThan(initialY - 15)
+
+  const playerX = async () => Number(await city.getAttribute('data-player-x'))
+  const initialX = await playerX()
+  await page.keyboard.down('ArrowRight')
+  await page.clock.runFor(160)
+  await page.keyboard.up('ArrowRight')
+  expect(await playerX()).toBeGreaterThan(initialX + 15)
 })
 
 test('supports touch movement, a held jetpack and a tap-to-open billboard', async ({ browser }) => {

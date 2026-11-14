@@ -517,7 +517,11 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
           return
         }
         event.preventDefault()
-        if (!event.repeat) press(event.code, direction, event.timeStamp)
+        if (!event.repeat && !travel) {
+          // Once movement starts, horizontal arrows should no longer browse the Skills tabs.
+          if (inSkills) scroller.focus({ preventScroll: true })
+          press(event.code, direction, event.timeStamp)
+        }
       } else if (!inSkills && event.code === 'KeyE' && !event.repeat) {
         const id = inspectable()
         if (id) {
