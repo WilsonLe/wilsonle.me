@@ -17,7 +17,8 @@ then open <http://127.0.0.1:3117>. Use the local environment described below.
 
 Use WASD or the arrow keys to move. Press Space, Up, or W to jump. Double-tap a
 jump key and hold the second press to fly with the jetpack. Down or S drops
-through ledges. On a touchscreen, tap or hold the on-screen controls to move,
+through small ledges. Walk into the alternating floor openings to descend past
+the billboards. On a touchscreen, tap or hold the on-screen controls to move,
 or swipe to scroll through the portfolio. Double-tap the up control and hold
 the second tap to fly.
 

@@ -1,11 +1,12 @@
 import { strict as assert } from 'node:assert'
 import { test } from 'node:test'
 import {
-  billboardLedgeY,
+  billboardFloorY,
   createGame,
   fitCity,
   floorY,
   INITIAL_CITY,
+  landPlayer,
   nearbyBillboard,
   PLAYER_HEIGHT,
   stepGame,
@@ -145,7 +146,7 @@ test('a touch tap moves for a short step and releases without sticking', () => {
   assert.equal(input.next(240).left, false)
 })
 
-test('a billboard ledge is safe to stand on and selects the nearest project', () => {
+test('a billboard floor selects the nearest project and holds through repeated Down presses', () => {
   const layout = {
     ...INITIAL_CITY,
     billboards: [
@@ -158,12 +159,48 @@ test('a billboard ledge is safe to stand on and selects the nearest project', ()
   state.started = true
   state.player.x = 324
   tick(state, {}, 200)
-  assert.equal(state.player.y, billboardLedgeY(layout.billboards[1]) - PLAYER_HEIGHT)
+  const second = layout.billboards[1]
+  const landing = billboardFloorY(second.y + second.height) - PLAYER_HEIGHT
+  assert.equal(state.player.y, landing)
   assert.equal(nearbyBillboard(state), 'second')
-  tick(state, { drop: true })
-  tick(state, {}, 500)
-  assert.equal(state.player.y, floorY(layout) - PLAYER_HEIGHT)
-  assert.equal(nearbyBillboard(state), undefined)
+  for (let press = 0; press < 3; press++) {
+    tick(state, { drop: true })
+    tick(state, {}, 40)
+    assert.equal(state.player.y, landing)
+    assert.equal(state.player.grounded, true)
+  }
+})
+
+test('a fall through an opening lands on the next billboard floor at the same x', () => {
+  for (const width of [600, 1200]) {
+    const layout = {
+      ...INITIAL_CITY,
+      skillsBottom: 750,
+      billboards: [
+        { id: 'first', x: 60, y: 880, width: 210, height: 160 },
+        { id: 'second', x: 300, y: 880, width: 210, height: 180 },
+        { id: 'third', x: 60, y: 1330, width: 210, height: 160 },
+      ],
+    }
+    const state = createGame(width, layout)
+    state.started = true
+    landPlayer(state, width * 0.96, layout.roof)
+    tick(state, {}, 400)
+    assert.equal(state.player.y, 756, 'the Skills floor catches a fall at the side')
+
+    for (const [opening, landing] of [
+      [0.2, 1066],
+      [0.65, 1496],
+      [0.2, floorY(layout) - PLAYER_HEIGHT],
+    ]) {
+      landPlayer(state, width * opening, state.player.y + PLAYER_HEIGHT)
+      const x = state.player.x
+      tick(state, {}, 400)
+      assert.equal(state.player.x, x)
+      assert.equal(state.player.y, landing)
+      assert.equal(state.player.grounded, true)
+    }
+  }
 })
 
 test('all five districts follow the measured layout after a viewport change', () => {

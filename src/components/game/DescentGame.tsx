@@ -16,7 +16,7 @@ import type { DescentCopy } from '@/content/en/descent'
 import { works, type Work } from '@/content/work'
 import { DescentProjectDetails, projectScreenId } from '@/components/game/DescentProjectDetails'
 import {
-  billboardLedgeY,
+  billboardFloorY,
   createGame,
   fitCity,
   landPlayer,
@@ -63,7 +63,7 @@ const WORK_DISTRICTS = ['streets', 'transit', 'sewers'] as const
 const DIRECTIONS = [
   ['up', '↑', 'W', 'Jump or activate jetpack'],
   ['left', '←', 'A', 'Move left'],
-  ['down', '↓', 'S', 'Drop through platform'],
+  ['down', '↓', 'S', 'Drop through ledges'],
   ['right', '→', 'D', 'Move right'],
 ] as const
 
@@ -189,6 +189,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     const world = worldRef.current
     const hero = heroRef.current
     const guide = guideRef.current
+    const guidePad = guide?.querySelector('.descent-guide-pad')
     const work = workRef.current
     const contact = contactRef.current
     const skills = skillsRef.current
@@ -200,6 +201,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       !world ||
       !hero ||
       !guide ||
+      !guidePad ||
       !work ||
       !contact ||
       !skills
@@ -222,7 +224,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     let viewportWidth = 0
     let viewportHeight = 0
     let headerHeight = 0
-    let guideBottomY = 0
+    let guidePadY = 0
     let following = false
     let scrollTop = scroller.scrollTop
     let paintedCamera = -1
@@ -312,7 +314,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       const worldY = (edge: number) => (edge - bounds.top) / scale
       const y = (element: HTMLElement) => worldY(element.getBoundingClientRect().top)
       const guideBottom = guide.getBoundingClientRect().bottom
-      guideBottomY = guideBottom - bounds.top
+      guidePadY = guidePad.getBoundingClientRect().top - bounds.top
       const roof =
         (Math.max(hero.getBoundingClientRect().bottom - 10, guideBottom + (compact ? 50 : 76)) -
           bounds.top) /
@@ -348,7 +350,11 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         width: width * 0.2,
       }
       const first = billboards[0]
-      const firstLedge = first && { x: first.x, y: billboardLedgeY(first), width: first.width }
+      const firstLedge = first && {
+        x: first.x,
+        y: billboardFloorY(first.y + first.height),
+        width: first.width,
+      }
       const workAwning =
         firstLedge && (firstLedge.y - y(work)) * scale + headerHeight + 51 > viewportHeight
           ? { ...firstLedge, y: first.y - 9 }
@@ -361,6 +367,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         ...districtStarts,
         workAwning,
         contactLedge,
+        skillsBottom: worldY(skills.getBoundingClientRect().bottom),
         billboards,
       }
       fitCity(state, width, layout)
@@ -514,7 +521,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     const onKeyUp = (event: KeyboardEvent) => controls.release(event.code)
     const clearInput = () => controls.reset()
     const observer = new ResizeObserver(resize)
-    for (const element of [scroller, world, header, hero, guide, work, contact])
+    for (const element of [scroller, world, header, hero, guide, skills, work, contact])
       observer.observe(element)
     resize()
     window.addEventListener('keydown', onKeyDown)
@@ -609,7 +616,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       const audio = audioRef.current
       if (audio) state.events.forEach((event) => playNote(audio, event))
       state.events.length = 0
-      if (scrollTop + headerHeight + 18 >= guideBottomY) showTouchPad = true
+      if (scrollTop + headerHeight + 18 >= guidePadY) showTouchPad = true
       positionPrompt()
       if (now - lastPublish > 65) {
         publish()

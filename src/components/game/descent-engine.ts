@@ -3,7 +3,7 @@ export const PLAYER_HEIGHT = 44
 
 export type Direction = -1 | 1
 export type SoundEvent = 'jump' | 'jetpack'
-export type Platform = { x: number; y: number; width: number }
+export type Platform = { x: number; y: number; width: number; billboardFloor?: boolean }
 export type Billboard = { id: string; x: number; y: number; width: number; height: number }
 export type Zone = 'skyline' | 'streets' | 'transit' | 'sewers' | 'reactor'
 
@@ -17,6 +17,7 @@ export type CityLayout = {
   reactor: number
   workAwning?: Platform
   contactLedge?: Platform
+  skillsBottom?: number
   billboards: Billboard[]
 }
 
@@ -65,8 +66,31 @@ export function floorY(layout: CityLayout) {
   return layout.height - 32
 }
 
-export function billboardLedgeY(board: Billboard) {
-  return board.y + board.height + PLAYER_HEIGHT + 6
+export function billboardFloorY(bottom: number) {
+  return bottom + PLAYER_HEIGHT + 6
+}
+
+function billboardFloors(width: number, layout: CityLayout): Platform[] {
+  const rowBottoms = new Map<number, number>()
+  for (const board of layout.billboards) {
+    rowBottoms.set(board.y, Math.max(rowBottoms.get(board.y) ?? board.y, board.y + board.height))
+  }
+  const bottoms = [...rowBottoms]
+    .sort(([first], [second]) => first - second)
+    .map(([, bottom]) => bottom)
+  if (layout.skillsBottom !== undefined) bottoms.unshift(layout.skillsBottom)
+
+  const gapWidth = 96
+  return bottoms.flatMap((bottom, index) => {
+    const y = billboardFloorY(bottom)
+    // Keep the right opening clear of the side ledges, and off the opening above it.
+    const gapLeft = width * (index % 2 === 0 ? 0.2 : 0.65) - gapWidth / 2
+    const gapRight = gapLeft + gapWidth
+    return [
+      { x: 0, y, width: gapLeft, billboardFloor: true },
+      { x: gapRight, y, width: width - gapRight, billboardFloor: true },
+    ]
+  })
 }
 
 function cityPlatforms(width: number, layout: CityLayout): Platform[] {
@@ -79,11 +103,7 @@ function cityPlatforms(width: number, layout: CityLayout): Platform[] {
           y: y + 148,
           width: width * 0.18,
         }))),
-    ...layout.billboards.map((board) => ({
-      x: Math.max(12, board.x - 12),
-      y: billboardLedgeY(board),
-      width: board.width + 24,
-    })),
+    ...billboardFloors(width, layout),
     ...(layout.workAwning ? [layout.workAwning] : []),
     ...(layout.contactLedge ? [layout.contactLedge] : []),
     { x: 0, y: floorY(layout), width },
@@ -212,9 +232,10 @@ export function stepGame(state: GameState, input: Controls, dt: number, viewHeig
     p.y = state.layout.ceiling
     p.vy = 0
   }
-  if (p.vy >= 0 && state.time >= p.dropUntil) {
+  if (p.vy >= 0) {
     for (const platform of state.platforms) {
       if (
+        (platform.billboardFloor || state.time >= p.dropUntil) &&
         previousFeet <= platform.y + 3 &&
         p.y + PLAYER_HEIGHT >= platform.y &&
         p.x + PLAYER_WIDTH - 3 > platform.x &&
