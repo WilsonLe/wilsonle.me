@@ -28,19 +28,14 @@ import { drawGame, drawForeground } from '@/components/game/descent-renderer'
 type Snapshot = {
   x: number
   y: number
-  hintX: number
-  hintY: number
   started: boolean
   jetpack: boolean
   showTouchPad: boolean
-  nearby?: string
   zone: Zone
 }
 const INITIAL: Snapshot = {
   x: 0,
   y: 0,
-  hintX: 0,
-  hintY: 0,
   started: false,
   jetpack: false,
   showTouchPad: false,
@@ -95,6 +90,14 @@ function KeyLabel({ arrow, letter }: { arrow: string; letter: string }) {
   )
 }
 
+function bindDirectionPad(pad: HTMLDivElement | null) {
+  if (!pad) return
+  // iOS can start text selection on a double tap even when the pointer default is canceled.
+  const cancelControlTouch = (event: TouchEvent) => event.preventDefault()
+  pad.addEventListener('touchstart', cancelControlTouch, { passive: false })
+  return () => pad.removeEventListener('touchstart', cancelControlTouch)
+}
+
 function playNote(context: AudioContext, event: SoundEvent) {
   if (context.state !== 'running') return
   const notes = { jump: [220, 440], jetpack: [196, 294, 440] }
@@ -120,9 +123,11 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
   const worldRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLElement>(null)
   const guideRef = useRef<HTMLElement>(null)
-  const skillsRef = useRef<HTMLDetailsElement>(null)
+  const skillsRef = useRef<HTMLElement>(null)
   const workRef = useRef<HTMLElement>(null)
   const contactRef = useRef<HTMLElement>(null)
+  const promptRef = useRef<HTMLAnchorElement>(null)
+  const promptTransform = useRef('')
   const dialogRef = useRef<HTMLDialogElement>(null)
   const audioRef = useRef<AudioContext | null>(null)
   const selectedRef = useRef<string | null>(null)
@@ -135,11 +140,15 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
   const [controls] = useState(createControls)
   const [ready, setReady] = useState(false)
   const [playing, setPlaying] = useState(false)
-  const [skillsOpen, setSkillsOpen] = useState(false)
   const [sound, setSound] = useState(false)
-  const [arrows, setArrows] = useState(true)
+  const [keys, setKeys] = useState<'touch' | 'arrows' | 'wasd'>('arrows')
+  const [nearbyId, setNearbyId] = useState<string>()
   const [selected, setSelected] = useState<string | null>(null)
   const [snapshot, setSnapshot] = useState(INITIAL)
+  const mountPrompt = useCallback((element: HTMLAnchorElement | null) => {
+    promptRef.current = element
+    if (element) element.style.transform = promptTransform.current
+  }, [])
   const showProject = useCallback(
     (id: string, work: Work | undefined, trigger: HTMLElement | null) => {
       controls.reset()
@@ -190,6 +199,9 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
     let scale = 1
     let viewHeight = 800
+    let viewportWidth = 0
+    let viewportHeight = 0
+    let headerHeight = 0
     let guideBottomY = 0
     let following = false
     let scrollTop = scroller.scrollTop
@@ -210,28 +222,47 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     } | null = null
     let lastPublish = 0
     let lastSnapshot = INITIAL
+    let lastNearby: string | undefined
     const playerVisible = () =>
-      state.player.y - state.camera >= header.offsetHeight / scale &&
+      state.player.y - state.camera >= headerHeight / scale &&
       state.player.y + PLAYER_HEIGHT - state.camera <= viewHeight
     const inspectable = () =>
       ctx && foregroundCtx && !travel && state.started && playerVisible()
         ? nearbyBillboard(state)
         : undefined
-    const publish = () => {
+    const positionPrompt = () => {
       const nearby = inspectable()
-      const centerX = state.player.x + PLAYER_WIDTH / 2
-      const centerY = state.player.y + PLAYER_HEIGHT / 2 - state.camera
-      const besidePlayer = centerX * scale + (centerX < state.width / 2 ? 96 : -96)
-      const aboveTouchPad = showTouchPad && centerY * scale > scroller.clientHeight - 132
+      if (nearby !== lastNearby) {
+        lastNearby = nearby
+        setNearbyId(nearby)
+      }
+      if (!nearby) return
+
+      // Follow the same pixel-snapped coordinates as the foreground canvas.
+      const centerX = Math.round(state.player.x + PLAYER_WIDTH / 2) * scale
+      const centerY =
+        ((Math.round(state.player.y - state.camera) + PLAYER_HEIGHT / 2) * viewportHeight) /
+        Math.ceil(viewHeight)
+      const besidePlayer = centerX + (centerX < viewportWidth / 2 ? 96 : -96)
+      const aboveTouchPad = showTouchPad && centerY > viewportHeight - 132
+      const x = Math.max(
+        78,
+        Math.min(viewportWidth - 78, aboveTouchPad ? Math.max(208, besidePlayer) : besidePlayer),
+      )
+      const y = Math.max(90, Math.min(viewportHeight - 26, centerY))
+      const transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`
+      if (transform !== promptTransform.current) {
+        promptTransform.current = transform
+        if (promptRef.current) promptRef.current.style.transform = transform
+      }
+    }
+    const publish = () => {
       const next: Snapshot = {
         x: Math.round(state.player.x),
         y: Math.round(state.player.y),
-        hintX: nearby ? Math.round(aboveTouchPad ? Math.max(208, besidePlayer) : besidePlayer) : 0,
-        hintY: nearby ? Math.round(centerY * scale) : 0,
         started: state.started,
         jetpack: state.player.jetpack || state.player.exhaustUntil > state.time,
         showTouchPad,
-        nearby,
         zone: zoneAt(state.layout, following ? state.player.y : state.camera + viewHeight * 0.45),
       }
       if (
@@ -244,12 +275,14 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       }
     }
     const resize = () => {
-      const viewportWidth = scroller.clientWidth
-      if (viewportWidth <= 0 || scroller.clientHeight <= 0) return
+      if (scroller.clientWidth <= 0 || scroller.clientHeight <= 0) return
+      viewportWidth = scroller.clientWidth
+      viewportHeight = scroller.clientHeight
+      headerHeight = header.offsetHeight
       const compact = viewportWidth < 700
       const width = compact ? 600 : 1200
       scale = viewportWidth / width
-      viewHeight = scroller.clientHeight / scale
+      viewHeight = viewportHeight / scale
       const bounds = world.getBoundingClientRect()
       const y = (element: HTMLElement) => (element.getBoundingClientRect().top - bounds.top) / scale
       const guideBottom = guide.getBoundingClientRect().bottom
@@ -288,21 +321,20 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
           ? Math.max(width * 0.69, (contactBounds.right - bounds.left + 24) / scale)
           : width * 0.71,
         y: contactHasSide
-          ? y(contact) + Math.min(136, scroller.clientHeight * 0.35) / scale
+          ? y(contact) + Math.min(136, viewportHeight * 0.35) / scale
           : (contactBounds.bottom - bounds.top + 44) / scale,
         width: width * 0.2,
       }
       const first = billboards[0]
       const firstLedge = first && { x: first.x, y: billboardLedgeY(first), width: first.width }
       const workAwning =
-        firstLedge &&
-        (firstLedge.y - y(work)) * scale + header.offsetHeight + 51 > scroller.clientHeight
+        firstLedge && (firstLedge.y - y(work)) * scale + headerHeight + 51 > viewportHeight
           ? { ...firstLedge, y: first.y - 9 }
           : undefined
       workLedge = workAwning ?? firstLedge
       const layout: CityLayout = {
         height: bounds.height / scale,
-        ceiling: (header.offsetHeight + 10) / scale,
+        ceiling: (headerHeight + 10) / scale,
         roof,
         streets,
         transit,
@@ -326,6 +358,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       if (ctx) ctx.imageSmoothingEnabled = false
       if (foregroundCtx) foregroundCtx.imageSmoothingEnabled = false
       paintedCamera = -1
+      positionPrompt()
       publish()
     }
     const writeScroll = (top: number) => {
@@ -335,21 +368,19 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     const sections = { top: hero, work, contact, skills }
     const arrivalLedge = (destination: Destination) => {
       if (destination === 'work') return workLedge
-      if (destination === 'contact' || destination === 'skills') return state.layout.contactLedge
+      if (destination === 'contact') return state.layout.contactLedge
     }
     const targetScroll = (destination: Destination) => {
       if (destination === 'top') return 0
       const offset =
         sections[destination].getBoundingClientRect().top - scroller.getBoundingClientRect().top
+      const anchor = scroller.scrollTop + offset - headerHeight - 24
       const feet = arrivalLedge(destination)?.y
-      const showLanding = feet === undefined ? 0 : feet * scale - scroller.clientHeight + 27
-      return Math.max(
-        0,
-        Math.min(
-          scroller.scrollHeight - scroller.clientHeight,
-          Math.max(scroller.scrollTop + offset - header.offsetHeight - 24, showLanding),
-        ),
-      )
+      const showLanding = feet === undefined ? 0 : feet * scale - viewportHeight + 27
+      const rooftop = (state.layout.roof - PLAYER_HEIGHT) * scale - headerHeight - 8
+      const target =
+        destination === 'skills' ? Math.min(anchor, rooftop) : Math.max(anchor, showLanding)
+      return Math.max(0, Math.min(scroller.scrollHeight - viewportHeight, target))
     }
     const arrive = (destination: Destination) => {
       paintedCamera = -1
@@ -362,17 +393,11 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         landPlayer(state, ledge.x + ledge.width / 2, ledge.y)
         state.started = true
       }
-      sections[destination]
-        .querySelector<HTMLElement>('h1, h2, summary')
-        ?.focus({ preventScroll: true })
+      sections[destination].querySelector<HTMLElement>('h1, h2')?.focus({ preventScroll: true })
     }
     navigateRef.current = (destination) => {
       following = false
       controls.reset()
-      if (destination === 'skills') {
-        skills.open = true
-        setSkillsOpen(true)
-      }
       if (motion.matches) {
         travel = null
         writeScroll(targetScroll(destination))
@@ -395,6 +420,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         }
         scrollTop = source
       }
+      positionPrompt()
       publish()
     }
     const syncLocation = () => {
@@ -421,7 +447,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     const press = (source: string, direction: MoveKey, at: number, touch?: boolean) => {
       if (selectedRef.current || travel) return
       if (!following && !playerVisible()) {
-        const top = state.camera + (header.offsetHeight + 12) / scale
+        const top = state.camera + (headerHeight + 12) / scale
         const bottom = state.camera + viewHeight - 75 / scale
         const ledge = state.platforms.find(
           (platform) => platform.y - PLAYER_HEIGHT >= top && platform.y <= bottom,
@@ -439,7 +465,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       if (selectedRef.current || event.metaKey || event.ctrlKey || event.altKey) return
       if (
         event.target instanceof HTMLElement &&
-        event.target.closest('input, textarea, select, [contenteditable], dialog, .descent-skills')
+        event.target.closest('input, textarea, select, [contenteditable], dialog, .tech-carousel')
       )
         return
       const direction = moveKey(event.code)
@@ -459,7 +485,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         if (id) {
           event.preventDefault()
           const work = works.find((item) => item.projectId === id)
-          showProject(id, work, document.querySelector<HTMLElement>('.descent-interact'))
+          showProject(id, work, promptRef.current)
         }
       }
     }
@@ -474,6 +500,14 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     window.addEventListener('hashchange', syncLocation)
     window.addEventListener('blur', clearInput)
     document.addEventListener('visibilitychange', clearInput)
+
+    // Skills is present on first paint. Finish the jump before visitors can focus its controls.
+    if (fragment() === 'skills') {
+      writeScroll(targetScroll('skills'))
+      state.camera = scrollTop / scale
+      arrive('skills')
+      publish()
+    }
 
     let frame = 0
     let previous = performance.now()
@@ -539,7 +573,8 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       const audio = audioRef.current
       if (audio) state.events.forEach((event) => playNote(audio, event))
       state.events.length = 0
-      if (scrollTop + header.offsetHeight + 18 >= guideBottomY) showTouchPad = true
+      if (scrollTop + headerHeight + 18 >= guideBottomY) showTouchPad = true
+      positionPrompt()
       if (now - lastPublish > 65) {
         publish()
         lastPublish = now
@@ -571,29 +606,33 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       selectedRef.current = work.projectId
       setSelected(work.projectId)
     }
-    if (hash === 'skills' && skillsRef.current) {
-      skillsRef.current.open = true
-      setSkillsOpen(true)
-    }
     const frame = requestAnimationFrame(() => {
-      if (hash === 'work' || hash === 'contact' || hash === 'skills') navigateRef.current?.(hash)
+      if (hash === 'work' || hash === 'contact') navigateRef.current?.(hash)
     })
     return () => cancelAnimationFrame(frame)
   }, [])
 
   useEffect(() => {
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const touchGuide = window.matchMedia('(pointer: coarse), (max-width: 699px)')
     let timer: number
     const update = () => {
       window.clearInterval(timer)
-      setArrows(true)
-      if (!motion.matches) timer = window.setInterval(() => setArrows((value) => !value), 2700)
+      setKeys(touchGuide.matches ? 'touch' : 'arrows')
+      if (!touchGuide.matches && !motion.matches) {
+        timer = window.setInterval(
+          () => setKeys((value) => (value === 'wasd' ? 'arrows' : 'wasd')),
+          2700,
+        )
+      }
     }
     update()
     motion.addEventListener('change', update)
+    touchGuide.addEventListener('change', update)
     return () => {
       window.clearInterval(timer)
       motion.removeEventListener('change', update)
+      touchGuide.removeEventListener('change', update)
     }
   }, [])
 
@@ -660,6 +699,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     controls.release('pointer:' + event.pointerId)
   const directionalButtons = (tutorial = false) => (
     <div
+      ref={bindDirectionPad}
       className={`descent-direction-pad ${tutorial ? 'descent-guide-pad' : 'descent-touch-pad'}`}
       data-visible={tutorial || snapshot.showTouchPad}
       role="group"
@@ -684,7 +724,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
             controls.release('button:' + direction)
           }}
         >
-          {tutorial ? <KeyLabel arrow={arrow} letter={letter} /> : arrow}
+          {tutorial && keys !== 'touch' ? <KeyLabel arrow={arrow} letter={letter} /> : arrow}
         </button>
       ))}
     </div>
@@ -692,7 +732,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
 
   const project = content.projects.items.find((item) => item.id === selected)
   const showcase = works.find((item) => item.projectId === selected)
-  const nearby = content.projects.items.find((item) => item.id === snapshot.nearby)
+  const nearby = content.projects.items.find((item) => item.id === nearbyId)
   const nearbyName =
     nearby && (works.find((item) => item.projectId === nearby.id)?.name || nearby.name)
   const nearbyWork = nearby && works.find((item) => item.projectId === nearby.id)
@@ -792,22 +832,34 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
               aria-label="City controls"
             >
               <h2>{copy.controls}</h2>
-              <div className="descent-guide-layout" data-keys={arrows ? 'arrows' : 'wasd'}>
+              <div className="descent-guide-layout" data-keys={keys === 'wasd' ? 'wasd' : 'arrows'}>
                 {directionalButtons(true)}
                 <p className="descent-guide-shortcut">
-                  <span className="descent-jetpack-keys" role="img" aria-label="Double tap Up or W">
-                    <kbd>
-                      <KeyLabel arrow="↑" letter="W" />
-                    </kbd>
-                    <kbd>
-                      <KeyLabel arrow="↑" letter="W" />
-                    </kbd>
+                  <span
+                    className="descent-jetpack-keys"
+                    role="img"
+                    aria-label={keys === 'touch' ? 'Double tap Up' : 'Double tap Up or W'}
+                  >
+                    <kbd>{keys === 'touch' ? '↑' : <KeyLabel arrow="↑" letter="W" />}</kbd>
+                    <kbd>{keys === 'touch' ? '↑' : <KeyLabel arrow="↑" letter="W" />}</kbd>
                   </span>
                   <span>{copy.jetpack}</span>
                 </p>
               </div>
             </aside>
           </div>
+
+          <section ref={skillsRef} id="skills" className="descent-skills descent-billboard">
+            <div className="descent-billboard-lights" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </div>
+            <h2 id="tech-stack-heading" tabIndex={-1} className="mb-3">
+              {content.hero.stack.heading}
+            </h2>
+            <TechStackCarousel stack={content.hero.stack} />
+          </section>
 
           <section
             ref={workRef}
@@ -858,16 +910,6 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
               })}
             </div>
           </section>
-
-          <details
-            ref={skillsRef}
-            id="skills"
-            className="descent-skills descent-sign"
-            onToggle={(event) => setSkillsOpen(event.currentTarget.open)}
-          >
-            <summary>{content.hero.stack.heading}</summary>
-            {skillsOpen && <TechStackCarousel stack={content.hero.stack} />}
-          </details>
 
           <section
             ref={contactRef}
@@ -922,16 +964,13 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
 
       {nearby && (
         <a
+          ref={mountPrompt}
           href={'#' + (nearbyWork?.slug || nearby.id)}
           className="descent-interact"
           aria-haspopup="dialog"
           aria-label={copy.viewProject + ': ' + nearbyName + ' (E)'}
           aria-keyshortcuts="E"
           onClick={(event) => openProject(event, nearby.id, nearbyWork)}
-          style={{
-            left: `clamp(78px, ${snapshot.hintX}px, calc(100% - 78px))`,
-            top: `clamp(90px, ${snapshot.hintY}px, calc(100% - 26px))`,
-          }}
         >
           <kbd aria-hidden="true">E</kbd>
           <span>{copy.viewProject}</span>

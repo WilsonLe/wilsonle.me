@@ -174,21 +174,13 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
       data-rotating={rotating ? 'true' : 'false'}
       data-browse={browse ? 'true' : undefined}
     >
-      <div className="mb-5 flex items-center justify-between gap-3">
-        <h2
-          id="tech-stack-heading"
-          className="font-label text-xs font-semibold uppercase tracking-[0.12em] text-signal"
-        >
-          {stack.heading}
-        </h2>
-      </div>
-      <div className="order-last mt-5">
+      <div className="order-last mt-3">
         <SectionTabs
           choices={stack.groups.map((group) => ({
             id: group.id,
             label: group.label,
             panelId: 'skills-panel',
-            href: `#skills-fallback-${group.id}`,
+            href: '#skills',
           }))}
           activeId={group.id}
           label={stack.categoriesLabel}
@@ -268,16 +260,16 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
                 {skills.map((skill) => (
                   <li
                     key={skill.name}
-                    className="flex min-h-40 w-36 shrink-0 flex-col items-center justify-center gap-5 border border-rule bg-ink-raised px-3 py-5 text-center text-sm leading-6 text-paper [overflow-wrap:anywhere]"
+                    className="flex min-h-28 w-36 shrink-0 flex-col items-center justify-center gap-3 border border-rule bg-ink-raised px-3 py-3 text-center text-sm leading-5 text-paper [overflow-wrap:anywhere]"
                   >
                     {/* The adjacent name supplies the accessible label; logos are decorative. */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={skill.icon}
-                      width={44}
-                      height={44}
+                      width={36}
+                      height={36}
                       alt=""
-                      className="h-11 w-11 object-contain brightness-0 invert"
+                      className="h-9 w-9 object-contain brightness-0 invert"
                     />
                     <span>{skill.name}</span>
                   </li>
@@ -290,18 +282,6 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
           {announcement}
         </span>
       </div>
-      <noscript>
-        <div className="mt-8 space-y-6">
-          {stack.groups.map((group) => (
-            <section key={group.id} id={`skills-fallback-${group.id}`}>
-              <h3 className="font-display text-2xl text-paper">{group.label}</h3>
-              <p className="mt-2 text-sm leading-7 text-paper-muted">
-                {group.technologies.map((technology) => technology.name).join(' · ')}
-              </p>
-            </section>
-          ))}
-        </div>
-      </noscript>
     </div>
   )
 }
