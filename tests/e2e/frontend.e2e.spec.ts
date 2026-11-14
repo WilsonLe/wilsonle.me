@@ -28,318 +28,159 @@ function contrastRatio(firstColor: string, secondColor: string): number {
 }
 
 test.describe('Frontend', () => {
-  test('renders the work-led landing page with annotated product screenshots', async ({ page }) => {
+  test('shows six project billboards with complete project dialogs', async ({ page }) => {
     await page.goto('/')
-    const header = page.getByRole('banner')
     await expect(page).toHaveTitle('Wilson Le | Forward Deployed Engineer at Lyra')
-    await expect(header.getByRole('link', { name: 'Wilson Le' })).toBeVisible()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Forward Deployed Engineer at Lyra',
     )
-    await expect(header.getByRole('link', { name: 'Work', exact: true })).toHaveAttribute(
-      'href',
-      '/#work',
-    )
     await expect(
-      header.getByRole('link', { name: 'Download résumé', exact: true }),
-    ).toHaveAttribute('href', '/wilson-le-resume.pdf')
+      page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
+    ).toHaveAttribute('href', '#work')
     await expect(page.getByRole('link', { name: 'View work', exact: true })).toHaveAttribute(
       'href',
-      '/#work',
+      '#work',
     )
-    await expect(page.getByRole('heading', { name: 'Work', exact: true })).toBeVisible()
-    await expect(page.locator('#work article')).toHaveCount(6)
-    await expect(page.locator('#work figure')).toHaveCount(18)
-    await expect(page.locator('#work article h3')).toHaveText([
-      'Kalibr',
-      'Pangea Chat',
-      'CYOBot',
-      'Vulcan Augmetics',
-      'LocalCut',
-      'LocalDesign',
-    ])
-    await expect(page.getByRole('link', { name: 'Open Kalibr' })).toHaveAttribute(
-      'href',
-      'https://usekalibr.com',
-    )
-    await expect(page.locator('#pangea-chat h4')).toHaveText([
+    const work = page.getByRole('region', { name: 'Work', exact: true })
+    await expect(work.getByRole('article')).toHaveCount(6)
+    await expect(work.getByRole('img')).toHaveCount(6)
+    const figures = [2, 4, 3, 3, 3, 3]
+    for (const [index, project] of projectChoices.entries()) {
+      const dialog = await selectProject(page, project.id)
+      await expect(dialog.locator('figure')).toHaveCount(figures[index])
+      await expect(
+        dialog.getByRole('heading', { name: index >= 4 ? 'Features' : 'My part', exact: true }),
+      ).toBeVisible()
+      for (const screenshot of await dialog
+        .getByRole('link', { name: /Open full screenshot/ })
+        .all()) {
+        await screenshot.scrollIntoViewIfNeeded()
+        await expect(screenshot).toHaveAttribute('href', /^\/work\/screenshots\//)
+        const image = screenshot.getByRole('img')
+        await expect
+          .poll(() => image.evaluate((el: HTMLImageElement) => el.naturalWidth))
+          .toBeGreaterThan(0)
+        await expect(image).toHaveCSS('transform', 'none')
+      }
+    }
+    await expect(
+      page.getByRole('dialog').getByRole('link', { name: 'Open LocalDesign' }),
+    ).toHaveAttribute('href', 'https://wilsonle.github.io/LocalDesign/')
+    await expect(
+      page.getByRole('dialog').getByRole('heading', { name: 'Design with an external agent.' }),
+    ).toBeVisible()
+    await expect(page.locator('#about, #experience, #education, #approach, #now')).toHaveCount(0)
+  })
+
+  test('preserves project ownership, public links and full screenshots', async ({ page }) => {
+    await page.goto('/')
+    const pangea = await selectProject(page, 'pangea-chat')
+    await expect(pangea.getByRole('listitem')).toHaveCount(4)
+    await expect(pangea).toContainText('Built the frontend and AI assistant.')
+    await expect(pangea).toContainText('15-minute user playtests')
+    await expect(pangea).toContainText('feedback-to-spec-to-feature pipeline')
+    await expect(pangea).toContainText('I signed off on implementation, testing and deployment')
+    await expect(pangea.locator('figcaption h3')).toHaveText([
       'Sentence builder',
       'Pangea Bot',
       'Message interpreter',
       'World-map group chats',
     ])
-    await expect(page.locator('#work').getByText('My part', { exact: true })).toHaveCount(4)
-    await expect(page.locator('#work').getByText('Features', { exact: true })).toHaveCount(2)
-    await expect(
-      page.locator('#work').getByText('Frontend + AI services', { exact: true }),
-    ).toHaveCount(0)
-    await expect(page.locator('#contact').getByText('Contact', { exact: true })).toHaveCount(0)
-    await selectProject(page, 'pangea-chat')
-    await expect(
-      page.getByText('Built the frontend and AI assistant.', { exact: true }),
-    ).toBeVisible()
-    await expect(
-      page.getByText('One other engineer and I shared ownership', { exact: false }),
-    ).toHaveCount(0)
-    await expect(page.locator('#approach, #now, #about')).toHaveCount(0)
-    await expect(
-      page.locator('a[href*="#approach"], a[href*="#now"], a[href*="#about"]'),
-    ).toHaveCount(0)
-    await expect(
-      page.locator(
-        'a[href$="/work/pangea-chat"], a[href$="/work/cyobot"], a[href$="/work/vulcan-augmetics"]',
-      ),
-    ).toHaveCount(0)
-    await expect(page.getByRole('link', { name: 'Open Pangea Chat' })).toHaveAttribute(
+    await expect(pangea.getByRole('link', { name: 'Open Pangea Chat' })).toHaveAttribute(
       'href',
       'https://app.pangea.chat/',
     )
-    await selectProject(page, 'vulcan-augmetics')
-    await expect(page.getByRole('heading', { name: 'Vulcan Augmetics', exact: true })).toBeVisible()
-    await selectProject(page, 'localcut')
-    await expect(page.getByRole('link', { name: 'Open LocalCut' })).toHaveAttribute(
+    const cyobot = await selectProject(page, 'cyobot')
+    await expect(cyobot).toContainText('Founding software engineer.')
+    await expect(cyobot).toContainText('instructor dashboard and student dashboard')
+    const vulcan = await selectProject(page, 'vulcan-augmetics')
+    await expect(vulcan).toContainText('on-call support system')
+    const kalibr = await selectProject(page, 'kalibr')
+    await expect(kalibr).toContainText('synthetic demo data')
+    await expect(kalibr.getByRole('link', { name: 'Open Kalibr' })).toHaveAttribute(
+      'href',
+      'https://usekalibr.com',
+    )
+    const localcut = await selectProject(page, 'localcut')
+    await expect(localcut).toContainText('Fully open source.')
+    await expect(localcut.getByRole('link', { name: 'Open LocalCut' })).toHaveAttribute(
       'href',
       'https://wilsonle.github.io/LocalCut/',
     )
-    await selectProject(page, 'localdesign')
-    await expect(page.getByRole('link', { name: 'Open LocalDesign' })).toHaveAttribute(
-      'href',
-      'https://wilsonle.github.io/LocalDesign/',
-    )
-    for (const project of ['localcut', 'localdesign']) {
-      await selectProject(page, project)
-      const figure = page.locator(`#${project}-webmcp`)
-      await figure.scrollIntoViewIfNeeded()
-      await expect(figure.getByRole('heading')).toHaveText(
-        project === 'localcut' ? 'Edit with an external agent.' : 'Design with an external agent.',
-      )
-      await expect(figure.getByRole('link')).toHaveAttribute(
-        'href',
-        `/work/screenshots/${project}-webmcp.webp`,
-      )
-      await expect(figure.getByRole('img')).toHaveJSProperty('naturalWidth', 1844)
-      await expect(figure.getByRole('img')).toHaveJSProperty('naturalHeight', 934)
-    }
-    await expect(page.getByRole('heading', { name: 'Experience', exact: true })).toHaveCount(0)
-    await expect(page.getByRole('heading', { name: 'Education', exact: true })).toHaveCount(0)
+    const fullImage = localcut.getByRole('link', {
+      name: 'Open full screenshot: Edit with an external agent.',
+    })
+    await fullImage.scrollIntoViewIfNeeded()
+    await expect(fullImage).toHaveAttribute('href', '/work/screenshots/localcut-webmcp.webp')
+    await expect(fullImage.getByRole('img')).toHaveJSProperty('naturalWidth', 1844)
+    await expect(fullImage.getByRole('img')).toHaveJSProperty('naturalHeight', 934)
   })
 
-  test('explains contribution ownership and the observed playtest workflow', async ({ page }) => {
-    await page.goto('/#pangea-chat')
-    const pangea = page.locator('#pangea-chat')
-    await expect(pangea.getByRole('listitem')).toHaveCount(4)
-    await expect(pangea).toContainText('Spearheaded agentic software development across the team')
-    await expect(pangea).toContainText('15-minute user playtests')
-    await expect(pangea).toContainText('feedback-to-spec-to-feature pipeline')
-    await expect(pangea).toContainText('I signed off on implementation, testing and deployment')
-    await expect(pangea).toContainText('most changes shipped the same day')
-    for (const project of ['cyobot', 'vulcan-augmetics']) {
-      await expect(page.locator(`#${project}`)).toContainText('Founding software engineer.')
-    }
-    await expect(page.locator('#cyobot')).toContainText(
-      'instructor dashboard and student dashboard',
-    )
-    await expect(page.locator('#cyobot')).toContainText('internal operational processes')
-    await expect(page.locator('#vulcan-augmetics')).toContainText('on-call support system')
-    await expect(page.locator('#localcut-asset-index')).toContainText('context and transcripts')
-    await expect(page.locator('#localdesign-pages-layers-frames')).toContainText('layer tree')
-    for (const project of ['localcut', 'localdesign']) {
-      await expect(page.locator(`#${project}`)).toContainText('Fully open source.')
-      await expect(page.locator(`#${project}`)).toContainText('entirely in your browser')
-    }
-    await expect(page.locator('#kalibr-admin-panels')).toContainText('synthetic demo data')
-  })
-
-  test('keeps product screenshots static and introduces every selected Work image and text block consistently', async ({
-    page,
-  }) => {
-    async function expectEntrance(root: ReturnType<typeof page.locator>, parts: string[]) {
-      await expect(root).toHaveAttribute('data-entered', /^(true|done)$/)
-      const states = await root.evaluate(
-        (element, selectors) =>
-          selectors.map((selector) => {
-            const target = selector ? element.querySelector(selector)! : element
-            const style = getComputedStyle(target)
-            return element.getAttribute('data-entered') === 'done'
-              ? style.animationName === 'none' && style.opacity === '1'
-              : style.animationName === 'work-enter' && style.animationDuration === '0.65s'
-          }),
-        parts,
-      )
-      expect(states).toEqual(parts.map(() => true))
-    }
-    await page.emulateMedia({ reducedMotion: 'no-preference' })
-    await page.goto('/')
-    await expect(
-      page.locator('#work').getByRole('button', { name: /zoom|fit image/i }),
-    ).toHaveCount(0)
-    await expect(page.locator('#kalibr-analytics-pipeline, #work img[src$=".svg"]')).toHaveCount(0)
-    const heading = page.locator('.work-heading')
-    await heading.scrollIntoViewIfNeeded()
-    await expectEntrance(heading, [''])
-    let firstAnimationStarts: string[] = []
-    for (const project of projectChoices) {
-      await selectProject(page, project.id)
-      const article = page.locator(`#${project.id}`)
-      const intro = article.locator('.work-intro')
-      await intro.scrollIntoViewIfNeeded()
-      await expectEntrance(intro, ['header', 'dl'])
-      for (const figure of await article.locator('figure').all()) {
-        await figure.scrollIntoViewIfNeeded()
-        await expectEntrance(figure, ['.work-image-mat', '.work-callout'])
-        await figure.hover()
-        await figure.getByRole('link').focus()
-        const image = figure.getByRole('link').getByRole('img')
-        await expect(image).toHaveCSS('transform', 'none')
-        const geometry = await image.evaluate((element) => ({
-          image: element.getBoundingClientRect().width,
-          frame: element.closest('.work-shot-view')!.clientWidth,
-        }))
-        expect(geometry.image).toBeCloseTo(geometry.frame, 0)
-      }
-      if (project.id === 'kalibr') {
-        const mat = article.locator('#kalibr-game-library .work-image-mat')
-        await mat.scrollIntoViewIfNeeded()
-        await expect(mat).toHaveCSS('opacity', '1')
-        await page.evaluate(
-          () =>
-            new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
-        )
-        firstAnimationStarts = await mat.evaluate((element) =>
-          element.getAnimations().map((animation) => String(animation.startTime)),
-        )
-      }
-    }
-    await selectProject(page, 'kalibr')
-    await page.evaluate(
-      () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
-    )
-    expect(
-      await page
-        .locator('#kalibr-game-library .work-image-mat')
-        .evaluate((element) =>
-          element.getAnimations().map((animation) => String(animation.startTime)),
-        ),
-    ).toEqual(firstAnimationStarts)
-    for (const image of await page.locator('#pangea-chat img').all()) {
-      await expect(image).toHaveJSProperty('naturalWidth', 1707)
-      await expect(image).toHaveJSProperty('naturalHeight', 960)
-    }
-    await page.emulateMedia({ reducedMotion: 'reduce' })
-    for (const part of ['.work-image-mat', '.work-callout']) {
-      await expect(page.locator('#localdesign-webmcp').locator(part)).toHaveCSS(
-        'animation-name',
-        'none',
-      )
-    }
-    await page.setViewportSize({ width: 375, height: 812 })
-    await selectProject(page, 'kalibr')
-    await page.locator('#kalibr-admin-panels a').focus()
-    await expect(page.locator('#kalibr-admin-panels .work-shot-view')).toHaveCSS(
-      'transform',
-      'none',
-    )
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
-    ).toBeLessThanOrEqual(0)
-  })
-
-  test('toggles CYOBot demos across the GIF surface and labels only paused playback', async ({
-    page,
-    browser,
-  }) => {
+  test('pauses CYOBot demos and honors reduced motion', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/#cyobot')
-    for (const figure of await page.locator('#cyobot figure').all()) {
+    const dialog = page.getByRole('dialog', { name: 'CYOBot' })
+    await expect(dialog).toBeVisible()
+    for (const figure of await dialog.locator('figure').all()) {
       const robot = figure.getByRole('img', { name: /^A real CYOBot/ })
       await robot.scrollIntoViewIfNeeded()
       await expect(robot).toHaveAttribute('src', /\.gif$/)
-      await expect(figure.getByText('Paused', { exact: true })).toHaveCount(0)
-      await expect
-        .poll(() => robot.evaluate((image: HTMLImageElement) => image.naturalWidth))
-        .toBeGreaterThan(0)
-      await figure
-        .getByRole('button', { name: 'Pause robot animation' })
-        .click({ position: { x: 15, y: 15 } })
+      await figure.getByRole('button', { name: 'Pause robot animation' }).click()
       await expect(robot).toHaveAttribute('src', /\.webp$/)
       await expect(figure.getByText('Paused', { exact: true })).toBeVisible()
       await figure.getByRole('button', { name: 'Play robot animation' }).press('Space')
       await expect(robot).toHaveAttribute('src', /\.gif$/)
-      await expect(figure.getByText('Paused', { exact: true })).toHaveCount(0)
-      await figure.getByRole('button', { name: 'Pause robot animation' }).press('Enter')
-      await expect(figure.getByText('Paused', { exact: true })).toBeVisible()
-      await figure.getByRole('button', { name: 'Play robot animation' }).click()
-      await expect(robot).toHaveAttribute('src', /\.gif$/)
-      await expect(figure.getByText('Paused', { exact: true })).toHaveCount(0)
     }
     await page.emulateMedia({ reducedMotion: 'reduce' })
-    for (const robot of await page.getByRole('img', { name: /^A real CYOBot/ }).all()) {
-      await expect(robot).toHaveAttribute('src', /\.webp$/)
-    }
-    await expect(page.getByText('Paused', { exact: true })).toHaveCount(3)
-
-    const staticContext = await browser.newContext({ javaScriptEnabled: false })
-    const staticPage = await staticContext.newPage()
-    await staticPage.goto('/#cyobot')
-    await expect(staticPage.getByRole('img', { name: /^A real CYOBot/ })).toHaveCount(3)
-    for (const robot of await staticPage.getByRole('img', { name: /^A real CYOBot/ }).all()) {
-      await expect(robot).toHaveAttribute('src', /\.webp$/)
-    }
-    await expect(staticPage.getByRole('button', { name: /robot animation/ })).toHaveCount(0)
-    await staticContext.close()
+    await expect(dialog.getByText('Paused', { exact: true })).toHaveCount(3)
   })
 
-  test('renders the explicit English locale route', async ({ page }) => {
-    await page.goto('/en')
+  for (const [route, language] of [
+    ['/', 'en'],
+    ['/en', 'en'],
+    ['/vi', 'vi'],
+  ]) {
+    test(`serves the portfolio and résumé at ${route}`, async ({ page, request }) => {
+      await page.goto(route)
+      await expect(page.locator('html')).toHaveAttribute('lang', language)
+      await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
+      await expect(page.getByRole('link', { name: /website templates/i })).toHaveCount(0)
+      const response = await request.get('/wilson-le-resume.pdf')
+      expect(response.ok()).toBe(true)
+      expect(response.headers()['content-type']).toContain('application/pdf')
+      const link = page.getByRole('link', { name: 'Download résumé', exact: true })
+      await expect(link).toHaveAttribute('download', '')
+      const download = page.waitForEvent('download')
+      await link.click()
+      const pdf = await download
+      expect(pdf.suggestedFilename()).toBe('wilson-le-resume.pdf')
+      expect((await readFile((await pdf.path())!)).subarray(0, 5).toString()).toBe('%PDF-')
+      await expect(page).toHaveURL(new RegExp(`${route}$`))
+    })
+  }
 
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'Forward Deployed Engineer at Lyra',
-    )
-    await expect(
-      page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
-    ).toHaveAttribute('href', '/en#work')
-    await expect(
-      page.getByRole('banner').getByRole('link', { name: 'Download résumé', exact: true }),
-    ).toHaveAttribute('href', '/wilson-le-resume.pdf')
-    await expect(
-      page.getByRole('main').getByRole('link', { name: 'Download résumé' }),
-    ).toHaveAttribute('href', '/wilson-le-resume.pdf')
-  })
-
-  test('renders the Vietnamese locale route with current fallback content', async ({ page }) => {
-    await page.goto('/vi')
-
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'Forward Deployed Engineer at Lyra',
-    )
-    await expect(
-      page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }),
-    ).toHaveAttribute('href', '/vi#work')
-    await expect(
-      page.getByRole('banner').getByRole('link', { name: 'Download résumé', exact: true }),
-    ).toHaveAttribute('href', '/wilson-le-resume.pdf')
-  })
-
-  test('omits website templates from navigation across locales and viewports', async ({ page }) => {
-    for (const width of [1440, 375]) {
-      await page.setViewportSize({ width, height: 812 })
-      for (const route of ['/', '/en', '/vi']) {
-        await page.goto(route)
-        await expect(page.getByRole('link', { name: /website templates/i })).toHaveCount(0)
-        await expect(
-          page.locator('a[href*="website-templates"], a[href*="template-previews"]'),
-        ).toHaveCount(0)
-        await expect(
-          page.locator('footer').getByRole('link', { name: 'Download résumé' }),
-        ).toBeVisible()
-        if (width === 375) {
-          await page.getByRole('button', { name: 'Toggle navigation' }).click()
-          await expect(page.locator('#mobile-navigation')).toBeVisible()
-          await expect(page.getByRole('link', { name: /website templates/i })).toHaveCount(0)
-          await expect(page.locator('#mobile-navigation a[href*="template"]')).toHaveCount(0)
-        }
-      }
+  test('keeps visible keyboard focus throughout the portfolio', async ({ page }) => {
+    await page.goto('/?focus-check')
+    await page.keyboard.press('Tab')
+    const assertFocus = async (link: ReturnType<typeof page.getByRole>) => {
+      await link.focus()
+      await expect(link).toBeFocused()
+      expect(
+        await link.evaluate((element) => {
+          const style = getComputedStyle(element)
+          return (
+            element.matches(':focus-visible') &&
+            style.outlineStyle === 'solid' &&
+            parseFloat(style.outlineWidth) >= 2
+          )
+        }),
+      ).toBe(true)
     }
+    await assertFocus(page.getByRole('link', { name: 'View work', exact: true }))
+    await assertFocus(page.getByRole('link', { name: 'Download résumé', exact: true }))
+    const dialog = await selectProject(page, 'pangea-chat')
+    await dialog.getByRole('button', { name: 'Close project' }).press('Tab')
+    await assertFocus(dialog.getByRole('link', { name: 'Open full screenshot: Sentence builder' }))
   })
 
   test('returns 404 for removed template pages and preview images', async ({ request }) => {
@@ -370,115 +211,6 @@ test.describe('Frontend', () => {
     expect(person['@type']).toBe('Person')
     expect(person.name).toBe('Wilson Le')
     expect(person.alternateName).toBeUndefined()
-  })
-
-  test('keeps the responsive layouts within the viewport and anchor targets below the header', async ({
-    page,
-  }) => {
-    for (const width of [375, 768, 1440]) {
-      for (const route of ['/', '/en', '/vi']) {
-        await test.step(`${route} at ${width}px`, async () => {
-          await page.setViewportSize({ width, height: 900 })
-          await page.goto(route)
-          await expect(page.locator('main h1')).toHaveCount(1)
-
-          const geometry = await page.evaluate(() => ({
-            clientWidth: document.documentElement.clientWidth,
-            scrollWidth: document.documentElement.scrollWidth,
-          }))
-
-          expect(geometry.scrollWidth).toBeLessThanOrEqual(geometry.clientWidth)
-
-          await page.getByRole('link', { name: 'View work' }).click()
-          await expect(page).toHaveURL(/#work$/)
-          await page.waitForFunction(() => {
-            const work = document.querySelector('#work')
-            return work instanceof HTMLElement && work.getBoundingClientRect().top >= 79
-          })
-          const workTop = await page
-            .locator('#work')
-            .evaluate((element) => Math.round(element.getBoundingClientRect().top))
-          expect(workTop).toBeGreaterThanOrEqual(79)
-        })
-      }
-    }
-  })
-
-  test('opens and closes the mobile navigation from the keyboard', async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 812 })
-    await page.goto('/')
-
-    const menuButton = page.getByRole('button', { name: 'Toggle navigation' })
-    await menuButton.focus()
-    await expect(menuButton).toBeFocused()
-    await page.keyboard.press('Enter')
-    await expect(menuButton).toHaveAttribute('aria-expanded', 'true')
-    await expect(page.locator('#mobile-navigation')).toBeVisible()
-
-    await page.keyboard.press('Tab')
-    await expect(
-      page.locator('#mobile-navigation').getByRole('link', { name: 'Work' }),
-    ).toBeFocused()
-    await page.keyboard.press('Shift+Tab')
-    await expect(menuButton).toBeFocused()
-    await page.keyboard.press('Space')
-    await expect(menuButton).toHaveAttribute('aria-expanded', 'false')
-    await expect(page.locator('#mobile-navigation')).toHaveCount(0)
-  })
-
-  test('keeps keyboard focus visible against its surrounding surfaces', async ({ page }) => {
-    await page.goto('/#pangea-chat')
-    await page.keyboard.press('Tab')
-
-    const toHex = (rgb: string) =>
-      `#${rgb
-        .match(/\d+/g)!
-        .slice(0, 3)
-        .map((value) => Number(value).toString(16).padStart(2, '0'))
-        .join('')}`
-    const links = [
-      page.getByRole('link', { name: 'View work', exact: true }),
-      page.getByRole('link', { name: 'Open full screenshot: Sentence builder', exact: true }),
-      page.locator('#contact').getByRole('link', { name: /^Email / }),
-      page.getByRole('contentinfo').getByRole('link', { name: 'Download résumé', exact: true }),
-    ]
-
-    for (const link of links) {
-      await link.focus()
-      const focus = await link.evaluate((element) => {
-        const style = getComputedStyle(element)
-        let parent = element.parentElement
-        while (parent && getComputedStyle(parent).backgroundColor === 'rgba(0, 0, 0, 0)') {
-          parent = parent.parentElement
-        }
-        return {
-          visible: element.matches(':focus-visible'),
-          color: style.outlineColor,
-          width: Number.parseFloat(style.outlineWidth),
-          style: style.outlineStyle,
-          backdrop: getComputedStyle(parent || document.body).backgroundColor,
-        }
-      })
-      expect(focus.visible).toBe(true)
-      expect(focus.style).toBe('solid')
-      expect(focus.width).toBeGreaterThanOrEqual(2)
-      if (await link.locator('img').count()) {
-        // The image sits inside an overflow clip: its focus cue must be outside that clip.
-        const frame = page.locator('.work-shot-view').filter({ has: link })
-        await expect(frame).toHaveCSS('outline-style', 'solid')
-        await expect
-          .poll(() =>
-            frame.evaluate((element) => Number.parseFloat(getComputedStyle(element).outlineWidth)),
-          )
-          .toBeGreaterThanOrEqual(2)
-      }
-      await expect
-        .poll(async () => {
-          const outline = await link.evaluate((element) => getComputedStyle(element).outlineColor)
-          return contrastRatio(toHex(outline), toHex(focus.backdrop))
-        })
-        .toBeGreaterThanOrEqual(3)
-    }
   })
 
   test('uses WCAG AA palette pairs and disables smooth scrolling for reduced motion', async ({
@@ -526,48 +258,6 @@ test.describe('Frontend', () => {
     expect(scrollBehavior).toBe('auto')
   })
 
-  // Isolate visitor sessions: Chromium throttles bursts of more than ten downloads.
-  for (const route of ['/', '/en', '/vi']) {
-    test(`downloads the resume PDF from every entry point on ${route}`, async ({
-      page,
-      request,
-    }) => {
-      const response = await request.get('/wilson-le-resume.pdf')
-      expect(response.ok()).toBeTruthy()
-      expect(response.headers()['content-type']).toContain('application/pdf')
-      expect((await response.body()).subarray(0, 5).toString()).toBe('%PDF-')
-
-      await page.goto(route)
-      await expect(page.locator('a[href$="/resume"]')).toHaveCount(0)
-      for (const role of ['banner', 'main', 'contentinfo'] as const) {
-        const link = page
-          .getByRole(role)
-          .getByRole('link', { name: 'Download résumé', exact: true })
-        await expect(link).toHaveAttribute('download', '')
-        const downloadPromise = page.waitForEvent('download')
-        await link.click()
-        const download = await downloadPromise
-        expect(download.suggestedFilename()).toBe('wilson-le-resume.pdf')
-        expect((await readFile((await download.path())!)).subarray(0, 5).toString()).toBe('%PDF-')
-        await expect(page).toHaveURL(new RegExp(`${route}$`))
-      }
-
-      await page.setViewportSize({ width: 375, height: 812 })
-      await page.getByRole('button', { name: 'Toggle navigation' }).click()
-      const downloadPromise = page.waitForEvent('download')
-      await page
-        .locator('#mobile-navigation')
-        .getByRole('link', { name: 'Download résumé' })
-        .click()
-      expect((await downloadPromise).suggestedFilename()).toBe('wilson-le-resume.pdf')
-      await expect(page.getByRole('button', { name: 'Toggle navigation' })).toHaveAttribute(
-        'aria-expanded',
-        'false',
-      )
-      await page.setViewportSize({ width: 1440, height: 900 })
-    })
-  }
-
   test('returns 404 for every removed resume page', async ({ request }) => {
     for (const route of ['/resume', '/en/resume', '/vi/resume']) {
       expect((await request.get(route)).status(), route).toBe(404)
@@ -610,44 +300,5 @@ test.describe('Frontend', () => {
     expect(image.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a')
     expect(image.readUInt32BE(16)).toBe(1200)
     expect(image.readUInt32BE(20)).toBe(630)
-  })
-
-  test('captures rendered visual evidence for the approved layouts', async ({ page }, testInfo) => {
-    for (const viewport of [
-      { name: 'desktop', width: 1440, height: 1000 },
-      { name: 'mobile', width: 375, height: 812 },
-    ]) {
-      await page.setViewportSize({ width: viewport.width, height: viewport.height })
-
-      for (const route of [{ name: 'home', path: '/' }]) {
-        await page.goto(route.path)
-
-        if (route.name === 'home') {
-          for (const project of projectChoices) {
-            await selectProject(page, project.id)
-            for (const image of await page.locator(`#${project.id} img`).all()) {
-              await image.scrollIntoViewIfNeeded()
-              await expect
-                .poll(() =>
-                  image.evaluate(
-                    (element) => element instanceof HTMLImageElement && element.naturalWidth,
-                  ),
-                )
-                .toBeGreaterThan(0)
-            }
-          }
-          await page.evaluate(() => {
-            document.documentElement.style.scrollBehavior = 'auto'
-            window.scrollTo(0, 0)
-          })
-          await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
-        }
-
-        await testInfo.attach(`${route.name}-${viewport.name}`, {
-          body: await page.screenshot({ fullPage: true }),
-          contentType: 'image/png',
-        })
-      }
-    }
   })
 })

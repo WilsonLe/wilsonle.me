@@ -1,17 +1,10 @@
 import Image from 'next/image'
 import type { WorkScreen } from '@/content/work'
-import { ScrollEntrance } from '@/components/ScrollEntrance'
-import { RobotOverlay } from '@/components/RobotOverlay'
 
 export function AnnotatedScreenshot({ screen, id }: { screen: WorkScreen; id: string }) {
   const { image, callout } = screen
   return (
-    <ScrollEntrance
-      as="figure"
-      id={id}
-      className="work-capture work-feature"
-      labelledBy={`${id}-title`}
-    >
+    <figure id={id} className="work-capture work-feature" aria-labelledby={`${id}-title`}>
       <div className="work-image-mat">
         <div className="relative">
           <div className="work-shot-view">
@@ -25,7 +18,18 @@ export function AnnotatedScreenshot({ screen, id }: { screen: WorkScreen; id: st
               <Image {...image} alt={image.alt} unoptimized className="h-auto w-full" />
             </a>
           </div>
-          {screen.robot && <RobotOverlay robot={screen.robot} />}
+          {screen.robot && (
+            <div className="work-robot-overlay">
+              <Image
+                src={screen.robot.poster}
+                alt={screen.robot.alt}
+                width={screen.robot.width}
+                height={screen.robot.height}
+                unoptimized
+                className="h-auto w-full"
+              />
+            </div>
+          )}
         </div>
       </div>
       <figcaption className="work-callout">
@@ -39,6 +43,6 @@ export function AnnotatedScreenshot({ screen, id }: { screen: WorkScreen; id: st
           <p className="mt-4 max-w-sm text-sm leading-7 text-ink/75">{callout.description}</p>
         </div>
       </figcaption>
-    </ScrollEntrance>
+    </figure>
   )
 }

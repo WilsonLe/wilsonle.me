@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { projectChoices, selectProject } from './helpers/work'
+import { projectChoices } from './helpers/work'
 
 async function installPausedClock(page: import('@playwright/test').Page) {
   await page.clock.install({ time: new Date('2026-11-13T00:00:00Z') })
@@ -16,18 +16,10 @@ async function leadingSkill(page: import('@playwright/test').Page) {
   })
 }
 
-async function localCutIntroInView(page: import('@playwright/test').Page) {
-  return page.locator('#localcut-heading').evaluate((element) => {
-    const heading = element.getBoundingClientRect()
-    const tabs = document.querySelector('.work-top-tabs')!.getBoundingClientRect()
-    return heading.top >= tabs.bottom && heading.bottom < innerHeight
-  })
-}
-
 test('streams skills left at a faster steady pace, including while hovered', async ({ page }) => {
   await page.clock.install()
   await page.emulateMedia({ reducedMotion: 'no-preference' })
-  await page.goto('/')
+  await page.goto('/#skills')
   const carousel = page.getByRole('region', { name: 'Skills', exact: true })
   await carousel.scrollIntoViewIfNeeded()
   await page.mouse.move(0, 0)
@@ -77,7 +69,7 @@ test('category tabs scroll quickly, hold for one second and restart the hold on 
   await installPausedClock(page)
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.setViewportSize({ width: 885, height: 763 })
-  await page.goto('/')
+  await page.goto('/#skills')
   const carousel = page.getByRole('region', { name: 'Skills', exact: true })
   await carousel.hover()
   await expect(carousel).toHaveAttribute('data-rotating', 'true')
@@ -114,7 +106,7 @@ test('chevrons scroll one skill in either direction and hold without stacking an
 }) => {
   await installPausedClock(page)
   await page.emulateMedia({ reducedMotion: 'no-preference' })
-  await page.goto('/')
+  await page.goto('/#skills')
   const carousel = page.getByRole('region', { name: 'Skills', exact: true })
   await carousel.hover()
   await expect(carousel).toHaveAttribute('data-rotating', 'true')
@@ -175,7 +167,7 @@ test('interrupts category browsing and preserves manual selection across resize 
 }) => {
   await installPausedClock(page)
   await page.emulateMedia({ reducedMotion: 'no-preference' })
-  await page.goto('/')
+  await page.goto('/#skills')
   const carousel = page.getByRole('region', { name: 'Skills', exact: true })
   await carousel.hover()
   await expect(carousel).toHaveAttribute('data-rotating', 'true')
@@ -183,6 +175,7 @@ test('interrupts category browsing and preserves manual selection across resize 
   await page.clock.runFor(100)
   await carousel.getByRole('tab', { name: 'Data & AI', exact: true }).click()
   await page.setViewportSize({ width: 375, height: 812 })
+  await carousel.scrollIntoViewIfNeeded()
   await page.clock.runFor(300)
   await expect.poll(() => leadingSkill(page)).toBe('Redis')
   const strip = carousel.locator('.tech-strip')
@@ -209,7 +202,7 @@ for (const key of ['Space', 'Enter']) {
   test(`keeps autoplay suspended for keyboard browsing with ${key}`, async ({ page }) => {
     await installPausedClock(page)
     await page.emulateMedia({ reducedMotion: 'no-preference' })
-    await page.goto('/')
+    await page.goto('/#skills')
     const carousel = page.getByRole('region', { name: 'Skills', exact: true })
     await carousel.hover()
     await expect(carousel).toHaveAttribute('data-rotating', 'true')
@@ -248,7 +241,7 @@ test('animates the active section during streaming, wraps the loop and follows r
   await page.clock.install()
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.setViewportSize({ width: 885, height: 763 })
-  await page.goto('/')
+  await page.goto('/#skills')
   const carousel = page.getByRole('region', { name: 'Skills', exact: true })
   const tabs = carousel.getByRole('tablist', { name: 'Skill sections' })
   const frontend = tabs.getByRole('tab', { name: 'Frontend', exact: true })
@@ -322,7 +315,7 @@ test('suspends motion offscreen and while the document is hidden, then resumes w
 }) => {
   await page.clock.install()
   await page.emulateMedia({ reducedMotion: 'no-preference' })
-  await page.goto('/')
+  await page.goto('/#skills')
   const carousel = page.getByRole('region', { name: 'Skills', exact: true })
   const position = () =>
     carousel
@@ -330,7 +323,7 @@ test('suspends motion offscreen and while the document is hidden, then resumes w
       .evaluate((element) => new DOMMatrixReadOnly(getComputedStyle(element).transform).m41)
   await carousel.scrollIntoViewIfNeeded()
   await expect(carousel).toHaveAttribute('data-rotating', 'true')
-  await page.getByRole('heading', { name: 'Get In Touch', exact: true }).scrollIntoViewIfNeeded()
+  await page.getByRole('heading', { level: 1 }).scrollIntoViewIfNeeded()
   await expect(carousel).toHaveAttribute('data-rotating', 'false')
   let before = await position()
   await page.clock.runFor(2000)
@@ -361,7 +354,7 @@ test('skips individual skills and whole sections with accessible controls and re
 }) => {
   await page.clock.install()
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/')
+  await page.goto('/#skills')
   const carousel = page.getByRole('region', { name: 'Skills', exact: true })
   const tabs = carousel.getByRole('tablist', { name: 'Skill sections' })
   await carousel.hover()
@@ -410,7 +403,7 @@ test('reveals shaded edge chevrons on hover, keyboard focus or a touch tap', asy
   browser,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/')
+  await page.goto('/#skills')
   const carousel = page.getByRole('region', { name: 'Skills', exact: true })
   const previous = carousel.getByRole('button', { name: 'Previous skill' })
   const next = carousel.getByRole('button', { name: 'Next skill' })
@@ -438,7 +431,7 @@ test('reveals shaded edge chevrons on hover, keyboard focus or a touch tap', asy
     reducedMotion: 'reduce',
   })
   const mobile = await context.newPage()
-  await mobile.goto('/')
+  await mobile.goto('/#skills')
   const viewport = mobile.locator('.tech-viewport')
   const mobileNext = mobile.getByRole('button', { name: 'Next skill' })
   await expect(mobileNext).toHaveCSS('opacity', '0')
@@ -476,251 +469,234 @@ test('reveals shaded edge chevrons on hover, keyboard focus or a touch tap', asy
   await context.close()
 })
 
-test('browses overflowing project tabs with shaded chevrons and no horizontal scrollbar', async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.setViewportSize({ width: 375, height: 812 })
-  await page.goto('/#cyobot')
-  const tabs = page.getByRole('tablist', { name: 'Choose a project', exact: true })
-  const previous = page.getByRole('button', { name: 'Scroll projects left' })
-  const next = page.getByRole('button', { name: 'Scroll projects right' })
-  await expect(next).toBeVisible()
-  await expect(tabs).toHaveCSS('scrollbar-width', 'none')
-  await expect
-    .poll(() => tabs.evaluate((element) => element.getBoundingClientRect().top))
-    .toBeLessThan(100)
-  const pageTop = await page.evaluate(() => scrollY)
-
-  for (let click = 0; click < projectChoices.length; click++) {
-    if (
-      await tabs.evaluate(
-        (element) => element.scrollLeft + element.clientWidth >= element.scrollWidth - 1,
-      )
-    )
-      break
-    const before = await tabs.evaluate((element) => element.scrollLeft)
-    await expect(next).toBeEnabled()
-    await next.click()
-    await expect.poll(() => tabs.evaluate((element) => element.scrollLeft)).toBeGreaterThan(before)
-  }
-  await expect(next).toBeDisabled()
-  const last = tabs.getByRole('tab', { name: 'LocalDesign', exact: true })
-  expect(
-    await last.evaluate((element) => element.getBoundingClientRect().right),
-  ).toBeLessThanOrEqual(await tabs.evaluate((element) => element.getBoundingClientRect().right))
-  for (let click = 0; click < projectChoices.length; click++) {
-    const before = await tabs.evaluate((element) => element.scrollLeft)
-    if (before <= 1) break
-    await expect(previous).toBeEnabled()
-    await previous.click()
-    await expect.poll(() => tabs.evaluate((element) => element.scrollLeft)).toBeLessThan(before)
-  }
-  await expect(previous).toBeDisabled()
-  await expect.poll(() => tabs.evaluate((element) => element.scrollLeft)).toBe(0)
-  await expect(tabs.getByRole('tab', { name: 'CYOBot', exact: true })).toHaveAttribute(
-    'aria-selected',
-    'true',
-  )
-  await expect(page).toHaveURL(/#cyobot$/)
-  expect(await page.evaluate(() => scrollY)).toBe(pageTop)
-
-  await page.emulateMedia({ reducedMotion: 'no-preference' })
-  await page.goto('/#cyobot-python-quest')
-  await expect(page.locator('#cyobot-python-quest')).toHaveAttribute('data-entered', 'done')
-  const normalPageTop = await page.evaluate(() => scrollY)
-  const beforeSmoothScroll = await tabs.evaluate((element) => element.scrollLeft)
-  await next.click()
-  await expect
-    .poll(() => tabs.evaluate((element) => element.scrollLeft))
-    .toBeGreaterThan(beforeSmoothScroll)
-  expect(await page.evaluate(() => scrollY)).toBe(normalPageTop)
-  await expect(page).toHaveURL(/#cyobot-python-quest$/)
-
-  await page.setViewportSize({ width: 1440, height: 812 })
-  await expect(previous).toHaveCount(0)
-  await expect(next).toHaveCount(0)
-  await page.setViewportSize({ width: 375, height: 812 })
-  await expect(next).toBeVisible()
-  const selected = tabs.getByRole('tab', { name: 'CYOBot', exact: true })
-  await selected.focus()
-  await page.keyboard.press('End')
-  await expect(last).toBeFocused()
-  await page.keyboard.press('Enter')
-  await expect(page).toHaveURL(/#localdesign$/)
-  await expect(page.locator('#work-panel-localdesign')).toBeVisible()
-})
-
-test('keeps the top work tabs sticky and returns bottom selections to the top navigation', async ({
-  page,
-}) => {
-  test.setTimeout(60000)
-  await page.emulateMedia({ reducedMotion: 'reduce' })
-  for (const viewport of [
-    { width: 1440, height: 812 },
-    { width: 375, height: 812 },
-  ]) {
-    await page.setViewportSize(viewport)
-    await page.goto('/')
-    const top = page.getByRole('tablist', { name: 'Choose a project', exact: true })
-    const bottom = page.getByRole('tablist', { name: 'Choose another project', exact: true })
-    for (const project of projectChoices) {
-      await selectProject(page, project.id)
-      await expect(page.locator('#work').getByRole('tabpanel')).toHaveCount(1)
-      await expect(bottom.getByRole('tab', { name: project.name, exact: true })).toHaveAttribute(
-        'aria-selected',
-        'true',
-      )
-    }
-    await selectProject(page, 'kalibr')
-    await page.locator('#kalibr-admin-panels').scrollIntoViewIfNeeded()
-    await expect
-      .poll(() =>
-        top.evaluate((element) => {
-          const rect = element.getBoundingClientRect(),
-            header = document.querySelector('body > header')!.getBoundingClientRect()
-          return rect.top >= header.bottom && rect.top < header.bottom + 20
-        }),
-      )
-      .toBe(true)
-    await bottom.scrollIntoViewIfNeeded()
-    const before = await page.evaluate(() => scrollY)
-    const selected = bottom.getByRole('tab', { name: 'LocalCut', exact: true })
-    await selected.click()
-    await expect(selected).toHaveAttribute('aria-selected', 'true')
-    await expect(top.getByRole('tab', { name: 'LocalCut', exact: true })).toBeFocused()
-    await expect.poll(() => localCutIntroInView(page)).toBe(true)
-    expect(await page.evaluate(() => scrollY)).toBeLessThan(before - 1000)
-    // Re-activating the selected bottom tab with the keyboard returns to the top too.
-    await bottom.scrollIntoViewIfNeeded()
-    await selected.press('Enter')
-    await expect(top.getByRole('tab', { name: 'LocalCut', exact: true })).toBeFocused()
-    await expect.poll(() => localCutIntroInView(page)).toBe(true)
-    await expect(page).toHaveURL(/#localcut$/)
-    await expect(page.getByRole('contentinfo')).not.toContainText('Brisbane')
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
-    ).toBeLessThanOrEqual(0)
-  }
-  await page.setViewportSize({ width: 375, height: 420 })
+test('animates navigation and lands beside the selected section', async ({ page }) => {
   await page.goto('/')
-  await page.addStyleTag({ content: 'html {font-size:200%}' })
-  await selectProject(page, 'localdesign')
-  const top = page.getByRole('tablist', { name: 'Choose a project', exact: true })
-  const selected = top.getByRole('tab', { name: 'LocalDesign', exact: true })
-  await selected.focus()
-  for (const key of ['ArrowLeft', 'Home', 'End']) {
-    await page.keyboard.press(key)
-    await expect
-      .poll(() =>
-        page.evaluate(() => {
-          const rect = document.activeElement!.getBoundingClientRect(),
-            header = document.querySelector('body > header')!.getBoundingClientRect()
-          return (
-            rect.top >= header.bottom + 4 &&
-            rect.bottom <= innerHeight - 4 &&
-            rect.left >= 0 &&
-            rect.right <= innerWidth
-          )
-        }),
-      )
-      .toBe(true)
-  }
+  const city = page.locator('.descent-page')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await expect(city).toHaveAttribute('data-zone', 'skyline')
+  const initialY = await city.getAttribute('data-player-y')
+  const samples = scroller.evaluate(
+    (element) =>
+      new Promise<number[]>((resolve) => {
+        const scrolls: number[] = []
+        const start = performance.now()
+        function frame(now: number) {
+          scrolls.push(element.scrollTop)
+          if (now - start > 1050) resolve(scrolls)
+          else requestAnimationFrame(frame)
+        }
+        requestAnimationFrame(frame)
+      }),
+  )
+  await page.getByRole('link', { name: 'View work', exact: true }).click()
+  const scrolls = [...new Set(await samples)]
+  expect(scrolls.at(0)).toBe(0)
+  expect(scrolls.at(-1)).toBeGreaterThan(200)
+  expect(scrolls.length).toBeGreaterThan(7)
+  expect(scrolls).toEqual([...scrolls].sort((a, b) => a - b))
+  await expect(page.getByRole('heading', { name: 'Work', exact: true })).toBeFocused()
+  await expect(city).toHaveAttribute('data-nearby', 'kalibr')
+  await expect(city).not.toHaveAttribute('data-player-y', initialY!)
+  await page.getByRole('banner').getByRole('link', { name: 'Contact', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Contact', exact: true })).toBeFocused()
+  await expect(city).toHaveAttribute('data-zone', 'reactor')
+  await page.getByRole('link', { name: 'Back to top', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toBeFocused()
+  await expect.poll(() => scroller.evaluate((element) => element.scrollTop)).toBe(0)
+  await expect(city).toHaveAttribute('data-player-y', initialY!)
 })
 
-test('smoothly returns from bottom Work tabs to the top navigation with normal motion', async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: 'no-preference' })
-  await page.setViewportSize({ width: 885, height: 763 })
-  await page.goto('/#cyobot')
-  const bottom = page.getByRole('tablist', { name: 'Choose another project', exact: true })
-  await bottom.scrollIntoViewIfNeeded()
-  await bottom.getByRole('tab', { name: 'LocalCut', exact: true }).click()
-  await expect(page.locator('#work-tab-top-localcut')).toBeFocused()
-  await expect.poll(() => localCutIntroInView(page)).toBe(true)
+test('E opens a nearby billboard only and restores focus after Escape', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  const controls = page.getByLabel('City controls')
+  await expect(controls.getByText('View project')).toHaveCount(0)
+  await page.keyboard.press('e')
+  await expect(page.getByRole('dialog')).toBeHidden()
+  await page.getByRole('link', { name: 'View work', exact: true }).click()
+  const prompt = page.getByRole('link', { name: 'View project: Kalibr (E)', exact: true })
+  await expect(prompt).toBeVisible()
+  await page.keyboard.press('e')
+  await expect(page.getByRole('dialog', { name: 'Kalibr', exact: true })).toBeVisible()
+  await expect(page).toHaveURL(/#kalibr$/)
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toBeHidden()
+  await expect(page).toHaveURL(/#work$/)
+  await expect(prompt).toBeFocused()
+})
+
+test('uses the keyboard to jump and activate the jetpack', async ({ page }) => {
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  const initialY = Number(await city.getAttribute('data-player-y'))
+  await page.keyboard.press('w')
+  await page.keyboard.down('w')
+  await expect(city).toHaveAttribute('data-jetpack', 'true')
   await expect
-    .poll(() =>
-      page.locator('.work-top-tabs').evaluate((element) => element.getBoundingClientRect().top),
-    )
-    .toBeCloseTo(81, 0)
-  await expect(page).toHaveURL(/#localcut$/)
+    .poll(async () => Number(await city.getAttribute('data-player-y')))
+    .toBeLessThan(initialY - 75)
+  await page.keyboard.up('w')
+  await expect(city).toHaveAttribute('data-jetpack', 'false')
+})
+
+test('keeps keyboard scrolling available from focused portfolio links', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/#contact')
+  await expect(page.getByRole('heading', { name: 'Contact', exact: true })).toBeFocused()
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Tab')
+  const booking = page.getByRole('link', { name: 'Book a 30-minute call' })
+  await expect(booking).toBeFocused()
+  const city = page.locator('.descent-page')
+  const playerY = await city.getAttribute('data-player-y')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  const initialScroll = await scroller.evaluate((element) => element.scrollTop)
+  await page.keyboard.press('ArrowUp')
+  await expect
+    .poll(() => scroller.evaluate((element) => element.scrollTop))
+    .toBeLessThan(initialScroll)
+  await expect(city).toHaveAttribute('data-player-y', playerY!)
+  await expect(booking).toBeFocused()
+})
+
+test('supports touch movement, a held jetpack and a tap-to-open billboard', async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    isMobile: true,
+    reducedMotion: 'reduce',
+  })
+  try {
+    const page = await context.newPage()
+    await page.goto('/')
+    const city = page.locator('.descent-page')
+    const guide = page.getByLabel('City controls')
+    await expect(city).toHaveAttribute('data-ready', 'true')
+    const x = Number(await city.getAttribute('data-player-x'))
+    await guide.getByRole('button', { name: 'Move left', exact: true }).tap()
+    await expect
+      .poll(async () => Number(await city.getAttribute('data-player-x')))
+      .toBeLessThan(x - 9)
+    const up = guide.getByRole('button', { name: 'Jump or activate jetpack', exact: true })
+    await up.tap()
+    const bounds = (await up.boundingBox())!
+    const cdp = await context.newCDPSession(page)
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 }],
+    })
+    await expect(city).toHaveAttribute('data-jetpack', 'true')
+    const y = Number(await city.getAttribute('data-player-y'))
+    await expect
+      .poll(async () => Number(await city.getAttribute('data-player-y')))
+      .toBeLessThan(y - 75)
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    await expect(city).toHaveAttribute('data-jetpack', 'false')
+    await page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }).tap()
+    const prompt = page.getByRole('link', { name: 'View project: Kalibr (E)', exact: true })
+    await expect(prompt).toBeVisible()
+    await expect(prompt.getByText('E', { exact: true })).toBeHidden()
+    await prompt.tap()
+    const dialog = page.getByRole('dialog', { name: 'Kalibr', exact: true })
+    await expect(dialog).toBeVisible()
+    await dialog.getByRole('button', { name: 'Close project' }).tap()
+    await expect(dialog).toBeHidden()
+    const billboard = page
+      .getByRole('region', { name: 'Work', exact: true })
+      .getByRole('link', { name: 'View project: Kalibr', exact: true })
+    await billboard.tap()
+    await expect(dialog).toBeVisible()
+  } finally {
+    await context.close()
+  }
 })
 
 test('preserves project and feature deep links, locale URLs and browser history', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  for (const [route, id, target] of [
-    ['/#pangea-chat', 'pangea-chat', 'pangea-chat'],
-    ['/en#localcut-webmcp', 'localcut', 'localcut-webmcp'],
-    ['/vi#vulcan-augmetics-access-control', 'vulcan-augmetics', 'vulcan-augmetics-access-control'],
+  for (const [route, name, target] of [
+    ['/#pangea-chat', 'Pangea Chat', ''],
+    ['/en#localcut-webmcp', 'LocalCut', 'localcut-webmcp'],
+    ['/vi#vulcan-augmetics-access-control', 'Vulcan Augmetics', 'vulcan-augmetics-access-control'],
   ]) {
     await page.goto(route)
-    await expect(page.locator(`#work-panel-${id}`)).toBeVisible()
-    await expect
-      .poll(() =>
-        page.locator(`#${target}`).evaluate((element) => element.getBoundingClientRect().top),
-      )
-      .toBeGreaterThanOrEqual(79)
+    const dialog = page.getByRole('dialog', { name, exact: true })
+    await expect(dialog).toBeVisible()
+    if (target) {
+      await expect
+        .poll(() =>
+          dialog.locator('#descent-' + target).evaluate((element) => {
+            const top = element.getBoundingClientRect().top
+            const box = element.closest('dialog')!.getBoundingClientRect()
+            return top >= box.top && top < box.bottom
+          }),
+        )
+        .toBe(true)
+    }
   }
   await page.goto('/en?source=preview')
-  await selectProject(page, 'pangea-chat')
+  const project = page.getByRole('link', { name: 'View project: Pangea Chat', exact: true })
+  const dialog = page.getByRole('dialog', { name: 'Pangea Chat', exact: true })
+  await project.click()
+  await expect(page).toHaveURL('/en?source=preview#pangea-chat')
   await page.goBack()
   await expect(page).toHaveURL('/en?source=preview')
-  await expect(page.locator('#work-panel-kalibr')).toBeVisible()
+  await expect(dialog).toBeHidden()
   await page.goForward()
-  await expect(page.locator('#work-panel-pangea-chat')).toBeVisible()
-  await selectProject(page, 'localcut')
-  await expect(page).toHaveURL('/en?source=preview#localcut')
-  await page.goBack()
-  await expect(page.locator('#work-panel-pangea-chat')).toBeVisible()
+  await expect(dialog).toBeVisible()
   await expect(page).toHaveURL('/en?source=preview#pangea-chat')
-  await page.goForward()
-  await expect(page.locator('#work-panel-localcut')).toBeVisible()
-  await expect(page).toHaveURL('/en?source=preview#localcut')
-  await page.goto('/en')
-  await page.evaluate(() => {
-    document.documentElement.dataset.historyDocument = 'same'
-  })
-  await selectProject(page, 'localcut')
-  await page.getByRole('contentinfo').getByRole('link', { name: 'Contact', exact: true }).click()
-  await expect(page).toHaveURL('/en#contact')
-  await selectProject(page, 'cyobot')
-  await page.goBack()
-  await expect(page).toHaveURL('/en#contact')
-  await expect(page.locator('#work-panel-localcut')).toBeVisible()
-  await expect(page.locator('html')).toHaveAttribute('data-history-document', 'same')
-  await page.goForward()
-  await expect(page.locator('#work-panel-cyobot')).toBeVisible()
-  await expect(page.locator('html')).toHaveAttribute('data-history-document', 'same')
   await page.goto('/#%broken')
-  await expect(page.locator('#work-panel-kalibr')).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(page.getByRole('dialog')).toBeHidden()
 })
 
-test('keeps all work and resume-derived technologies available without JavaScript', async ({
-  browser,
+test('keeps the mobile dialog close control visible on a deep-linked screenshot', async ({
+  page,
 }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/en?source=portfolio#localcut-webmcp')
+  const dialog = page.getByRole('dialog', { name: 'LocalCut', exact: true })
+  await expect(
+    dialog.getByRole('heading', { name: 'Edit with an external agent.' }),
+  ).toBeInViewport()
+  const close = dialog.getByRole('button', { name: 'Close project' })
+  await expect(close).toBeInViewport({ ratio: 1 })
+  await expect(close).toBeFocused()
+  await close.click()
+  await expect(dialog).toBeHidden()
+  await expect(page).toHaveURL('/en?source=portfolio#work')
+})
+
+test('keeps work, technologies and contact available without JavaScript', async ({ browser }) => {
   const context = await browser.newContext({
     javaScriptEnabled: false,
     viewport: { width: 375, height: 812 },
   })
-  const page = await context.newPage()
-  await page.goto('/')
-  for (const project of projectChoices) await expect(page.locator(`#${project.id}`)).toBeVisible()
-  const carousel = page.locator('.tech-carousel')
-  for (const section of await carousel.locator('noscript section').all())
-    await expect(section).toBeVisible()
-  const visibleTechnologies = (await carousel.locator('noscript p').allTextContents()).flatMap(
-    (text) => text.split(' · '),
-  )
-  expect(new Set(visibleTechnologies).size).toBe(36)
-  await page.locator('#work-tab-top-pangea-chat').click()
-  await expect(page).toHaveURL(/#pangea-chat$/)
-  await expect
-    .poll(() =>
-      page.locator('#pangea-chat').evaluate((element) => element.getBoundingClientRect().top),
+  try {
+    const page = await context.newPage()
+    await page.goto('/')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
+    await expect(page.locator('.descent-page')).toBeHidden()
+    for (const project of projectChoices) await expect(page.locator('#' + project.id)).toBeVisible()
+    const technologies = (
+      await page.locator('[id^="skills-fallback-"] p').allTextContents()
+    ).flatMap((text) => text.split(' · '))
+    expect(new Set(technologies).size).toBe(36)
+    const work = page.getByRole('region', { name: 'Work', exact: true })
+    await work.getByRole('link', { name: 'Pangea Chat', exact: true }).click()
+    await expect(page).toHaveURL(/#pangea-chat$/)
+    await expect(page.locator('#pangea-chat')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Download résumé' }).first()).toHaveAttribute(
+      'href',
+      '/wilson-le-resume.pdf',
     )
-    .toBeGreaterThanOrEqual(79)
-  await context.close()
+    await expect(
+      page.getByRole('region', { name: 'Get In Touch' }).getByRole('link', { name: /^Email/ }),
+    ).toHaveAttribute('href', /^mailto:/)
+  } finally {
+    await context.close()
+  }
 })

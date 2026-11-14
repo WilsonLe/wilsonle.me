@@ -3,13 +3,36 @@
 Personal portfolio and blog for Wilson Le. Built with Next.js 15,
 Payload CMS 3, and Tailwind CSS v4.
 
+The homepage is a portfolio with an interactive pixel character.
+The city has five districts: rooftops, street market, transit tunnels, sewers, and
+reactor core. The scenery is rendered with Canvas 2D behind semantic portfolio
+content, with no game engine or new dependencies.
+
+### Interactive portfolio
+
+Run `pnpm exec next dev --hostname 127.0.0.1 --port 3117` using pnpm 9 or 10,
+then open <http://127.0.0.1:3117>. Use the local environment described below.
+
+Use WASD or the arrow keys. Up jumps. Double tap Up or W and hold the second
+press to fly with the jetpack. Down drops through ledges. On a touchscreen, tap
+or hold the on-screen controls to move, or swipe to scroll through the portfolio.
+Double tap the up control and hold the second tap to fly.
+
+Press **E** beside a project billboard, or click or tap a billboard, to see the
+project and its screenshots. The portfolio navigation scrolls to each section
+and brings the character along. Sound is opt-in. The Skills panel is below Work.
+Without JavaScript, the static portfolio still exposes the project descriptions,
+screenshots, skills, résumé and contact links.
+
+Focused checks: `pnpm exec tsx --test src/components/game/descent-engine.test.ts`.
+The controls currently use the same English fallback as the Vietnamese homepage.
+
 Production: <https://wilsonle.me>
 
 ## What this repo is
 
-- **Portfolio** — identity-led home page (selected work, working principles,
-  current focus, about, contact), rendered from typed content modules, with a
-  direct résumé PDF download.
+- **Portfolio** — interactive home page with work showcases, skills, contact
+  and a direct résumé PDF download, rendered from typed content modules.
 - **Blog** — authored **in code** as MDX files under `src/content/blog/<locale>/`.
   No headless CMS in front of blog posts.
 - **Payload CMS** — used as a **backend data store only** (media, contact-form
@@ -32,7 +55,7 @@ scoped files under [`.github/instructions/`](.github/instructions/).
 | Language        | TypeScript 5 (path alias `@/*` → `src/*`)            |
 | Tests           | Vitest (integration), Playwright (e2e)               |
 | Package manager | pnpm                                                 |
-| Deployment      | Docker                                               |
+| Deployment      | Vercel production, Docker for standalone hosting     |
 
 ## Repository layout
 
@@ -127,9 +150,11 @@ pnpm build
 
 ## Deployment
 
-Deployed via Docker using the provided `Dockerfile` and `docker-compose.yml`.
-There are no assumptions about Vercel or Payload Cloud — the runtime is a
-standalone Node container backed by a SQLite volume.
+The public site is deployed by Vercel from GitHub's `main` branch. Use the
+Production deployment status and the public domain to verify a release.
+
+The repository also includes a `Dockerfile` and `docker-compose.yml` for
+standalone development.
 
 ```sh
 docker compose up --build
