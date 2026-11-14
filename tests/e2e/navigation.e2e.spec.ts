@@ -637,7 +637,8 @@ test('Space jumps without scrolling and a held second press flies', async ({ pag
   expect(await scroller.evaluate((element) => element.scrollTop)).toBe(0)
 })
 
-test('Space activates a focused sound button', async ({ page }) => {
+test('Space activates the sound button and Up still jumps after clicking it', async ({ page }) => {
+  await installPausedClock(page)
   await page.goto('/')
   const city = page.locator('.descent-page')
   const sound = page.getByRole('button', { name: /Turn sound (on|off)/ })
@@ -647,6 +648,32 @@ test('Space activates a focused sound button', async ({ page }) => {
   await page.keyboard.press('Space')
   await expect(sound).toHaveAttribute('aria-pressed', 'false')
   await expect(city).toHaveAttribute('data-started', 'false')
+
+  const playerY = async () => Number(await city.getAttribute('data-player-y'))
+  const initialY = await playerY()
+  await page.keyboard.press('ArrowUp')
+  await page.clock.runFor(180)
+  expect(await playerY()).toBeLessThan(initialY - 15)
+})
+
+test('Down drops the character after closing a project opened with the mouse', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  await page.getByRole('link', { name: 'View work', exact: true }).click()
+  const city = page.locator('.descent-page')
+  const project = page.getByRole('link', { name: 'View project: Kalibr', exact: true })
+  const dialog = page.getByRole('dialog', { name: 'Kalibr', exact: true })
+  await project.click()
+  await expect(dialog).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  await expect(page).toHaveURL(/#work$/)
+  await expect(project).toBeFocused()
+
+  const playerY = async () => Number(await city.getAttribute('data-player-y'))
+  const initialY = await playerY()
+  await page.keyboard.press('ArrowDown')
+  await expect.poll(playerY).toBeGreaterThan(initialY + 15)
 })
 
 test('keeps keyboard scrolling available from focused portfolio links', async ({ page }) => {
@@ -669,9 +696,7 @@ test('keeps keyboard scrolling available from focused portfolio links', async ({
   await expect(booking).toBeFocused()
 })
 
-test('keeps city movement available from the Skills heading and arrow navigation in the tabs', async ({
-  page,
-}) => {
+test('keeps city movement available from the Skills heading', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/#skills')
   const skills = page.getByRole('heading', { name: 'Skills', exact: true })
@@ -686,10 +711,33 @@ test('keeps city movement available from the Skills heading and arrow navigation
   } finally {
     await page.keyboard.up('ArrowLeft')
   }
-  const frontend = page.getByRole('tab', { name: 'Frontend', exact: true })
-  await frontend.focus()
+})
+
+test('hands arrow control back to the city when jumping from a clicked Skills tab', async ({
+  page,
+}) => {
+  await installPausedClock(page)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/#skills')
+  await expect(page.getByRole('heading', { name: 'Skills', exact: true })).toBeFocused()
+  await page.getByRole('tab', { name: 'Frontend', exact: true }).click()
   await page.keyboard.press('ArrowRight')
   await expect(page.getByRole('tab', { name: 'Backend', exact: true })).toBeFocused()
+  await page.keyboard.press('ArrowLeft')
+  await expect(page.getByRole('tab', { name: 'Frontend', exact: true })).toBeFocused()
+  const city = page.locator('.descent-page')
+  const playerY = async () => Number(await city.getAttribute('data-player-y'))
+  const initialY = await playerY()
+  await page.keyboard.press('ArrowUp')
+  await page.clock.runFor(180)
+  expect(await playerY()).toBeLessThan(initialY - 15)
+
+  const playerX = async () => Number(await city.getAttribute('data-player-x'))
+  const initialX = await playerX()
+  await page.keyboard.down('ArrowRight')
+  await page.clock.runFor(160)
+  await page.keyboard.up('ArrowRight')
+  expect(await playerX()).toBeGreaterThan(initialX + 15)
 })
 
 test('supports touch movement, a held jetpack and a tap-to-open billboard', async ({ browser }) => {
