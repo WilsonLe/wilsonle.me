@@ -809,7 +809,6 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
                   <span>{copy.jetpack}</span>
                 </p>
               </div>
-              <p className="mt-3 text-xs leading-relaxed text-paper-muted">{copy.spaceControls}</p>
             </aside>
           </div>
 
