@@ -541,6 +541,26 @@ test('uses the keyboard to jump and activate the jetpack', async ({ page }) => {
   await expect(city).toHaveAttribute('data-jetpack', 'false')
 })
 
+test('keeps keyboard scrolling available from focused portfolio links', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/#contact')
+  await expect(page.getByRole('heading', { name: 'Contact', exact: true })).toBeFocused()
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Tab')
+  const booking = page.getByRole('link', { name: 'Book a 30-minute call' })
+  await expect(booking).toBeFocused()
+  const city = page.locator('.descent-page')
+  const playerY = await city.getAttribute('data-player-y')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  const initialScroll = await scroller.evaluate((element) => element.scrollTop)
+  await page.keyboard.press('ArrowUp')
+  await expect
+    .poll(() => scroller.evaluate((element) => element.scrollTop))
+    .toBeLessThan(initialScroll)
+  await expect(city).toHaveAttribute('data-player-y', playerY!)
+  await expect(booking).toBeFocused()
+})
+
 test('supports touch movement, a held jetpack and a tap-to-open billboard', async ({ browser }) => {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -631,6 +651,23 @@ test('preserves project and feature deep links, locale URLs and browser history'
   await page.goto('/#%broken')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expect(page.getByRole('dialog')).toBeHidden()
+})
+
+test('keeps the mobile dialog close control visible on a deep-linked screenshot', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/en?source=portfolio#localcut-webmcp')
+  const dialog = page.getByRole('dialog', { name: 'LocalCut', exact: true })
+  await expect(
+    dialog.getByRole('heading', { name: 'Edit with an external agent.' }),
+  ).toBeInViewport()
+  const close = dialog.getByRole('button', { name: 'Close project' })
+  await expect(close).toBeInViewport({ ratio: 1 })
+  await expect(close).toBeFocused()
+  await close.click()
+  await expect(dialog).toBeHidden()
+  await expect(page).toHaveURL('/en?source=portfolio#work')
 })
 
 test('keeps work, technologies and contact available without JavaScript', async ({ browser }) => {

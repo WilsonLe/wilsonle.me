@@ -77,6 +77,13 @@ function isUnmodifiedClick(event: MouseEvent<HTMLAnchorElement>) {
   return event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
 }
 
+function scrollProject(dialog: HTMLDialogElement, hash: string) {
+  const body = dialog.querySelector<HTMLElement>('.descent-dialog-body')
+  if (!body) return
+  const target = document.getElementById('descent-' + hash)
+  body.scrollTop = target && body.contains(target) ? target.offsetTop : 0
+}
+
 const currentPath = () => window.location.pathname + window.location.search + window.location.hash
 
 function KeyLabel({ arrow, letter }: { arrow: string; letter: string }) {
@@ -187,6 +194,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     let following = false
     let scrollTop = scroller.scrollTop
     let paintedCamera = -1
+    let paintedVisibility = -1
     let visibility = 1
     let showTouchPad = false
     let workLedge: Platform | undefined
@@ -206,7 +214,9 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       state.player.y - state.camera >= header.offsetHeight / scale &&
       state.player.y + PLAYER_HEIGHT - state.camera <= viewHeight
     const inspectable = () =>
-      !travel && state.started && playerVisible() ? nearbyBillboard(state) : undefined
+      ctx && foregroundCtx && !travel && state.started && playerVisible()
+        ? nearbyBillboard(state)
+        : undefined
     const publish = () => {
       const nearby = inspectable()
       const centerX = state.player.x + PLAYER_WIDTH / 2
@@ -342,6 +352,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       )
     }
     const arrive = (destination: Destination) => {
+      paintedCamera = -1
       const ledge = arrivalLedge(destination)
       if (destination === 'top' || !ledge) {
         landPlayer(state, state.width * 0.81, state.layout.roof)
@@ -395,10 +406,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         const sameProject = selectedRef.current === work.projectId
         selectedRef.current = work.projectId
         setSelected(work.projectId)
-        if (sameProject && dialogRef.current?.open) {
-          const dialog = dialogRef.current
-          dialog.scrollTop = document.getElementById('descent-' + hash)?.offsetTop ?? 0
-        }
+        if (sameProject && dialogRef.current?.open) scrollProject(dialogRef.current, hash)
       } else {
         const returningFromProject = projectReturn.current === currentPath()
         projectReturn.current = null
@@ -436,6 +444,14 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         return
       const direction = moveKey(event.code)
       if (direction && pressRef.current) {
+        // Let focused portfolio links and controls keep their native scrolling keys.
+        if (
+          event.target instanceof HTMLElement &&
+          event.target.matches(':focus-visible') &&
+          event.target.closest('a, button, summary') &&
+          !event.target.closest('.descent-direction-pad, .descent-interact')
+        )
+          return
         event.preventDefault()
         if (!event.repeat) press(event.code, direction, event.timeStamp)
       } else if (event.code === 'KeyE' && !event.repeat) {
@@ -510,6 +526,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       const animating = travel || (following && !selectedRef.current)
       if (
         state.camera !== paintedCamera ||
+        visibility !== paintedVisibility ||
         (!motion.matches && now - lastPublish > 65) ||
         animating
       ) {
@@ -517,6 +534,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         if (foregroundCtx)
           drawForeground(foregroundCtx, state, viewHeight, now / 1000, motion.matches, visibility)
         paintedCamera = state.camera
+        paintedVisibility = visibility
       }
       const audio = audioRef.current
       if (audio) state.events.forEach((event) => playNote(audio, event))
@@ -582,10 +600,8 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
   useEffect(() => {
     const dialog = dialogRef.current
     if (!selected || !dialog) return
-    dialog.scrollTop = 0
     if (!dialog.open) dialog.showModal()
-    const target = document.getElementById('descent-' + fragment())
-    if (target && dialog.contains(target)) dialog.scrollTop = target.offsetTop
+    scrollProject(dialog, fragment())
   }, [selected])
 
   const toggleSound = () => {
@@ -923,7 +939,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         </a>
       )}
 
-      {directionalButtons()}
+      {playing && directionalButtons()}
 
       <dialog
         ref={dialogRef}
@@ -944,7 +960,9 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
                 ×
               </button>
             </header>
-            <DescentProjectDetails project={project} work={showcase} labels={content.projects} />
+            <div className="descent-dialog-body">
+              <DescentProjectDetails project={project} work={showcase} labels={content.projects} />
+            </div>
           </>
         )}
       </dialog>
