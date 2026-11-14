@@ -953,6 +953,7 @@
     font-weight: 600;
   }
   .descent-dialog {
+    --dialog-border-color: #4f6f7d;
     --dialog-padding: clamp(18px, 4vw, 38px);
     position: fixed;
     inset: 0;
@@ -960,7 +961,7 @@
     max-height: min(86dvh, 900px);
     margin: auto;
     overflow: hidden;
-    border: 1px solid #4f6f7d;
+    border: 1px solid var(--dialog-border-color);
     border-top: 3px solid #78e3f2;
     background: #0c161d;
     color: var(--descent-paper);
@@ -975,7 +976,8 @@
     gap: 18px;
     align-items: start;
     flex-shrink: 0;
-    padding: var(--dialog-padding) var(--dialog-padding) 0;
+    padding: var(--dialog-padding) var(--dialog-padding) 12px;
+    border-bottom: 1px solid var(--dialog-border-color);
   }
   .descent-dialog-body {
     position: relative;
