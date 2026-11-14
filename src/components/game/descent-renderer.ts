@@ -5,6 +5,7 @@ import {
   type CityLayout,
   type GameState,
   type Platform,
+  type Zone,
 } from '@/components/game/descent-engine'
 
 const CYAN = '#78e3f2'
@@ -15,6 +16,12 @@ const noise = (seed: number) => {
 }
 const loop = (value: number, range: number) => ((value % range) + range) % range
 type Canvas = CanvasRenderingContext2D
+export const CROSSINGS = ['streets', 'transit', 'sewers', 'reactor'] as const satisfies Exclude<
+  Zone,
+  'skyline'
+>[]
+type Crossing = (typeof CROSSINGS)[number]
+export type CrossingTops = Record<Crossing, number>
 
 function block(ctx: Canvas, x: number, y: number, w: number, h: number, color: string) {
   ctx.fillStyle = color
@@ -188,8 +195,8 @@ function market(ctx: Canvas, width: number, top: number, end: number, time: numb
     block(ctx, x + 50, awning + 42, 24, 26, '#493333')
     block(ctx, x + 9, awning + 74, 86, 5, '#7e5d51')
   }
-  const road = end - 64
-  block(ctx, 0, road, width, 64, '#191820')
+  const road = end - 82
+  block(ctx, 0, road, width, end - road, '#191820')
   block(ctx, 0, road, width, 4, '#765349')
   for (let x = 15; x < width; x += 73) block(ctx, x, road + 32, 30, 3, '#887061')
   const cars = width < 800 ? 2 : 3
@@ -233,9 +240,6 @@ function transit(
     block(ctx, x - 3, tracks - 145, 6, 6, occupied ? '#e0a38c' : '#63817e')
     block(ctx, x - 3, tracks - 135, 6, 6, occupied ? '#465a61' : '#98c0b2')
   }
-  for (let i = 0; i < 3; i++) {
-    block(ctx, 0, top + 22 + i * 11, width, 4, ['#76668e', '#584765', '#453b53'][i])
-  }
   block(ctx, 0, tracks, width, 42, '#211c31')
   for (let x = 12; x < width; x += 34) block(ctx, x, tracks + 5, 12, 28, '#473a58')
   block(ctx, 0, tracks + 5, width, 3, '#8e7ea1')
@@ -256,7 +260,15 @@ function transit(
   }
 }
 
-function sewers(ctx: Canvas, width: number, top: number, end: number, time: number, water: number) {
+function sewers(
+  ctx: Canvas,
+  width: number,
+  top: number,
+  end: number,
+  time: number,
+  water: number,
+  outlets: number[],
+) {
   gradient(ctx, width, top, end, ['#1d1b23', '#29272d', '#131d25'])
   for (let row = 0, y = top + 12; y < end - 31; y += 20, row++) {
     for (let x = row % 2 ? -29 : 0, i = 0; x < width; x += 58, i++) {
@@ -265,12 +277,12 @@ function sewers(ctx: Canvas, width: number, top: number, end: number, time: numb
     }
   }
   const span = end - top
-  const outlets = [width * 0.18, width * 0.77]
   const outlet = top + span * 0.43
   const radius = Math.min(62, (water - outlet) * 0.84)
   const fallTop = outlet + radius * 0.7
   const fall = water - fallTop
   for (const x of outlets) {
+    pipe(ctx, x, top - 16, outlet - radius * 0.5)
     disk(ctx, x, outlet, radius * 1.1, radius, '#70504a')
     disk(ctx, x, outlet, radius * 0.87, radius * 0.79, '#091822')
     for (let i = -3; i <= 3; i++) {
@@ -364,6 +376,131 @@ function sewers(ctx: Canvas, width: number, top: number, end: number, time: numb
   ctx.restore()
 }
 
+const STRUCTURE = {
+  streets: { cap: '#577789', face: '#203643', edge: '#456577', metal: '#779399' },
+  transit: { cap: '#796459', face: '#302c37', edge: '#675f69', metal: '#9c8c83' },
+  sewers: { cap: '#686078', face: '#302a31', edge: '#645159', metal: '#a18477' },
+  reactor: { cap: '#41788d', face: '#2f2735', edge: '#75525d', metal: '#ba897c' },
+}
+const REACTOR_FEED = 0.38
+
+function pipe(ctx: Canvas, x: number, top: number, bottom: number) {
+  block(ctx, x - 14, top, 28, bottom - top, '#191e28')
+  block(ctx, x - 10, top, 20, bottom - top, '#415762')
+  block(ctx, x - 8, top, 4, bottom - top, '#71868b')
+  block(ctx, x - 18, top + 18, 36, 8, '#536975')
+  block(ctx, x - 16, bottom - 15, 32, 8, '#546471')
+}
+
+function crossing(
+  ctx: Canvas,
+  width: number,
+  top: number,
+  bottom: number,
+  shaftX: number,
+  kind: Crossing,
+  drains: number[],
+) {
+  const depth = bottom - top
+  const palette = STRUCTURE[kind]
+  gradient(ctx, width, top, bottom, [palette.cap, palette.face, '#111a24'])
+  const deckY = top + 15
+  const panelY = top + 28
+  const panelHeight = depth - 43
+  const pitch = kind === 'reactor' ? 128 : 116
+  for (let x = -28, i = 0; x < width; x += pitch, i++) {
+    block(ctx, x, panelY, pitch - 6, panelHeight, palette.face)
+    block(ctx, x, panelY, pitch - 6, 3, palette.edge)
+    block(ctx, x, panelY + 3, 3, panelHeight - 3, palette.edge)
+    block(ctx, x + pitch - 10, panelY + 4, 4, panelHeight - 4, '#141923')
+
+    if (kind === 'streets') {
+      const direction = i % 2 ? -1 : 1
+      for (let y = 0; y < panelHeight - 8; y += 4) {
+        const run = (y / panelHeight) * (pitch - 34)
+        const brace = direction > 0 ? x + 8 + run : x + pitch - 24 - run
+        block(ctx, brace, panelY + 5 + y, 13, 6, '#182632')
+        block(ctx, brace, panelY + 5 + y, 8, 4, palette.edge)
+      }
+    } else if (kind === 'sewers') {
+      for (let y = 10, row = 0; y < panelHeight - 6; y += 15, row++) {
+        block(ctx, x + 5, panelY + y, pitch - 16, 2, '#201d25')
+        const joint = x + (row % 2 ? 42 : 72)
+        block(ctx, joint, panelY + y - 13, 2, 13, '#201d25')
+        if ((row + i) % 2 === 0) block(ctx, joint + 7, panelY + y - 9, 20, 3, '#523d45')
+      }
+    } else {
+      block(ctx, x + 13, panelY + 10, pitch - 36, panelHeight - 20, '#22212b')
+      block(ctx, x + 13, panelY + panelHeight - 12, pitch - 36, 2, palette.edge)
+      if (kind === 'reactor') {
+        const ventY = panelY + Math.round(panelHeight * 0.43)
+        for (let slot = 0; slot < 3; slot++) {
+          block(ctx, x + 25, ventY + slot * 8, 36, 3, '#4d3b48')
+        }
+        block(ctx, x + 76, ventY + 2, 10, 6, '#a76652')
+        block(ctx, x + 77, ventY + 2, 6, 2, '#d39970')
+      } else {
+        block(ctx, x + 22, panelY + 17, 44, 3, '#4b4451')
+        for (let bolt = 0; bolt < 2; bolt++) {
+          block(ctx, x + 19 + bolt * 58, panelY + 15, 3, 4, palette.metal)
+        }
+      }
+    }
+  }
+  block(ctx, 0, top, width, 4, palette.metal)
+  block(ctx, 0, deckY, width, 10, '#141d27')
+  block(ctx, 0, deckY, width, 3, palette.cap)
+  block(ctx, 0, bottom - 14, width, 14, '#121a24')
+  block(ctx, 0, bottom - 14, width, 3, palette.edge)
+  gradient(ctx, width, bottom, bottom + 24, ['#0a1119bc', '#0a111900'])
+
+  if (kind === 'sewers') {
+    for (const x of drains) {
+      pipe(ctx, x, top + 3, bottom)
+      block(ctx, x - 20, top + 5, 40, 9, '#75665e')
+    }
+  }
+  if (kind === 'reactor') {
+    const cableX = width * REACTOR_FEED + 14
+    pipe(ctx, cableX, top, bottom)
+    for (let offset = -5; offset <= 5; offset += 5) {
+      block(ctx, cableX + offset, top, 2, depth, '#ab7565')
+    }
+    for (let x = 25; x < width; x += 163) {
+      for (let stripe = 0; stripe < 4; stripe++) {
+        block(ctx, x + stripe * 9, bottom - 11, 5, 7, '#ba8c61')
+      }
+    }
+  }
+
+  // A recessed opening makes the service shaft read through each slab.
+  const shaftLeft = shaftX - 36
+  block(ctx, shaftLeft - 4, top, 80, depth, palette.edge)
+  block(ctx, shaftLeft, top, 72, depth, '#101d28')
+  block(ctx, shaftLeft, top, 5, depth, '#09141e')
+  block(ctx, shaftLeft + 65, top, 7, depth, '#28404d')
+  for (const y of [top + 8, bottom - 12]) {
+    block(ctx, shaftLeft - 5, y, 7, 4, palette.metal)
+    block(ctx, shaftLeft + 70, y, 7, 4, palette.metal)
+  }
+
+  if (kind === 'transit') {
+    const entrance = width * 0.31
+    block(ctx, entrance - 8, top, 147, depth - 8, palette.edge)
+    block(ctx, entrance, top, 131, depth - 8, '#151925')
+    block(ctx, entrance, top, 40, 4, palette.metal)
+    for (let step = 0; step < 8; step++) {
+      const x = entrance + 5 + step * 12
+      const y = top + 14 + (step * (depth - 23)) / 8
+      block(ctx, x, y, 40, 7, '#4e495a')
+      block(ctx, x, y, 40, 2, '#88808a')
+      block(ctx, x + 8, y - 12, 3, 12, '#4f4b58')
+      block(ctx, x + 8, y - 14, 14, 2, '#706b76')
+    }
+    block(ctx, entrance + 103, bottom - 8, 43, 8, '#494255')
+  }
+}
+
 function reactor(ctx: Canvas, width: number, top: number, end: number, time: number) {
   gradient(ctx, width, top, end, ['#151621', '#35212e', '#16121b'])
   const span = end - top
@@ -374,9 +511,11 @@ function reactor(ctx: Canvas, width: number, top: number, end: number, time: num
     block(ctx, col, top, 2, span, '#4f333c')
     block(ctx, col + 5, top + 18, 18, 3, '#6a4a56')
   }
-  for (const [i, px] of [width * 0.38, width * 0.54, width * 0.91].entries()) {
-    block(ctx, px, top + 35, 28, span - 60, '#2c2333')
-    block(ctx, px + 4, top + 35, 5, span - 60, '#644758')
+  for (const [i, position] of [REACTOR_FEED, 0.54, 0.91].entries()) {
+    const px = width * position
+    const inlet = i === 0 ? top : top + 35
+    block(ctx, px, inlet, 28, end - inlet - 25, '#2c2333')
+    block(ctx, px + 4, inlet, 5, end - inlet - 25, '#644758')
     for (let yy = top + 62; yy < end - 25; yy += 73) {
       block(ctx, px - 4, yy, 36, 9, '#694752')
       block(ctx, px + 3, yy + 2, 21, 3, '#b47979')
@@ -471,11 +610,19 @@ const PALETTE: Record<string, string> = {
   d: '#46646b',
 }
 
-export function drawGame(ctx: Canvas, state: GameState, height: number, time: number) {
+export function drawGame(
+  ctx: Canvas,
+  state: GameState,
+  height: number,
+  time: number,
+  tops: CrossingTops,
+) {
   const width = state.width
   const camera = Math.round(state.camera)
   const { streets, transit: rail, sewers: drains, reactor: core, roof } = state.layout
   const end = floorY(state.layout)
+  const shaftX = Math.round(width * (width < 800 ? 0.83 : 0.82))
+  const outlets = [width * 0.18, width * 0.62]
   block(ctx, 0, 0, width, height + 1, '#080e15')
   ctx.save()
   ctx.translate(0, -camera)
@@ -488,10 +635,11 @@ export function drawGame(ctx: Canvas, state: GameState, height: number, time: nu
     paint()
     ctx.restore()
   }
-  district(0, streets, () => skyline(ctx, width, streets, camera, time))
-  district(streets, rail, () => market(ctx, width, streets, rail, time))
-  district(rail, drains, () => {
-    let tracks = rail + (drains - rail) * 0.73
+  district(0, tops.streets, () => skyline(ctx, width, tops.streets, camera, time))
+  district(streets, tops.transit, () => market(ctx, width, streets, tops.transit, time))
+  district(rail, tops.sewers, () => {
+    const end = tops.sewers
+    let tracks = rail + (end - rail) * 0.73
     if (width < 800) {
       const boards = state.layout.billboards.filter((board) => board.y >= rail && board.y < drains)
       const [first] = boards
@@ -499,25 +647,39 @@ export function drawGame(ctx: Canvas, state: GameState, height: number, time: nu
       // A single-column grid leaves more room between rows than before the district seam.
       tracks = nextRow
         ? Math.min(billboardLedgeY(first), nextRow.y - 4)
-        : Math.min(drains - 13, Math.max(tracks, billboardBottom(state.layout, rail, drains) + 49))
+        : Math.min(end - 18, Math.max(tracks, billboardBottom(state.layout, rail, drains) + 49))
     }
-    transit(ctx, width, rail, drains, time, tracks)
+    transit(ctx, width, rail, end, time, tracks)
   })
-  district(drains, core, () => {
-    const waterline = drains + (core - drains) * 0.76
+  district(drains, tops.reactor, () => {
+    const end = tops.reactor
+    const waterline = drains + (end - drains) * 0.76
     const water =
       width < 800
-        ? Math.max(waterline, Math.min(billboardBottom(state.layout, drains, core) + 30, core - 40))
+        ? Math.max(waterline, Math.min(billboardBottom(state.layout, drains, core) + 30, end - 40))
         : waterline
-    sewers(ctx, width, drains, core, time, water)
+    sewers(ctx, width, drains, end, time, water, outlets)
   })
   district(core, end, () => reactor(ctx, width, core, end, time))
 
-  // Seams and a service riser join the five districts into one continuous shaft.
-  for (const y of [streets, rail, drains, core]) {
-    block(ctx, 0, y - 9, width, 12, '#253e4c')
-    block(ctx, 0, y - 8, width, 2, LEDGE_LIGHTS[zoneAt(state.layout, y)] + '84')
-    for (let x = 20; x < width; x += 60) block(ctx, x, y - 3, 25, 3, '#405e70')
+  for (const key of CROSSINGS) {
+    const top = tops[key]
+    const bottom = state.layout[key]
+    district(top, bottom + 24, () => crossing(ctx, width, top, bottom, shaftX, key, outlets))
+  }
+
+  const ladderTop = Math.max(roof, camera - 16)
+  const ladderBottom = Math.min(end, camera + height + 16)
+  for (
+    let y = roof + Math.max(0, Math.ceil((ladderTop - roof) / 16)) * 16;
+    y < ladderBottom;
+    y += 16
+  ) {
+    block(ctx, shaftX - 10, y, 20, 2, '#60768280')
+  }
+  for (const x of [shaftX - 12, shaftX + 10]) {
+    block(ctx, x, roof, 3, end - roof, '#152530bb')
+    block(ctx, x, roof, 1, end - roof, '#637c8980')
   }
   block(ctx, width - 27, roof, 27, end - roof, '#182b38')
   block(ctx, width - 24, roof, 3, end - roof, '#577b91')
