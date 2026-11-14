@@ -21,7 +21,7 @@ the second tap to fly.
 
 Press **E** beside a project billboard, or click or tap a billboard, to see the
 project and its screenshots. The portfolio navigation scrolls to each section
-and brings the character along. Sound is opt-in. The Skills panel is below Work.
+and brings the character along. Sound is opt-in. The rooftop Skills billboard is above Work.
 Without JavaScript, the static portfolio still exposes the project descriptions,
 screenshots, skills, résumé and contact links.
 
