@@ -9,6 +9,7 @@ const movement: Record<string, MoveKey | undefined> = {
   KeyD: 'right',
   ArrowUp: 'up',
   KeyW: 'up',
+  Space: 'up',
   ArrowDown: 'down',
   KeyS: 'down',
 }

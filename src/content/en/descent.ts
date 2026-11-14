@@ -3,6 +3,9 @@
 export const descentContent = {
   controls: 'Explore the city',
   jetpack: 'Jetpack',
+  spaceControls: 'Space jumps. Double-tap Space and hold the second press to fly.',
+  regionLabel:
+    'Interactive portfolio. Move with WASD, the arrow keys, or the on-screen controls. Jump with Space, Up, or W. Double-tap a jump key and hold the second press to fly.',
   viewProject: 'View project',
   closeProject: 'Close project',
   backToTop: 'Back to top',

@@ -436,20 +436,30 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     pressRef.current = ctx && foregroundCtx ? press : null
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (selectedRef.current || event.metaKey || event.ctrlKey || event.altKey) return
       if (
-        event.target instanceof HTMLElement &&
-        event.target.closest('input, textarea, select, [contenteditable], dialog, .descent-skills')
+        event.defaultPrevented ||
+        selectedRef.current ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey
       )
         return
+      const target = event.target instanceof HTMLElement ? event.target : null
+      const space = event.code === 'Space'
+      if (
+        target?.closest('input, textarea, select, [contenteditable], dialog') ||
+        target?.closest(space ? 'button, summary' : '.descent-skills')
+      )
+        return
+
       const direction = moveKey(event.code)
       if (direction && pressRef.current) {
-        // Let focused portfolio links and controls keep their native scrolling keys.
+        // Keep arrow scrolling on focused portfolio links and controls.
         if (
-          event.target instanceof HTMLElement &&
-          event.target.matches(':focus-visible') &&
-          event.target.closest('a, button, summary') &&
-          !event.target.closest('.descent-direction-pad, .descent-interact')
+          !space &&
+          target?.matches(':focus-visible') &&
+          target.closest('a, button, summary') &&
+          !target.closest('.descent-direction-pad, .descent-interact')
         )
           return
         event.preventDefault()
@@ -756,7 +766,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         className="descent-scrollport"
         tabIndex={0}
         role="region"
-        aria-label="Interactive portfolio. Move with WASD, the arrow keys, or the on-screen controls. Double tap Up or W and hold the second press to fly."
+        aria-label={copy.regionLabel}
       >
         <div ref={worldRef} className="descent-world">
           <div className="descent-rooftop">
@@ -806,6 +816,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
                   <span>{copy.jetpack}</span>
                 </p>
               </div>
+              <p className="mt-3 text-xs leading-relaxed text-paper-muted">{copy.spaceControls}</p>
             </aside>
           </div>
 
