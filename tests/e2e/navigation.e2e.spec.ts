@@ -601,6 +601,25 @@ test('keeps keyboard scrolling available from focused portfolio links', async ({
   await expect(booking).toBeFocused()
 })
 
+test('Shift+Space scrolls up while the character stays idle', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await scroller.focus()
+  const initialScroll = await scroller.evaluate((element) => {
+    element.scrollTop = 500
+    return element.scrollTop
+  })
+
+  await page.keyboard.press('Shift+Space')
+  await expect
+    .poll(() => scroller.evaluate((element) => element.scrollTop))
+    .toBeLessThan(initialScroll - 100)
+  await expect(city).toHaveAttribute('data-started', 'false')
+})
+
 test('supports touch movement, a held jetpack and a tap-to-open billboard', async ({ browser }) => {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },

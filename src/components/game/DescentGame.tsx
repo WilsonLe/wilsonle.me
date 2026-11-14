@@ -436,32 +436,25 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     pressRef.current = ctx && foregroundCtx ? press : null
 
     const onKeyDown = (event: KeyboardEvent) => {
+      if (selectedRef.current || event.metaKey || event.ctrlKey || event.altKey) return
       if (
-        event.defaultPrevented ||
-        selectedRef.current ||
-        event.metaKey ||
-        event.ctrlKey ||
-        event.altKey
+        event.target instanceof HTMLElement &&
+        event.target.closest('input, textarea, select, [contenteditable], dialog, .descent-skills')
       )
         return
-      const target = event.target instanceof HTMLElement ? event.target : null
-      const space = event.code === 'Space'
-      if (
-        target?.closest('input, textarea, select, [contenteditable], dialog') ||
-        target?.closest(space ? 'button, summary' : '.descent-skills')
-      )
-        return
-
       const direction = moveKey(event.code)
       if (direction && pressRef.current) {
-        // Keep arrow scrolling on focused portfolio links and controls.
-        if (
-          !space &&
+        const target = event.target instanceof HTMLElement ? event.target : null
+        if (event.code === 'Space') {
+          if (event.shiftKey || event.defaultPrevented || target?.closest('button, summary')) return
+        } else if (
           target?.matches(':focus-visible') &&
           target.closest('a, button, summary') &&
           !target.closest('.descent-direction-pad, .descent-interact')
-        )
+        ) {
+          // Let focused portfolio links and controls keep their native scrolling keys.
           return
+        }
         event.preventDefault()
         if (!event.repeat) press(event.code, direction, event.timeStamp)
       } else if (event.code === 'KeyE' && !event.repeat) {
