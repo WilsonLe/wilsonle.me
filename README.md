@@ -6,7 +6,9 @@ Payload CMS 3, and Tailwind CSS v4.
 The homepage is a portfolio with an interactive pixel character.
 The city has five districts: rooftops, street market, transit tunnels, sewers, and
 reactor core. The scenery is rendered with Canvas 2D behind semantic portfolio
-content, with no game engine or new dependencies.
+content, with aircraft and window lights on the rooftops, hovercars in the
+market, railway signals, a flowing sewer with drifting debris, and a pulsing
+reactor. Reduced motion keeps the scenery still.
 
 ### Interactive portfolio
 

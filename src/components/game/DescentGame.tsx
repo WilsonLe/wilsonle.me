@@ -1,6 +1,14 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState, type MouseEvent, type PointerEvent } from 'react'
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type PointerEvent,
+} from 'react'
 import Image from 'next/image'
 import { TechStackCarousel } from '@/components/TechStackCarousel'
 import type { HomeContent } from '@/content/types'
@@ -23,7 +31,12 @@ import {
   type Zone,
 } from '@/components/game/descent-engine'
 import { createControls, moveKey, type MoveKey } from '@/components/game/descent-input'
-import { drawGame, drawForeground } from '@/components/game/descent-renderer'
+import {
+  CROSSINGS,
+  drawGame,
+  drawForeground,
+  type CrossingTops,
+} from '@/components/game/descent-renderer'
 
 type Snapshot = {
   x: number
@@ -45,6 +58,7 @@ const INITIAL: Snapshot = {
 type Destination = 'top' | 'work' | 'contact' | 'skills'
 const FADE_MS = 180
 const SCROLL_MS = 440
+const WORK_DISTRICTS = ['streets', 'transit', 'sewers'] as const
 
 const DIRECTIONS = [
   ['up', '↑', 'W', 'Jump or activate jetpack'],
@@ -191,6 +205,12 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       !skills
     )
       return
+    const deck = world.querySelector<HTMLElement>('[data-crossing="streets"]')
+    const station = world.querySelector<HTMLElement>('[data-crossing="transit"]')
+    const drains = world.querySelector<HTMLElement>('[data-crossing="sewers"]')
+    const bulkhead = world.querySelector<HTMLElement>('[data-crossing="reactor"]')
+    if (!deck || !station || !drains || !bulkhead) return
+    const crossings = { streets: deck, transit: station, sewers: drains, reactor: bulkhead }
     const ctx = canvas.getContext('2d', { alpha: false })
     const foregroundCtx = foreground.getContext('2d')
     setPlaying(Boolean(ctx && foregroundCtx))
@@ -207,9 +227,14 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     let scrollTop = scroller.scrollTop
     let paintedCamera = -1
     let paintedVisibility = -1
+    let paintedMotion = motion.matches
+    let sceneryTime = 0
+    let paintedSceneryTime = 0
+    let lastSceneryPaint = 0
     let visibility = 1
     let showTouchPad = false
     let workLedge: Platform | undefined
+    let crossingTops: CrossingTops | undefined
     let travel: {
       destination: Destination
       source: number
@@ -284,7 +309,8 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       scale = viewportWidth / width
       viewHeight = viewportHeight / scale
       const bounds = world.getBoundingClientRect()
-      const y = (element: HTMLElement) => (element.getBoundingClientRect().top - bounds.top) / scale
+      const worldY = (edge: number) => (edge - bounds.top) / scale
+      const y = (element: HTMLElement) => worldY(element.getBoundingClientRect().top)
       const guideBottom = guide.getBoundingClientRect().bottom
       guideBottomY = guideBottom - bounds.top
       const roof =
@@ -302,18 +328,14 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
           height: rect.height / scale,
         }
       })
-      const rows = [...new Set(billboards.map((board) => Math.round(board.y)))].sort(
-        (a, b) => a - b,
-      )
-      const streets = Math.max(roof + 25, y(work) - 45 / scale)
-      const transit = Math.max(
-        streets + 85,
-        (rows[Math.ceil(rows.length / 3)] ?? streets + 380) - 28 / scale,
-      )
-      const sewers = Math.max(
-        transit + 85,
-        (rows[Math.ceil((rows.length * 2) / 3)] ?? transit + 330) - 28 / scale,
-      )
+      const tops = {} as CrossingTops
+      const districtStarts = {} as CrossingTops
+      for (const zone of CROSSINGS) {
+        const rect = crossings[zone].getBoundingClientRect()
+        tops[zone] = Math.round(worldY(rect.top))
+        districtStarts[zone] = Math.round(worldY(rect.bottom))
+      }
+      crossingTops = tops
       const contactBounds = contact.getBoundingClientRect()
       const contactHasSide = bounds.right - contactBounds.right >= viewportWidth * 0.24
       const contactLedge = {
@@ -336,10 +358,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         height: bounds.height / scale,
         ceiling: (headerHeight + 10) / scale,
         roof,
-        streets,
-        transit,
-        sewers,
-        reactor: Math.max(sewers + 100, y(contact) - 55 / scale),
+        ...districtStarts,
         workAwning,
         contactLedge,
         billboards,
@@ -561,18 +580,32 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         writeScroll(state.camera * scale)
       } else accumulator = 0
       const animating = travel || (following && !selectedRef.current)
+      const reducedMotion = motion.matches
+      const cameraChanged = state.camera !== paintedCamera
+      // Keep the last visible pose when reduced motion is turned on.
+      sceneryTime = reducedMotion ? paintedSceneryTime : sceneryTime + dt
       if (
-        state.camera !== paintedCamera ||
-        visibility !== paintedVisibility ||
-        (!motion.matches && now - lastPublish > 65) ||
-        animating
+        ctx &&
+        crossingTops &&
+        (cameraChanged || (!reducedMotion && now - lastSceneryPaint >= 32))
       ) {
-        if (ctx) drawGame(ctx, state, viewHeight, now / 1000, motion.matches)
-        if (foregroundCtx)
-          drawForeground(foregroundCtx, state, viewHeight, now / 1000, motion.matches, visibility)
-        paintedCamera = state.camera
-        paintedVisibility = visibility
+        drawGame(ctx, state, viewHeight, sceneryTime, crossingTops)
+        paintedSceneryTime = sceneryTime
+        lastSceneryPaint = now
       }
+      if (
+        foregroundCtx &&
+        (cameraChanged ||
+          visibility !== paintedVisibility ||
+          reducedMotion !== paintedMotion ||
+          (!reducedMotion && now - lastPublish > 65) ||
+          animating)
+      ) {
+        drawForeground(foregroundCtx, state, viewHeight, now / 1000, reducedMotion, visibility)
+      }
+      paintedCamera = state.camera
+      paintedVisibility = visibility
+      paintedMotion = reducedMotion
       const audio = audioRef.current
       if (audio) state.events.forEach((event) => playNote(audio, event))
       state.events.length = 0
@@ -739,6 +772,42 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
   const nearbyName =
     nearby && (works.find((item) => item.projectId === nearby.id)?.name || nearby.name)
   const nearbyWork = nearby && works.find((item) => item.projectId === nearby.id)
+  const projectsPerDistrict = Math.ceil(content.projects.items.length / WORK_DISTRICTS.length)
+  const billboards = content.projects.items.map((item) => {
+    const work = works.find((entry) => entry.projectId === item.id)
+    const screen = work?.screens[0]
+    const name = work?.name || item.name
+    return (
+      <article
+        key={item.id}
+        data-project-id={item.id}
+        data-approached={nearby?.id === item.id}
+        className="descent-project descent-billboard"
+      >
+        <div className="descent-billboard-lights" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
+        {screen && <Image {...screen.image} alt={screen.image.alt} unoptimized />}
+        <div className="descent-billboard-copy">
+          <h3>
+            <a
+              href={'#' + (work?.slug || item.id)}
+              className="descent-project-button"
+              aria-haspopup="dialog"
+              aria-label={copy.viewProject + ': ' + name}
+              onClick={(event) => openProject(event, item.id, work)}
+            >
+              {name}
+              <span aria-hidden="true">↗</span>
+            </a>
+          </h3>
+          <p>{work?.summary || item.summary}</p>
+        </div>
+      </article>
+    )
+  })
 
   return (
     <div
@@ -864,6 +933,8 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
             <TechStackCarousel stack={content.hero.stack} />
           </section>
 
+          <div className="descent-crossing" data-crossing="streets" aria-hidden="true" />
+
           <section
             ref={workRef}
             id="descent-work"
@@ -876,43 +947,23 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
               </h2>
             </header>
             <div className="descent-projects">
-              {content.projects.items.map((item) => {
-                const work = works.find((entry) => entry.projectId === item.id)
-                const screen = work?.screens[0]
-                const name = work?.name || item.name
-                return (
-                  <article
-                    key={item.id}
-                    data-project-id={item.id}
-                    data-approached={nearby?.id === item.id}
-                    className="descent-project descent-billboard"
-                  >
-                    <div className="descent-billboard-lights" aria-hidden="true">
-                      <i />
-                      <i />
-                      <i />
-                    </div>
-                    {screen && <Image {...screen.image} alt={screen.image.alt} unoptimized />}
-                    <div className="descent-billboard-copy">
-                      <h3>
-                        <a
-                          href={'#' + (work?.slug || item.id)}
-                          className="descent-project-button"
-                          aria-haspopup="dialog"
-                          aria-label={copy.viewProject + ': ' + name}
-                          onClick={(event) => openProject(event, item.id, work)}
-                        >
-                          {name}
-                          <span aria-hidden="true">↗</span>
-                        </a>
-                      </h3>
-                      <p>{work?.summary || item.summary}</p>
-                    </div>
-                  </article>
-                )
-              })}
+              {WORK_DISTRICTS.map((district, index) => (
+                <Fragment key={district}>
+                  {district !== 'streets' && (
+                    <div className="descent-crossing" data-crossing={district} aria-hidden="true" />
+                  )}
+                  <div className="descent-project-row">
+                    {billboards.slice(
+                      index * projectsPerDistrict,
+                      (index + 1) * projectsPerDistrict,
+                    )}
+                  </div>
+                </Fragment>
+              ))}
             </div>
           </section>
+
+          <div className="descent-crossing" data-crossing="reactor" aria-hidden="true" />
 
           <section
             ref={contactRef}
