@@ -63,7 +63,7 @@ const projectItems: Project[] = [
     summary: 'A video editor that works with media directly in the browser.',
     contribution:
       'Open-source, browser-local timeline editing and asset indexing with external-agent control.',
-    url: 'https://wilsonle.github.io/LocalCut/',
+    url: 'https://wilsonle.github.io/LocalApps/LocalCut/',
     linkLabel: 'Open LocalCut',
   },
   {
@@ -72,7 +72,7 @@ const projectItems: Project[] = [
     summary: 'A browser-local canvas for designing with editable layers, text and images.',
     contribution:
       'Open-source, browser-local pages, layers and frames with external-agent control.',
-    url: 'https://wilsonle.github.io/LocalDesign/',
+    url: 'https://wilsonle.github.io/LocalApps/LocalDesign/',
     linkLabel: 'Open LocalDesign',
   },
 ]

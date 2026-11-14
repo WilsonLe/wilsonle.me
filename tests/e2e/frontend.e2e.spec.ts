@@ -65,7 +65,7 @@ test.describe('Frontend', () => {
     }
     await expect(
       page.getByRole('dialog').getByRole('link', { name: 'Open LocalDesign' }),
-    ).toHaveAttribute('href', 'https://wilsonle.github.io/LocalDesign/')
+    ).toHaveAttribute('href', 'https://wilsonle.github.io/LocalApps/LocalDesign/')
     await expect(
       page.getByRole('dialog').getByRole('heading', { name: 'Design with an external agent.' }),
     ).toBeVisible()
@@ -105,7 +105,7 @@ test.describe('Frontend', () => {
     await expect(localcut).toContainText('Fully open source.')
     await expect(localcut.getByRole('link', { name: 'Open LocalCut' })).toHaveAttribute(
       'href',
-      'https://wilsonle.github.io/LocalCut/',
+      'https://wilsonle.github.io/LocalApps/LocalCut/',
     )
     const fullImage = localcut.getByRole('link', {
       name: 'Open full screenshot: Edit with an external agent.',
