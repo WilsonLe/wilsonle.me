@@ -480,29 +480,45 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     }
     pressRef.current = ctx && foregroundCtx ? press : null
 
+    // Pressing an arrow can make a clicked control match :focus-visible.
+    let browsingWithTab = false
+    const onPointerDown = () => {
+      if (!selectedRef.current) browsingWithTab = false
+    }
     const onKeyDown = (event: KeyboardEvent) => {
-      if (selectedRef.current || event.metaKey || event.ctrlKey || event.altKey) return
       if (
-        event.target instanceof HTMLElement &&
-        event.target.closest('input, textarea, select, [contenteditable], dialog, .tech-carousel')
+        selectedRef.current ||
+        event.defaultPrevented ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey
       )
         return
+      if (event.key === 'Tab') {
+        browsingWithTab = true
+        controls.reset()
+        return
+      }
+      const target = event.target instanceof HTMLElement ? event.target : null
+      if (target?.closest('input, textarea, select, [contenteditable], dialog')) return
+      const inSkills = target?.closest('.tech-carousel')
       const direction = moveKey(event.code)
       if (direction && pressRef.current) {
-        const target = event.target instanceof HTMLElement ? event.target : null
         if (event.code === 'Space') {
-          if (event.shiftKey || event.defaultPrevented || target?.closest('button, summary')) return
+          if (event.shiftKey || inSkills || target?.closest('button, summary')) return
         } else if (
-          target?.matches(':focus-visible') &&
-          target.closest('a, button, summary') &&
-          !target.closest('.descent-direction-pad, .descent-interact')
+          browsingWithTab &&
+          target &&
+          (inSkills ||
+            (target.closest('a, button, summary') &&
+              !target.closest('.descent-direction-pad, .descent-interact')))
         ) {
-          // Let focused portfolio links and controls keep their native scrolling keys.
+          // Keep native scrolling available while tabbing through portfolio content.
           return
         }
         event.preventDefault()
         if (!event.repeat) press(event.code, direction, event.timeStamp)
-      } else if (event.code === 'KeyE' && !event.repeat) {
+      } else if (!inSkills && event.code === 'KeyE' && !event.repeat) {
         const id = inspectable()
         if (id) {
           event.preventDefault()
@@ -517,6 +533,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     for (const element of [scroller, world, header, hero, guide, work, contact])
       observer.observe(element)
     resize()
+    window.addEventListener('pointerdown', onPointerDown, true)
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
     window.addEventListener('hashchange', syncLocation)
@@ -623,6 +640,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       pressRef.current = null
       cancelAnimationFrame(frame)
       observer.disconnect()
+      window.removeEventListener('pointerdown', onPointerDown, true)
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
       window.removeEventListener('hashchange', syncLocation)
