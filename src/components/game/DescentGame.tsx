@@ -195,6 +195,10 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     let scrollTop = scroller.scrollTop
     let paintedCamera = -1
     let paintedVisibility = -1
+    let paintedMotion = motion.matches
+    let sceneryTime = 0
+    let paintedSceneryTime = 0
+    let lastSceneryPaint = 0
     let visibility = 1
     let showTouchPad = false
     let workLedge: Platform | undefined
@@ -524,18 +528,28 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         writeScroll(state.camera * scale)
       } else accumulator = 0
       const animating = travel || (following && !selectedRef.current)
-      if (
-        state.camera !== paintedCamera ||
-        visibility !== paintedVisibility ||
-        (!motion.matches && now - lastPublish > 65) ||
-        animating
-      ) {
-        if (ctx) drawGame(ctx, state, viewHeight, now / 1000, motion.matches)
-        if (foregroundCtx)
-          drawForeground(foregroundCtx, state, viewHeight, now / 1000, motion.matches, visibility)
-        paintedCamera = state.camera
-        paintedVisibility = visibility
+      const reducedMotion = motion.matches
+      const cameraChanged = state.camera !== paintedCamera
+      // Keep the last visible pose when reduced motion is turned on.
+      sceneryTime = reducedMotion ? paintedSceneryTime : sceneryTime + dt
+      if (ctx && (cameraChanged || (!reducedMotion && now - lastSceneryPaint >= 32))) {
+        drawGame(ctx, state, viewHeight, sceneryTime)
+        paintedSceneryTime = sceneryTime
+        lastSceneryPaint = now
       }
+      if (
+        foregroundCtx &&
+        (cameraChanged ||
+          visibility !== paintedVisibility ||
+          reducedMotion !== paintedMotion ||
+          (!reducedMotion && now - lastPublish > 65) ||
+          animating)
+      ) {
+        drawForeground(foregroundCtx, state, viewHeight, now / 1000, reducedMotion, visibility)
+      }
+      paintedCamera = state.camera
+      paintedVisibility = visibility
+      paintedMotion = reducedMotion
       const audio = audioRef.current
       if (audio) state.events.forEach((event) => playNote(audio, event))
       state.events.length = 0
