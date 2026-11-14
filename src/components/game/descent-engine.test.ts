@@ -27,13 +27,19 @@ const tick = (state: ReturnType<typeof createGame>, change: Partial<Controls> = 
   for (let i = 0; i < frames; i++) stepGame(state, { ...idle, ...change }, frame, 800)
 }
 
-test('the city starts at rest and a first arrow press can jump', () => {
+test('the city starts at rest and a first Space press can jump', () => {
   const state = createGame(1200)
   const before = state.player.y
-  tick(state, { jump: true }, 10)
+  const controls = createControls()
+  const direction = moveKey('Space')
+  assert.equal(direction, 'up')
+  controls.press('Space', direction, 0)
+  const input = controls.next(0)
+
+  tick(state, input, 10)
   assert.equal(state.player.y, before)
   state.started = true
-  tick(state, { jump: true })
+  tick(state, input)
   assert.ok(state.player.y < before)
   assert.deepEqual(state.events, ['jump'])
 })
@@ -77,7 +83,6 @@ test('a long fall reaches the reactor floor safely and permits takeoff again', (
 
 test('quick horizontal taps use ordinary movement speed', () => {
   const input = createControls()
-  assert.equal(moveKey('Space'), undefined)
   assert.equal(moveKey('KeyP'), undefined)
   assert.equal(moveKey('ShiftLeft'), undefined)
   assert.equal(moveKey('KeyD'), 'right')
