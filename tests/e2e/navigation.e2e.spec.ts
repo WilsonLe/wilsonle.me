@@ -1,10 +1,24 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Locator } from '@playwright/test'
 import { projectChoices } from './helpers/work'
 
 async function installPausedClock(page: import('@playwright/test').Page) {
   await page.clock.install({ time: new Date('2026-11-13T00:00:00Z') })
   // Pause before navigation so a running clock tick cannot race the carousel's rAF loop.
   await page.clock.pauseAt(new Date('2026-11-13T00:00:01Z'))
+}
+
+async function holdSecondTap(button: Locator) {
+  const page = button.page()
+  const cdp = await page.context().newCDPSession(page)
+  await button.tap()
+  // Advance the paused page clock so dispatch latency cannot change the tap interval.
+  await page.clock.runFor(150)
+  const { x, y, width, height } = (await button.boundingBox())!
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [{ x: x + width / 2, y: y + height / 2 }],
+  })
+  return cdp
 }
 
 async function leadingSkill(page: import('@playwright/test').Page) {
@@ -433,6 +447,7 @@ test('reveals shaded edge chevrons on hover, keyboard focus or a touch tap', asy
     reducedMotion: 'reduce',
   })
   const mobile = await context.newPage()
+  await installPausedClock(mobile)
   await mobile.goto('/#skills')
   const viewport = mobile.locator('.tech-viewport')
   const mobileNext = mobile.getByRole('button', { name: 'Next skill' })
@@ -441,8 +456,8 @@ test('reveals shaded edge chevrons on hover, keyboard focus or a touch tap', asy
   await expect(mobileNext).toHaveCSS('opacity', '1')
   await mobileNext.tap()
   await expect.poll(() => leadingSkill(mobile)).toBe('CSS')
-  await mobile.clock.install()
   await mobile.emulateMedia({ reducedMotion: 'no-preference' })
+  await mobile.clock.runFor(1100)
   const mobileCarousel = mobile.getByRole('region', { name: 'Skills', exact: true })
   await expect(mobileCarousel).toHaveAttribute('data-rotating', 'true')
   await viewport.tap()
@@ -1119,7 +1134,7 @@ test('supports touch movement, a held jetpack and a tap-to-open billboard', asyn
   })
   try {
     const page = await context.newPage()
-    await page.clock.install()
+    await installPausedClock(page)
     await page.goto('/')
     const city = page.locator('.descent-page')
     const guide = page.getByLabel('City controls')
@@ -1138,24 +1153,26 @@ test('supports touch movement, a held jetpack and a tap-to-open billboard', asyn
     await page.emulateMedia({ reducedMotion: 'reduce' })
     const x = Number(await city.getAttribute('data-player-x'))
     await guide.getByRole('button', { name: 'Move left', exact: true }).tap()
-    await expect
-      .poll(async () => Number(await city.getAttribute('data-player-x')))
-      .toBeLessThan(x - 9)
-    await up.tap()
-    const bounds = (await up.boundingBox())!
-    const cdp = await context.newCDPSession(page)
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchStart',
-      touchPoints: [{ x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 }],
-    })
+    await page.clock.runFor(160)
+    expect(Number(await city.getAttribute('data-player-x'))).toBeLessThan(x - 9)
+    const cdp = await holdSecondTap(up)
+    await page.clock.runFor(160)
     await expect(city).toHaveAttribute('data-jetpack', 'true')
     const y = Number(await city.getAttribute('data-player-y'))
-    await expect
-      .poll(async () => Number(await city.getAttribute('data-player-y')))
-      .toBeLessThan(y - 75)
+    await page.clock.runFor(280)
+    expect(Number(await city.getAttribute('data-player-y'))).toBeLessThan(y - 75)
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    await page.clock.runFor(160)
     await expect(city).toHaveAttribute('data-jetpack', 'false')
     await page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }).tap()
+    const workTitle = page.getByRole('heading', { name: 'Work', exact: true })
+    await expect(workTitle).toBeFocused()
+    const workBounds = (await workTitle.boundingBox())!
+    await page.mouse.dblclick(
+      workBounds.x + workBounds.width / 2,
+      workBounds.y + workBounds.height / 2,
+    )
+    expect(await page.evaluate(() => window.getSelection()?.toString())).toBe('')
     const prompt = page.getByRole('link', { name: 'View project: Kalibr (E)', exact: true })
     await expect(prompt).toBeVisible()
     await expect(prompt.getByText('E', { exact: true })).toBeHidden()
@@ -1171,6 +1188,52 @@ test('supports touch movement, a held jetpack and a tap-to-open billboard', asyn
     await expect(dialog).toBeVisible()
   } finally {
     await context.close()
+  }
+})
+
+test.describe('mobile diagonal jetpack controls', () => {
+  test.use({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    isMobile: true,
+  })
+
+  for (const { side, horizontal, stop } of [
+    { side: 'left', horizontal: -1, stop: 'touchEnd' },
+    { side: 'right', horizontal: 1, stop: 'touchCancel' },
+  ] as const) {
+    test(`flies up-${side} by double-tapping and holding an invisible corner`, async ({ page }) => {
+      await installPausedClock(page)
+      await page.emulateMedia({ reducedMotion: 'reduce' })
+      await page.goto('/#work')
+      const city = page.locator('.descent-page')
+      await expect(city).toHaveAttribute('data-ready', 'true')
+      await page.clock.runFor(100)
+      const corner = page
+        .locator('.descent-touch-pad')
+        .getByRole('button', { name: `Jump or fly up-${side}`, exact: true })
+      await expect(corner).toHaveCSS('opacity', '0')
+      const position = () =>
+        city.evaluate((element: HTMLElement) => ({
+          x: Number(element.dataset.playerX),
+          y: Number(element.dataset.playerY),
+        }))
+      const start = await position()
+      const cdp = await holdSecondTap(corner)
+      await page.clock.runFor(240)
+      await expect(city).toHaveAttribute('data-jetpack', 'true')
+      const first = await position()
+      expect(horizontal * (first.x - start.x)).toBeGreaterThan(15)
+      expect(first.y).toBeLessThan(start.y)
+      await page.clock.runFor(240)
+      const second = await position()
+      expect(horizontal * (second.x - first.x)).toBeGreaterThan(15)
+      expect(second.y).toBeLessThan(first.y - 40)
+
+      await cdp.send('Input.dispatchTouchEvent', { type: stop, touchPoints: [] })
+      await page.clock.runFor(240)
+      await expect(city).toHaveAttribute('data-jetpack', 'false')
+    })
   }
 })
 

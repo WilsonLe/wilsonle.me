@@ -2,6 +2,13 @@ import type { Controls } from '@/components/game/descent-engine'
 
 export type MoveKey = 'left' | 'right' | 'up' | 'down'
 
+const diagonals = {
+  'up-left': ['up', 'left'],
+  'up-right': ['up', 'right'],
+} as const
+
+export type MoveInput = MoveKey | keyof typeof diagonals
+
 const movement: Record<string, MoveKey | undefined> = {
   ArrowLeft: 'left',
   KeyA: 'left',
@@ -30,34 +37,37 @@ const empty = (): Controls => ({
 })
 
 export function createControls() {
-  const held = new Map<string, MoveKey>()
+  const held = new Map<string, readonly MoveKey[]>()
   const stepUntil = { left: 0, right: 0 }
   let lastUpPress: number | undefined
   let pending = empty()
-  const isHeld = (direction: MoveKey) => [...held.values()].includes(direction)
+  const isHeld = (direction: MoveKey) =>
+    [...held.values()].some((directions) => directions.includes(direction))
 
   return {
-    press(source: string, direction: MoveKey, at: number, touch = false) {
+    press(source: string, input: MoveInput, at: number, touch = false) {
       if (held.has(source)) return
-      const alreadyHeld = isHeld(direction)
-      held.set(source, direction)
-      if (alreadyHeld) return
+      const directions = input === 'up-left' || input === 'up-right' ? diagonals[input] : [input]
 
-      if (direction === 'up') {
-        if (lastUpPress !== undefined && at - lastUpPress <= DOUBLE_PRESS_MS) {
-          pending.boost = true
-          lastUpPress = undefined
-        } else {
-          pending.jump = true
-          lastUpPress = at
+      for (const direction of directions) {
+        if (isHeld(direction)) continue
+        if (direction === 'up') {
+          if (lastUpPress !== undefined && at - lastUpPress <= DOUBLE_PRESS_MS) {
+            pending.boost = true
+            lastUpPress = undefined
+          } else {
+            pending.jump = true
+            lastUpPress = at
+          }
+        }
+        if (direction === 'down') pending.drop = true
+        if (direction === 'left' || direction === 'right') {
+          pending[direction] = true
+          stepUntil[direction === 'left' ? 'right' : 'left'] = 0
+          if (touch) stepUntil[direction] = at + TOUCH_STEP_MS
         }
       }
-      if (direction === 'down') pending.drop = true
-      if (direction === 'left' || direction === 'right') {
-        pending[direction] = true
-        stepUntil[direction === 'left' ? 'right' : 'left'] = 0
-        if (touch) stepUntil[direction] = at + TOUCH_STEP_MS
-      }
+      held.set(source, directions)
     },
     release(source: string) {
       held.delete(source)
