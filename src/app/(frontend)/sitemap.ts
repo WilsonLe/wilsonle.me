@@ -1,7 +1,13 @@
 import type { MetadataRoute } from 'next'
+import { privacyLink } from '@/content/privacy'
+import { SUPPORTED_LOCALES } from '@/lib/i18n'
 import { SITE_URL } from '@/site-config'
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const privacyUrls = {
+    en: new URL(privacyLink('en').href, SITE_URL).toString(),
+    vi: new URL(privacyLink('vi').href, SITE_URL).toString(),
+  }
   return [
     {
       url: SITE_URL,
@@ -39,5 +45,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
       },
     },
+    ...SUPPORTED_LOCALES.map((locale) => ({
+      url: privacyUrls[locale],
+      alternates: { languages: { ...privacyUrls, 'x-default': privacyUrls.en } },
+    })),
   ]
 }

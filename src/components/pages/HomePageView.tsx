@@ -3,6 +3,7 @@ import { ContactSection } from '@/components/sections/ContactSection'
 import { HeroSection } from '@/components/sections/HeroSection'
 import { ProjectsSection } from '@/components/sections/ProjectsSection'
 import { descentContent } from '@/content/en/descent'
+import { privacyLink } from '@/content/privacy'
 import type { HomeContent } from '@/content/types'
 import { descentContent as viDescentContent } from '@/content/vi/descent'
 import { buildAbsoluteUrl, getSocialLinks } from '@/site-config'
@@ -33,6 +34,7 @@ export function HomePageView({ canonicalPath, content, routeBasePath }: HomePage
       <DescentGame
         content={content}
         copy={content.locale === 'vi' ? viDescentContent : descentContent}
+        privacy={privacyLink(content.locale)}
       />
       <noscript>
         <style>{'.descent-page[data-ready]{display:none}'}</style>

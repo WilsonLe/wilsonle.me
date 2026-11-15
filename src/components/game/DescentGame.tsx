@@ -10,6 +10,7 @@ import {
   type PointerEvent,
 } from 'react'
 import Image from 'next/image'
+import { trackPortfolio } from '@/analytics/portfolio-events'
 import { TechStackCarousel } from '@/components/TechStackCarousel'
 import { getContactLinks } from '@/content/contact'
 import type { HomeContent } from '@/content/types'
@@ -127,7 +128,15 @@ function playNote(context: AudioContext, event: SoundEvent) {
   })
 }
 
-export function DescentGame({ content, copy }: { content: HomeContent; copy: DescentCopy }) {
+export function DescentGame({
+  content,
+  copy,
+  privacy,
+}: {
+  content: HomeContent
+  copy: DescentCopy
+  privacy: { href: string; label: string }
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const foregroundRef = useRef<HTMLCanvasElement>(null)
   const headerRef = useRef<HTMLElement>(null)
@@ -143,6 +152,10 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
   const dialogRef = useRef<HTMLDialogElement>(null)
   const audioRef = useRef<AudioContext | null>(null)
   const selectedRef = useRef<string | null>(null)
+  const projectEntry = useRef<'deep_link' | 'billboard' | 'nearby' | 'keyboard'>('deep_link')
+  const viewedProject = useRef<{ id: string; time: number } | null>(null)
+  const visitedDistricts = useRef(new Set<Zone>())
+  const usedMovementControls = useRef(false)
   const projectTrigger = useRef<HTMLElement | null>(null)
   const projectReturn = useRef<string | null>(null)
   const navigateRef = useRef<((destination: Destination) => void) | null>(null)
@@ -160,9 +173,15 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     if (element) element.style.transform = promptTransform.current
   }, [])
   const showProject = useCallback(
-    (id: string, work: Work | undefined, trigger: HTMLElement | null) => {
+    (
+      id: string,
+      work: Work | undefined,
+      trigger: HTMLElement | null,
+      entry: typeof projectEntry.current = 'keyboard',
+    ) => {
       controls.reset()
       projectTrigger.current = trigger
+      projectEntry.current = entry
       if (work && fragment() !== work.slug) {
         projectReturn.current = currentPath()
         window.history.pushState(
@@ -215,6 +234,8 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     const ctx = canvas.getContext('2d', { alpha: false })
     const foregroundCtx = foreground.getContext('2d')
     setPlaying(Boolean(ctx && foregroundCtx))
+    trackPortfolio('city_ready', { target: ctx && foregroundCtx ? 'canvas' : 'static' })
+    const completedMoves = new Set<SoundEvent>()
 
     const state = createGame(1200)
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -594,6 +615,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       if (work) {
         projectReturn.current = window.history.state?.descentProjectReturn ?? null
         const sameProject = selectedRef.current === work.projectId
+        if (!sameProject) projectEntry.current = 'deep_link'
         selectedRef.current = work.projectId
         setSelected(work.projectId)
         if (sameProject && dialogRef.current?.open) scrollProject(dialogRef.current, hash)
@@ -622,6 +644,13 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       }
       following = true
       framedDestination = undefined
+      if (!usedMovementControls.current) {
+        usedMovementControls.current = true
+        trackPortfolio('city_started', {
+          target: direction,
+          input: touch ? 'touch' : source.startsWith('pointer:') ? 'pointer' : 'keyboard',
+        })
+      }
       state.started = true
       controls.press(source, direction, at, touch)
     }
@@ -851,7 +880,13 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       paintedVisibility = visibility
       paintedMotion = reducedMotion
       const audio = audioRef.current
-      if (audio) state.events.forEach((event) => playNote(audio, event))
+      for (const event of state.events) {
+        if (audio) playNote(audio, event)
+        if (!completedMoves.has(event)) {
+          completedMoves.add(event)
+          trackPortfolio('city_move', { target: event })
+        }
+      }
       state.events.length = 0
       if (scrollTop + headerHeight + 18 >= guidePadY) showTouchPad = true
       positionPrompt()
@@ -922,8 +957,26 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     const dialog = dialogRef.current
     if (!selected || !dialog) return
     if (!dialog.open) dialog.showModal()
+    if (viewedProject.current?.id !== selected) {
+      const previous = viewedProject.current
+      const now = performance.now()
+      if (previous) {
+        trackPortfolio('project_closed', {
+          target: previous.id,
+          duration_ms: Math.round(now - previous.time),
+        })
+      }
+      viewedProject.current = { id: selected, time: now }
+      trackPortfolio('project_opened', { target: selected, surface: projectEntry.current })
+    }
     scrollProject(dialog, fragment())
   }, [selected])
+
+  useEffect(() => {
+    if (!ready || visitedDistricts.current.has(snapshot.zone)) return
+    visitedDistricts.current.add(snapshot.zone)
+    trackPortfolio('district_reached', { target: snapshot.zone })
+  }, [ready, snapshot.zone])
 
   const toggleSound = () => {
     if (sound) {
@@ -934,11 +987,13 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       void audio.resume().then(() => playNote(audio, 'jump'))
     }
     setSound(!sound)
+    trackPortfolio('sound_changed', { target: sound ? 'off' : 'on' })
   }
   const openProject = (event: MouseEvent<HTMLAnchorElement>, id: string, work?: Work) => {
     if (!isUnmodifiedClick(event)) return
     event.preventDefault()
-    showProject(id, work, event.currentTarget)
+    const entry = event.currentTarget === promptRef.current ? 'nearby' : 'billboard'
+    showProject(id, work, event.currentTarget, entry)
   }
   const navigate = (event: MouseEvent<HTMLAnchorElement>, destination: Destination) => {
     if (!navigateRef.current || !isUnmodifiedClick(event)) return
@@ -952,6 +1007,13 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
   }
   const closeProject = () => {
     if (dialogRef.current?.open) return
+    if (viewedProject.current) {
+      trackPortfolio('project_closed', {
+        target: viewedProject.current.id,
+        duration_ms: Math.round(performance.now() - viewedProject.current.time),
+      })
+      viewedProject.current = null
+    }
     const currentProject = selectedRef.current
     selectedRef.current = null
     setSelected(null)
@@ -1095,10 +1157,17 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         className="descent-canvas descent-foreground"
         aria-hidden="true"
       />
-      <header ref={headerRef} className="descent-header" role="banner">
+      <header
+        ref={headerRef}
+        className="descent-header"
+        role="banner"
+        data-portfolio-surface="city_header"
+      >
         <a
           href="#descent-title"
           className="descent-identity"
+          data-portfolio-action="navigation_clicked"
+          data-portfolio-target="top"
           onClick={(event) => navigate(event, 'top')}
           aria-label={content.siteSettings.name + ', back to top'}
         >
@@ -1106,10 +1175,20 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
           <span aria-hidden="true">.</span>
         </a>
         <nav className="descent-nav" aria-label="Portfolio sections">
-          <a href="#work" onClick={(event) => navigate(event, 'work')}>
+          <a
+            href="#work"
+            data-portfolio-action="navigation_clicked"
+            data-portfolio-target="work"
+            onClick={(event) => navigate(event, 'work')}
+          >
             {content.siteSettings.navigation.work}
           </a>
-          <a href="#contact" onClick={(event) => navigate(event, 'contact')}>
+          <a
+            href="#contact"
+            data-portfolio-action="navigation_clicked"
+            data-portfolio-target="contact"
+            onClick={(event) => navigate(event, 'contact')}
+          >
             {content.siteSettings.navigation.contact}
           </a>
         </nav>
@@ -1135,6 +1214,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       <div
         ref={scrollRef}
         className="descent-scrollport"
+        data-portfolio-scroll=""
         tabIndex={0}
         role="region"
         aria-label={copy.regionLabel}
@@ -1144,6 +1224,8 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
             <section
               ref={heroRef}
               className="descent-hero descent-sign"
+              data-portfolio-surface="hero"
+              data-portfolio-view="intro"
               aria-labelledby="descent-title"
             >
               <p className="descent-eyebrow">{content.hero.identity}</p>
@@ -1154,12 +1236,19 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
                 <a
                   className="descent-primary"
                   href="#work"
+                  data-portfolio-action="navigation_clicked"
+                  data-portfolio-target="work"
                   onClick={(event) => navigate(event, 'work')}
                 >
                   {content.hero.workCta}
                   <span aria-hidden="true">↓</span>
                 </a>
-                <a className="descent-outline-link" href={content.siteSettings.resumeUrl} download>
+                <a
+                  className="descent-outline-link"
+                  href={content.siteSettings.resumeUrl}
+                  download
+                  data-portfolio-action="resume_clicked"
+                >
                   {content.hero.resumeCta}
                   <span aria-hidden="true">↗</span>
                 </a>
@@ -1170,6 +1259,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
               ref={guideRef}
               hidden={ready && !playing}
               className="descent-control-guide"
+              data-portfolio-view="controls"
               aria-label="City controls"
             >
               <h2>{copy.controls}</h2>
@@ -1196,7 +1286,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
               <i />
               <i />
             </div>
-            <h2 id="tech-stack-heading" tabIndex={-1} className="mb-3">
+            <h2 id="tech-stack-heading" tabIndex={-1} className="mb-3" data-portfolio-view="skills">
               {content.hero.stack.heading}
             </h2>
             <TechStackCarousel stack={content.hero.stack} />
@@ -1210,7 +1300,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
             className="descent-work"
             aria-labelledby="descent-work-title"
           >
-            <header className="descent-work-sign descent-sign">
+            <header className="descent-work-sign descent-sign" data-portfolio-view="work">
               <h2 id="descent-work-title" tabIndex={-1}>
                 {content.projects.heading}
               </h2>
@@ -1238,6 +1328,8 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
             ref={contactRef}
             id="descent-contact"
             className="descent-contact descent-billboard"
+            data-portfolio-surface="contact_billboard"
+            data-portfolio-view="contact"
             aria-labelledby="descent-contact-title"
           >
             <div className="descent-billboard-lights" aria-hidden="true">
@@ -1254,6 +1346,8 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
                   key={link.id}
                   className="descent-outline-link"
                   data-contact-id={link.id}
+                  data-portfolio-action="contact_clicked"
+                  data-portfolio-target={link.id.replace('contact-', '')}
                   data-approached={nearbyId === link.id}
                   href={link.href}
                   target="_blank"
@@ -1267,18 +1361,34 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
             </div>
           </section>
 
-          <footer className="descent-world-footer" role="contentinfo">
+          <footer
+            className="descent-world-footer"
+            role="contentinfo"
+            data-portfolio-surface="city_footer"
+            data-portfolio-view="footer"
+          >
             <span>
               © {new Date().getFullYear()} {content.siteSettings.name}
             </span>
             <div className="descent-footer-links">
-              <a href="#skills" onClick={(event) => navigate(event, 'skills')}>
+              <a
+                href="#skills"
+                data-portfolio-action="navigation_clicked"
+                data-portfolio-target="skills"
+                onClick={(event) => navigate(event, 'skills')}
+              >
                 {content.hero.stack.heading}
               </a>
-              <a href="#descent-title" onClick={(event) => navigate(event, 'top')}>
+              <a
+                href="#descent-title"
+                data-portfolio-action="navigation_clicked"
+                data-portfolio-target="top"
+                onClick={(event) => navigate(event, 'top')}
+              >
                 {copy.backToTop}
                 <span aria-hidden="true">↑</span>
               </a>
+              <a href={privacy.href}>{privacy.label}</a>
             </div>
           </footer>
         </div>
@@ -1291,6 +1401,9 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
           href={action.href}
           className="descent-interact"
           data-contact-prompt={nearbyContact ? '' : undefined}
+          data-portfolio-action={nearbyContact ? 'contact_clicked' : undefined}
+          data-portfolio-target={nearbyContact?.id.replace('contact-', '')}
+          data-portfolio-surface="nearby"
           target={nearbyContact ? '_blank' : undefined}
           rel={nearbyContact ? 'noreferrer' : undefined}
           aria-haspopup={nearbyProject ? 'dialog' : undefined}
@@ -1311,6 +1424,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       <dialog
         ref={dialogRef}
         className="descent-dialog"
+        data-portfolio-surface="project_dialog"
         aria-labelledby="descent-dialog-title"
         onClose={closeProject}
       >

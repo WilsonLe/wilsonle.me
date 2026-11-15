@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { TechStack } from '@/content/types'
+import { trackPortfolio } from '@/analytics/portfolio-events'
 import { SectionTabs } from '@/components/SectionTabs'
 
 const STREAM_SPEED = 60
@@ -132,9 +133,10 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
     return () => window.clearTimeout(timer)
   }, [browse])
 
-  function select(index: number) {
+  function select(index: number, surface = 'category_tab') {
     const count = skills.length
     const selected = ((index % count) + count) % count
+    trackPortfolio('skill_selected', { target: skills[selected].groupId, surface })
     let distance = selected - progress.current
     // Choose the nearest identical run, including a single step across either end.
     distance -= Math.round(distance / count) * count
@@ -155,7 +157,7 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
   }
 
   function step(direction: number) {
-    select(Math.round(navigation.current?.to ?? progress.current) + direction)
+    select(Math.round(navigation.current?.to ?? progress.current) + direction, 'browse_button')
   }
 
   return (

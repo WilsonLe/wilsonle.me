@@ -2,9 +2,18 @@
 
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import { trackPortfolio } from '@/analytics/portfolio-events'
 import { robotAnimationLabels, type WorkScreen } from '@/content/work'
 
-export function RobotOverlay({ robot }: { robot: NonNullable<WorkScreen['robot']> }) {
+export function RobotOverlay({
+  robot,
+  projectId,
+  screenId,
+}: {
+  robot: NonNullable<WorkScreen['robot']>
+  projectId: string
+  screenId: string
+}) {
   const [playing, setPlaying] = useState<boolean | null>(null)
 
   useEffect(() => {
@@ -29,7 +38,13 @@ export function RobotOverlay({ robot }: { robot: NonNullable<WorkScreen['robot']
         {playing !== null && (
           <button
             type="button"
-            onClick={() => setPlaying(!playing)}
+            onClick={() => {
+              trackPortfolio(playing ? 'robot_animation_paused' : 'robot_animation_played', {
+                project_id: projectId,
+                target: screenId,
+              })
+              setPlaying(!playing)
+            }}
             aria-label={playing ? robotAnimationLabels.pause : robotAnimationLabels.play}
             className="absolute inset-0 block size-full cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
           >
