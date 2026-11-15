@@ -21,8 +21,8 @@ import {
   createGame,
   fitCity,
   landPlayer,
-  landPlayerNearView,
   nearbyBillboard,
+  nearestLandingInView,
   stepGame,
   zoneAt,
   PLAYER_HEIGHT,
@@ -240,7 +240,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     let following = false
     let scrollTop = scroller.scrollTop
     let wheelScroll: { position: number; target: number } | undefined
-    let landAfterScroll: number | undefined
+    let scrollLanding: { at: number; resizing?: true } | 'landed' | undefined
     let paintedCamera = -1
     let paintedVisibility = -1
     let paintedMotion = motion.matches
@@ -317,9 +317,10 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       Math.max(0, Math.min(scroller.scrollHeight - viewportHeight, top))
     const cancelScrollLanding = () => {
       wheelScroll = undefined
-      landAfterScroll = undefined
+      scrollLanding = undefined
     }
     const stopForManualScroll = () => {
+      cancelScrollLanding()
       following = false
       framedDestination = undefined
       travel = null
@@ -349,21 +350,37 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         setSnapshot(next)
       }
     }
-    const landInView = () => {
+    const landInView = (keepScrollPosition = false) => {
       const top = state.camera + headerHeight / scale
       const bottom = state.camera + viewHeight
-      if (!landPlayerNearView(state, top, bottom)) return
+      const pad = scroller.parentElement
+        ?.querySelector('.descent-touch-pad')
+        ?.getBoundingClientRect()
+      let obstruction
+      if (pad?.width) {
+        const viewport = scroller.getBoundingClientRect()
+        // The rendered jetpack extends past the player's collision box.
+        const clearance = 10
+        obstruction = {
+          left: (pad.left - viewport.left) / scale - clearance,
+          right: (pad.right - viewport.left) / scale + clearance,
+          top: state.camera + (pad.top - viewport.top - 2) / scale,
+        }
+      }
 
-      if (!playerVisible()) {
-        const head = state.player.y * scale
-        const minScroll = Math.ceil(head + PLAYER_HEIGHT * scale - viewportHeight)
-        const maxScroll = Math.floor(head - headerHeight)
-        writeScroll(Math.max(minScroll, Math.min(maxScroll, scrollTop)))
+      const landing = nearestLandingInView(state, top, bottom, obstruction)
+      if (!landing || (keepScrollPosition && landing.shift)) return false
+      const { center, feet, shift } = landing
+      landPlayer(state, center, feet)
+      if (shift) {
+        const target = scrollTop + shift * scale
+        writeScroll(shift < 0 ? Math.floor(target) : Math.ceil(target))
         state.camera = scrollTop / scale
       }
       state.started = true
       paintedCamera = -1
       publish()
+      return true
     }
     const resize = () => {
       if (scroller.clientWidth <= 0 || scroller.clientHeight <= 0) return
@@ -372,7 +389,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         state.player.grounded &&
         !travel &&
         !wheelScroll &&
-        landAfterScroll === undefined &&
+        scrollLanding === undefined &&
         playerVisible() &&
         contactFloor !== undefined &&
         Math.abs(state.player.y + PLAYER_HEIGHT - contactFloor.y) < 1
@@ -490,6 +507,12 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         wheelScroll.target = clampScroll(wheelScroll.target)
       }
       state.camera = scrollTop / scale
+      if (scrollLanding === 'landed' || scrollLanding?.resizing) {
+        // Responsive layout can settle across several measurements.
+        scrollLanding = landInView(true)
+          ? 'landed'
+          : { at: performance.now() + SCROLL_IDLE_MS, resizing: true }
+      }
       for (const layer of [canvas, foreground]) {
         if (layer.width !== width) layer.width = width
         if (layer.height !== Math.ceil(viewHeight)) layer.height = Math.ceil(viewHeight)
@@ -747,12 +770,11 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       const actualScroll = scroller.scrollTop
       if (actualScroll !== scrollTop) {
         stopForManualScroll()
-        wheelScroll = undefined
         scrollTop = actualScroll
-        landAfterScroll = now + SCROLL_IDLE_MS
+        scrollLanding = { at: now + SCROLL_IDLE_MS }
       }
       if (selectedRef.current) {
-        cancelScrollLanding()
+        if (scrollLanding !== 'landed') cancelScrollLanding()
         if (travel) stopForManualScroll()
       }
       if (travel) {
@@ -789,13 +811,17 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
               : position + distance * (1 - Math.exp(-dt * 22))
           const previousScroll = scrollTop
           writeScroll(wheelScroll.position)
-          if (scrollTop !== previousScroll) landAfterScroll = now + SCROLL_IDLE_MS
+          if (scrollTop !== previousScroll) scrollLanding = { at: now + SCROLL_IDLE_MS }
           if (wheelScroll.position === target) wheelScroll = undefined
         }
         state.camera = scrollTop / scale
-        if (!wheelScroll && landAfterScroll !== undefined && now >= landAfterScroll) {
-          landAfterScroll = undefined
-          if (ctx && foregroundCtx) landInView()
+        if (
+          !wheelScroll &&
+          scrollLanding &&
+          scrollLanding !== 'landed' &&
+          now >= scrollLanding.at
+        ) {
+          scrollLanding = ctx && foregroundCtx && landInView() ? 'landed' : undefined
         }
         accumulator = 0
       } else if (!selectedRef.current) {
