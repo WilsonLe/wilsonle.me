@@ -154,6 +154,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
   const projectEntry = useRef<'deep_link' | 'billboard' | 'nearby' | 'keyboard'>('deep_link')
   const viewedProject = useRef<{ id: string; time: number } | null>(null)
   const visitedDistricts = useRef(new Set<Zone>())
+  const usedMovementControls = useRef(false)
   const projectTrigger = useRef<HTMLElement | null>(null)
   const projectReturn = useRef<string | null>(null)
   const navigateRef = useRef<((destination: Destination) => void) | null>(null)
@@ -644,7 +645,8 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       }
       following = true
       framedDestination = undefined
-      if (!state.started) {
+      if (!usedMovementControls.current) {
+        usedMovementControls.current = true
         trackPortfolio('city_started', {
           target: direction,
           input: touch ? 'touch' : source.startsWith('pointer:') ? 'pointer' : 'keyboard',
