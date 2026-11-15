@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { trackPortfolio } from '@/analytics/portfolio-events'
@@ -31,14 +30,14 @@ export function Header({ siteSettings }: HeaderProps) {
     >
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between gap-6">
-          <Link
+          <a
             href={homepagePath}
             data-portfolio-action="navigation_clicked"
             data-portfolio-target="top"
             className="shrink-0 text-base font-semibold tracking-[-0.02em] text-paper transition-colors hover:text-signal"
           >
             {siteSettings.name}
-          </Link>
+          </a>
 
           <div className="hidden items-center gap-5 lg:flex lg:gap-5 xl:gap-7">
             {navLinks.map((link) => (

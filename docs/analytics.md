@@ -19,10 +19,23 @@ visits and actions without measuring unique people across visits.
 
 Event data uses a fixed set of properties. The collector keeps the page path
 and referrer site and drops query strings and fragments. It sends public
-portfolio IDs for interactions. It does not collect free text, form values,
-keystrokes, full outbound URLs, error messages, stack traces, replays, or
-individual person profiles. Browser state stays in memory and the SDK reads the
-public project token from the build environment.
+portfolio IDs for interactions. Event properties exclude free text, form values,
+keystrokes, full outbound URLs, error messages, stack traces, and individual
+person profiles. Visit state stays in memory and the SDK reads the public project
+token from the build environment.
+
+The visitor notices and replay preference are in the policy at `/privacy` and
+`/vi/privacy`. The preference stores only whether replay is allowed for that
+browser. A visitor can enable or withdraw it on the policy page. The SDK loads
+the recorder only on a subsequent eligible portfolio visit with permission. It
+stops when the preference is removed, including when another tab changes it.
+The policy and CMS routes stay outside the recording scope.
+
+Replay masks page text and inputs, filters attributes, and limits page URLs to
+the portfolio origin and path. The recorder excludes forms, embedded pages,
+canvas graphics, console logs and network data. Verify a serialized replay
+after changing any of these settings. The dedicated PostHog project also needs
+Session Replay enabled. To pause replay, turn that setting off for the project.
 
 For a controlled check, intercept PostHog requests from a local production build.
 Verify the initial visit and route change, use keyboard and touch controls, open

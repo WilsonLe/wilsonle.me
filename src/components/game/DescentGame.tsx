@@ -135,7 +135,15 @@ function playNote(context: AudioContext, event: SoundEvent) {
   })
 }
 
-export function DescentGame({ content, copy }: { content: HomeContent; copy: DescentCopy }) {
+export function DescentGame({
+  content,
+  copy,
+  privacy,
+}: {
+  content: HomeContent
+  copy: DescentCopy
+  privacy: { href: string; label: string }
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const foregroundRef = useRef<HTMLCanvasElement>(null)
   const headerRef = useRef<HTMLElement>(null)
@@ -1377,6 +1385,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
                 {copy.backToTop}
                 <span aria-hidden="true">↑</span>
               </a>
+              <a href={privacy.href}>{privacy.label}</a>
             </div>
           </footer>
         </div>
