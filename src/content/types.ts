@@ -6,7 +6,6 @@ export interface SiteSettings {
   title: string
   tagline?: string
   location?: string
-  email?: string
   phone?: string
   resumeUrl: string
   social?: {
@@ -35,7 +34,6 @@ export interface SiteSettings {
   }
   contact: {
     heading: string
-    emailLabel: string
     booking: {
       url: string
       label: string

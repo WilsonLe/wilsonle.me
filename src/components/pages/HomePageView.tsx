@@ -20,7 +20,6 @@ export function HomePageView({ canonicalPath, content, routeBasePath }: HomePage
     alternateName: content.siteSettings.alternateName,
     url: buildAbsoluteUrl(canonicalPath),
     jobTitle: content.siteSettings.title,
-    email: content.siteSettings.email,
     sameAs: getSocialLinks(),
   }
 
