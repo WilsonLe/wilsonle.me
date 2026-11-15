@@ -300,8 +300,9 @@
   .descent-page a {
     cursor: pointer;
   }
+  /* The scrollport receives gestures over the non-interactive parts of the world. */
   .descent-page button,
-  .descent-jetpack-keys {
+  .descent-scrollport {
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
@@ -786,6 +787,9 @@
     background: #78e3f2;
     color: #07131c;
   }
+  .descent-direction-pad [data-direction^='up-'] {
+    display: none;
+  }
   .descent-direction-pad [data-direction='up'] {
     grid-column: 2;
     grid-row: 1;
@@ -1181,6 +1185,20 @@
   }
   .descent-interact kbd {
     display: none;
+  }
+  .descent-direction-pad [data-direction^='up-'] {
+    display: grid;
+    grid-row: 1;
+    opacity: 0;
+  }
+  .descent-direction-pad [data-direction='up-left'] {
+    grid-column: 1;
+  }
+  .descent-direction-pad [data-direction='up-right'] {
+    grid-column: 3;
+  }
+  .descent-direction-pad [data-direction^='up-']:focus-visible {
+    opacity: 1;
   }
   .descent-touch-pad[data-visible='true'],
   .descent-touch-pad:focus-within {

@@ -34,7 +34,7 @@ import {
   type SoundEvent,
   type Zone,
 } from '@/components/game/descent-engine'
-import { createControls, moveKey, type MoveKey } from '@/components/game/descent-input'
+import { createControls, moveKey, type MoveInput } from '@/components/game/descent-input'
 import {
   CROSSINGS,
   drawGame,
@@ -64,13 +64,6 @@ const FADE_MS = 180
 const SCROLL_MS = 440
 const SCROLL_IDLE_MS = 500
 const WORK_DISTRICTS = ['streets', 'transit', 'sewers'] as const
-
-const DIRECTIONS = [
-  ['up', '↑', 'W', 'Jump or activate jetpack'],
-  ['left', '←', 'A', 'Move left'],
-  ['down', '↓', 'S', 'Drop through ledges'],
-  ['right', '→', 'D', 'Move right'],
-] as const
 
 function fragment() {
   try {
@@ -153,9 +146,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
   const projectTrigger = useRef<HTMLElement | null>(null)
   const projectReturn = useRef<string | null>(null)
   const navigateRef = useRef<((destination: Destination) => void) | null>(null)
-  const pressRef = useRef<
-    ((source: string, direction: MoveKey, at: number, touch?: boolean) => void) | null
-  >(null)
+  const pressRef = useRef<ReturnType<typeof createControls>['press'] | null>(null)
   const [controls] = useState(createControls)
   const [ready, setReady] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -617,7 +608,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         else if (!hash || hash === 'descent-title') navigateRef.current?.('top')
       }
     }
-    const press = (source: string, direction: MoveKey, at: number, touch?: boolean) => {
+    const press = (source: string, direction: MoveInput, at: number, touch?: boolean) => {
       if (selectedRef.current || travel) return
       const active = document.activeElement
       if (active instanceof HTMLAnchorElement && contactAnchors.includes(active)) {
@@ -975,7 +966,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     if (projectTrigger.current?.isConnected) projectTrigger.current.focus({ preventScroll: true })
     projectTrigger.current = null
   }
-  const pointerDown = (direction: MoveKey, event: PointerEvent<HTMLButtonElement>) => {
+  const pointerDown = (direction: MoveInput, event: PointerEvent<HTMLButtonElement>) => {
     if (event.button !== 0) return
     event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
@@ -988,6 +979,14 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
   }
   const pointerUp = (event: PointerEvent<HTMLButtonElement>) =>
     controls.release('pointer:' + event.pointerId)
+  const directions = [
+    ['up-left', '↖', null, copy.upLeft],
+    ['up', '↑', 'W', 'Jump or activate jetpack'],
+    ['up-right', '↗', null, copy.upRight],
+    ['left', '←', 'A', 'Move left'],
+    ['down', '↓', 'S', 'Drop through ledges'],
+    ['right', '→', 'D', 'Move right'],
+  ] as const
   const directionalButtons = (tutorial = false) => (
     <div
       ref={bindDirectionPad}
@@ -996,7 +995,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       role="group"
       aria-label="Character movement"
     >
-      {DIRECTIONS.map(([direction, arrow, letter, label]) => (
+      {directions.map(([direction, arrow, letter, label]) => (
         <button
           key={direction}
           type="button"
@@ -1015,7 +1014,11 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
             controls.release('button:' + direction)
           }}
         >
-          {tutorial && keys !== 'touch' ? <KeyLabel arrow={arrow} letter={letter} /> : arrow}
+          {tutorial && keys !== 'touch' && letter ? (
+            <KeyLabel arrow={arrow} letter={letter} />
+          ) : (
+            arrow
+          )}
         </button>
       ))}
     </div>

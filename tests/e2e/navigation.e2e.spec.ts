@@ -1156,6 +1156,14 @@ test('supports touch movement, a held jetpack and a tap-to-open billboard', asyn
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
     await expect(city).toHaveAttribute('data-jetpack', 'false')
     await page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }).tap()
+    const workTitle = page.getByRole('heading', { name: 'Work', exact: true })
+    await expect(workTitle).toBeFocused()
+    const workBounds = (await workTitle.boundingBox())!
+    await page.mouse.dblclick(
+      workBounds.x + workBounds.width / 2,
+      workBounds.y + workBounds.height / 2,
+    )
+    expect(await page.evaluate(() => window.getSelection()?.toString())).toBe('')
     const prompt = page.getByRole('link', { name: 'View project: Kalibr (E)', exact: true })
     await expect(prompt).toBeVisible()
     await expect(prompt.getByText('E', { exact: true })).toBeHidden()
@@ -1171,6 +1179,53 @@ test('supports touch movement, a held jetpack and a tap-to-open billboard', asyn
     await expect(dialog).toBeVisible()
   } finally {
     await context.close()
+  }
+})
+
+test.describe('mobile diagonal jetpack controls', () => {
+  test.use({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    isMobile: true,
+  })
+
+  for (const { side, horizontal, stop } of [
+    { side: 'left', horizontal: -1, stop: 'touchEnd' },
+    { side: 'right', horizontal: 1, stop: 'touchCancel' },
+  ] as const) {
+    test(`flies up-${side} by double-tapping and holding an invisible corner`, async ({
+      page,
+      context,
+    }) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' })
+      await page.goto('/#work')
+      const city = page.locator('.descent-page')
+      const corner = page
+        .locator('.descent-touch-pad')
+        .getByRole('button', { name: `Jump or fly up-${side}`, exact: true })
+      await expect(corner).toHaveCSS('opacity', '0')
+      const bounds = (await corner.boundingBox())!
+      const cdp = await context.newCDPSession(page)
+      const position = () =>
+        city.evaluate((element: HTMLElement) => ({
+          x: Number(element.dataset.playerX),
+          y: Number(element.dataset.playerY),
+        }))
+      const start = await position()
+      await corner.tap()
+      await cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchStart',
+        touchPoints: [{ x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 }],
+      })
+      await expect(city).toHaveAttribute('data-jetpack', 'true')
+      await expect
+        .poll(async () => horizontal * ((await position()).x - start.x))
+        .toBeGreaterThan(15)
+      await expect.poll(async () => (await position()).y).toBeLessThan(start.y - 75)
+
+      await cdp.send('Input.dispatchTouchEvent', { type: stop, touchPoints: [] })
+      await expect(city).toHaveAttribute('data-jetpack', 'false')
+    })
   }
 })
 

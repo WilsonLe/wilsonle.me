@@ -4,6 +4,7 @@ import { HeroSection } from '@/components/sections/HeroSection'
 import { ProjectsSection } from '@/components/sections/ProjectsSection'
 import { descentContent } from '@/content/en/descent'
 import type { HomeContent } from '@/content/types'
+import { descentContent as viDescentContent } from '@/content/vi/descent'
 import { buildAbsoluteUrl, getSocialLinks } from '@/site-config'
 
 interface HomePageViewProps {
@@ -29,7 +30,10 @@ export function HomePageView({ canonicalPath, content, routeBasePath }: HomePage
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
       />
-      <DescentGame content={content} copy={descentContent} />
+      <DescentGame
+        content={content}
+        copy={content.locale === 'vi' ? viDescentContent : descentContent}
+      />
       <noscript>
         <style>{'.descent-page[data-ready]{display:none}'}</style>
         <HeroSection
