@@ -1,5 +1,46 @@
 import { expect, test } from '@playwright/test'
 
+test('keeps the rooftop guide clear of the character in short windows', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  for (const viewport of [
+    { width: 667, height: 320 },
+    { width: 1280, height: 515 },
+    { width: 1920, height: 550 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/')
+    const guide = page.getByLabel('City controls')
+    const canvas = page.locator('.descent-foreground')
+    await expect(guide).toBeVisible()
+    await page.evaluate(() => document.fonts.ready)
+    await expect
+      .poll(() =>
+        canvas.evaluate((element: HTMLCanvasElement) => {
+          const context = element.getContext('2d')!
+          const bounds = element.getBoundingClientRect()
+          const xScale = element.width / bounds.width
+          const yScale = element.height / bounds.height
+          const hasPaint = (data: Uint8ClampedArray) =>
+            data.some((value, index) => index % 4 === 3 && value > 0)
+          if (!hasPaint(context.getImageData(0, 0, element.width, element.height).data))
+            return false
+          const controls = document.querySelectorAll(
+            '.descent-guide-pad button, .descent-guide-shortcut kbd, .descent-guide-shortcut > span:last-child',
+          )
+          return [...controls].every((control) => {
+            const rect = control.getBoundingClientRect()
+            const x = Math.floor((rect.left - bounds.left) * xScale)
+            const y = Math.floor((rect.top - bounds.top) * yScale)
+            const width = Math.ceil(rect.width * xScale)
+            const height = Math.ceil(rect.height * yScale)
+            return !hasPaint(context.getImageData(x, y, width, height).data)
+          })
+        }),
+      )
+      .toBe(true)
+  }
+})
+
 test('the city animates at rest and freezes its current scenery with reduced motion', async ({
   page,
 }) => {

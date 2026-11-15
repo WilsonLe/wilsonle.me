@@ -853,7 +853,7 @@ test('Space activates the sound button and Up still jumps after clicking it', as
   expect(await playerY()).toBeLessThan(initialY - 15)
 })
 
-test('Down drops from the Work awning after closing a project opened with the mouse', async ({
+test('keeps Work framed while walking on the awning and can drop to the billboard floor', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 515 })
@@ -881,6 +881,16 @@ test('Down drops from the Work awning after closing a project opened with the mo
     return Math.round((billboard.bottom - world.top) / (world.width / 1200) + 6)
   })
   expect(initialY).toBeLessThan(floorY - 15)
+  const initialX = Number(await city.getAttribute('data-player-x'))
+  await page.keyboard.down('ArrowRight')
+  await page.clock.runFor(64)
+  await page.keyboard.up('ArrowRight')
+  await page.clock.runFor(1200)
+  expect(Number(await city.getAttribute('data-player-x'))).toBeGreaterThan(initialX + 8)
+  expect(await playerY()).toBe(initialY)
+  await expect(page.locator('.descent-project-row').first()).toBeInViewport({ ratio: 1 })
+  const header = (await page.getByRole('banner').boundingBox())!
+  expect((await page.locator('.descent-work-sign').boundingBox())!.y).toBeGreaterThan(header.height)
   await page.keyboard.press('ArrowDown')
   await page.clock.runFor(1500)
   expect(await playerY()).toBe(floorY)

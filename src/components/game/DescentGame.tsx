@@ -26,6 +26,7 @@ import {
   zoneAt,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
+  ROOFTOP_PLAYER_X,
   type Billboard,
   type CityLayout,
   type Platform,
@@ -352,12 +353,6 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       const y = (element: HTMLElement) => worldY(element.getBoundingClientRect().top)
       const guideBottom = guide.getBoundingClientRect().bottom
       guidePadY = guidePad.getBoundingClientRect().top - bounds.top
-      const roof = worldY(
-        Math.min(
-          Math.max(hero.getBoundingClientRect().bottom - 10, guideBottom + (compact ? 50 : 76)),
-          skills.getBoundingClientRect().top - 8,
-        ),
-      )
       const measure = (element: HTMLElement, id: string): Billboard => {
         const rect = element.getBoundingClientRect()
         return {
@@ -370,6 +365,16 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       }
       const boards = Array.from(work.querySelectorAll<HTMLElement>('[data-project-id]'))
       const skillsBillboard = measure(skills, skills.id)
+      // Leave room for the idle arrow above the sprite as the canvas scales.
+      const guideGap = Math.max(compact ? 50 : 76, (PLAYER_HEIGHT + 22) * scale)
+      const guideRoof = worldY(
+        Math.max(hero.getBoundingClientRect().bottom - 10, guideBottom + guideGap),
+      )
+      const playerLeft = width * ROOFTOP_PLAYER_X - PLAYER_WIDTH / 2
+      const roof =
+        skillsBillboard.x + skillsBillboard.width > playerLeft
+          ? Math.min(guideRoof, skillsBillboard.y - 8 / scale)
+          : guideRoof
       const billboards = boards.map((element) => measure(element, element.dataset.projectId!))
       const contactTargets = contactAnchors.map((anchor) =>
         measure(anchor, anchor.dataset.contactId!),
@@ -410,7 +415,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       }
       const workAwning =
         firstLedge && (firstLedge.y - workTop) * scale + headerHeight + 51 > viewportHeight
-          ? { ...firstLedge, y: first.y - 9 }
+          ? { ...firstLedge, y: first.y - 9, rowBottom: firstRowBottom }
           : undefined
       workLedge = workAwning ?? firstLedge
       const layout: CityLayout = {
@@ -485,7 +490,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       paintedCamera = -1
       const ledge = arrivalLedge(destination)
       if (destination === 'top' || !ledge) {
-        landPlayer(state, state.width * 0.81, state.layout.roof)
+        landPlayer(state, state.width * ROOFTOP_PLAYER_X, state.layout.roof)
         state.started = destination !== 'top'
         if (destination === 'top') showTouchPad = false
       } else {
@@ -562,7 +567,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
           (platform) => platform.y - PLAYER_HEIGHT >= top && platform.y <= bottom,
         )
         if (ledge) landPlayer(state, ledge.x + ledge.width / 2, ledge.y)
-        else landPlayer(state, state.width * 0.81, state.camera + viewHeight * 0.56)
+        else landPlayer(state, state.width * ROOFTOP_PLAYER_X, state.camera + viewHeight * 0.56)
       }
       following = true
       framedDestination = undefined

@@ -1089,7 +1089,7 @@
     display: flex;
     flex-direction: column;
     margin: 0 16px;
-    padding: 84px 0 clamp(42px, 7.5vw + 12px, 70px);
+    padding: 84px 0 clamp(42px, 9vw + 10px, 74px);
     gap: 16px;
   }
   .descent-hero {
@@ -1283,7 +1283,7 @@
     margin-top: 18px;
   }
   .descent-control-guide {
-    margin-top: 30px;
+    margin-top: 18px;
   }
 }
 @media (max-width: 699px), (max-height: 790px) {

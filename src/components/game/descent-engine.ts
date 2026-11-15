@@ -1,5 +1,6 @@
 export const PLAYER_WIDTH = 28
 export const PLAYER_HEIGHT = 44
+export const ROOFTOP_PLAYER_X = 0.81
 
 export type Direction = -1 | 1
 export type SoundEvent = 'jump' | 'jetpack'
@@ -19,7 +20,7 @@ export type CityLayout = {
   sewers: number
   reactor: number
   workTop?: number
-  workAwning?: Platform
+  workAwning?: Platform & { rowBottom: number }
   skillsBillboard?: Billboard
   billboards: Billboard[]
 }
@@ -134,7 +135,7 @@ export function createGame(width: number, layout: CityLayout = INITIAL_CITY): Ga
     time: 0,
     camera: 0,
     player: {
-      x: width * 0.81 - PLAYER_WIDTH / 2,
+      x: width * ROOFTOP_PLAYER_X - PLAYER_WIDTH / 2,
       y: layout.roof - PLAYER_HEIGHT,
       vx: 0,
       vy: 0,
@@ -221,15 +222,18 @@ export function nearbyBillboard(
 function followCamera(state: GameState, viewHeight: number, blend: number, platform?: Platform) {
   const { layout, player } = state
   let target = player.y - viewHeight * 0.57
-  if (platform?.billboards?.length) {
-    const boardTop = platform.billboards[0].y
+  const awning = platform === layout.workAwning ? layout.workAwning : undefined
+  const boardTop = awning
+    ? Math.min(layout.workTop ?? awning.y, awning.y - PLAYER_HEIGHT)
+    : platform?.billboards?.[0]?.y
+  if (platform && boardTop !== undefined) {
     const firstWorkRow = boardTop === layout.billboards[0]?.y
     const preferredTop = firstWorkRow ? (layout.workTop ?? boardTop) : boardTop
-    const earliest = platform.y + 6 - viewHeight
+    const earliest = (awning?.rowBottom ?? platform.y) + 6 - viewHeight
     if (earliest <= boardTop - layout.ceiling) {
       // Show the Work sign with the first row when the sign, row and player fit together.
       const latest = Math.max(earliest, preferredTop - layout.ceiling)
-      target = Math.min(latest, Math.max(earliest, target))
+      target = Math.min(latest, Math.max(earliest, awning ? state.camera : target))
     }
   }
   target = Math.max(0, Math.min(layout.height - viewHeight, target))
