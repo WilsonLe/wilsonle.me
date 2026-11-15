@@ -264,14 +264,16 @@ test.describe('Frontend', () => {
     }
   })
 
-  test('lists only home routes in the sitemap', async ({ request }) => {
+  test('lists home and localized privacy policy routes in the sitemap', async ({ request }) => {
     const response = await request.get('/sitemap.xml')
 
     expect(response.ok()).toBeTruthy()
     const sitemap = await response.text()
     const urls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1])
     expect(urls.sort()).toEqual(
-      ['', '/en', '/vi'].map((route) => `https://wilsonle.me${route}`).sort(),
+      ['', '/en', '/vi', '/privacy', '/vi/privacy']
+        .map((route) => `https://wilsonle.me${route}`)
+        .sort(),
     )
     expect(sitemap).not.toContain('website-templates')
     expect(sitemap).not.toContain('template-previews')
