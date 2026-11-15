@@ -63,9 +63,7 @@ export function PrivacyPolicy({ locale }: { locale: Locale }) {
           <h2 id="privacy-analytics" className="text-xl font-semibold text-paper">
             {copy.analyticsTitle}
           </h2>
-          {copy.analytics.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
+          <p>{copy.analytics}</p>
           <p>
             <a
               href="https://posthog.com/privacy"
@@ -79,24 +77,17 @@ export function PrivacyPolicy({ locale }: { locale: Locale }) {
           <h2 id="privacy-replay" className="text-xl font-semibold text-paper">
             {copy.replayTitle}
           </h2>
-          {copy.replay.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
+          <p>{copy.replay}</p>
           <ReplayPreference copy={copy.choice} />
         </section>
-        <section aria-labelledby="privacy-contact" className="space-y-3">
-          <h2 id="privacy-contact" className="text-xl font-semibold text-paper">
-            {copy.contactTitle}
-          </h2>
-          <p>
-            <a
-              href={getLocalizedHref(locale, '#contact')}
-              className="text-signal underline underline-offset-4"
-            >
-              {copy.contact}
-            </a>
-          </p>
-        </section>
+        <p>
+          <a
+            href={getLocalizedHref(locale, '#contact')}
+            className="text-signal underline underline-offset-4"
+          >
+            {copy.contact}
+          </a>
+        </p>
       </div>
     </article>
   )
