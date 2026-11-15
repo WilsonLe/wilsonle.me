@@ -692,7 +692,7 @@
     align-items: start;
     column-gap: clamp(24px, 6vw, 90px);
     margin: 0 6%;
-    padding: clamp(120px, 12vw, 150px) 0 88px;
+    padding: clamp(104px, min(12vw, 15dvh), 150px) 0 clamp(34px, 8dvh, 88px);
   }
   .descent-hero {
     position: relative;
@@ -1089,16 +1089,32 @@
     display: flex;
     flex-direction: column;
     margin: 0 16px;
-    padding: 92px 0 78px;
-    gap: 20px;
+    padding: 84px 0 clamp(42px, 7.5vw + 12px, 70px);
+    gap: 16px;
   }
   .descent-hero {
     width: 100%;
+    padding: 18px;
+  }
+  .descent-hero .descent-eyebrow {
+    margin-bottom: 12px;
+  }
+  .descent-hero-cta {
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .descent-hero-cta > :is(a, button) {
+    gap: 8px;
+    padding-inline: 12px;
   }
   .descent-control-guide {
     width: min(100%, 310px);
     margin-top: 0;
+    padding-block: 12px;
     align-self: end;
+  }
+  .descent-control-guide h2 {
+    margin-bottom: 10px;
   }
   .descent-work {
     width: calc(100% - 32px);
@@ -1108,6 +1124,9 @@
     width: calc(100% - 32px);
     margin: 0 16px 54px;
     padding: 13px 12px 12px;
+  }
+  .descent-skills .section-tabs a {
+    padding-inline: 8px;
   }
   .descent-contact {
     width: calc(100% - 32px);
@@ -1181,6 +1200,16 @@
     background: #4c93a6;
     color: #08151d;
   }
+  @media (orientation: landscape) and (min-width: 560px) and (max-height: 550px) {
+    .descent-world :is(.descent-skills, .descent-work, .descent-contact) {
+      max-width: calc(100% - max(16px, 6vw) - 168px - env(safe-area-inset-right));
+    }
+    .descent-touch-pad[data-visible='true'],
+    .descent-touch-pad:focus-within {
+      right: max(12px, env(safe-area-inset-right));
+      left: auto;
+    }
+  }
   @media (orientation: landscape) and (max-height: 300px) {
     .descent-page:has(.descent-interact[data-contact-prompt]) .descent-touch-pad {
       right: max(12px, env(safe-area-inset-right));
@@ -1236,12 +1265,73 @@
     gap: 4px;
   }
 }
-@media (min-width: 700px) and (max-height: 500px) {
+@media (min-width: 700px) and (max-height: 790px) {
   .descent-rooftop {
-    padding-top: 102px;
+    column-gap: clamp(24px, 3vw, 48px);
+    padding-block: 96px 34px;
+  }
+  .descent-hero {
+    padding: 20px;
+  }
+  .descent-hero h1 {
+    font-size: clamp(36px, min(5vw, 7dvh), 54px);
+  }
+  .descent-hero .descent-eyebrow {
+    margin-bottom: 12px;
+  }
+  .descent-hero-cta {
+    margin-top: 18px;
   }
   .descent-control-guide {
-    margin-top: 38px;
+    margin-top: 30px;
+  }
+}
+@media (max-width: 699px), (max-height: 790px) {
+  .descent-skills {
+    padding-block: 12px;
+  }
+  .descent-skills h2 {
+    margin-bottom: 6px;
+  }
+  .descent-skills .tech-viewport {
+    padding-block: 4px;
+  }
+  .descent-skills .tech-strip li {
+    min-height: 92px;
+    gap: 8px;
+    padding-block: 8px;
+  }
+}
+@media (max-height: 550px), (max-width: 699px) and (max-height: 740px) {
+  .descent-skills .tech-categories {
+    order: 0;
+    margin-block: 0 8px;
+  }
+}
+@media (max-height: 550px) {
+  .descent-work h2 {
+    font-size: 34px;
+  }
+  .descent-work-sign {
+    padding: 8px 18px;
+  }
+  .descent-projects {
+    margin-top: 16px;
+  }
+  .descent-project > img {
+    max-height: max(72px, 100dvh - 300px);
+    object-fit: contain;
+  }
+  .descent-project h3 {
+    margin-bottom: 5px;
+    font-size: 18px;
+  }
+  .descent-project p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .descent-billboard-copy {
+    padding: 9px 12px 11px;
   }
 }
 @media (hover: hover) {

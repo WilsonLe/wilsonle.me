@@ -18,6 +18,7 @@ export type CityLayout = {
   transit: number
   sewers: number
   reactor: number
+  workTop?: number
   workAwning?: Platform
   skillsBillboard?: Billboard
   billboards: Billboard[]
@@ -217,11 +218,21 @@ export function nearbyBillboard(
   return nearest
 }
 
-export function followCamera(state: GameState, viewHeight: number, blend = 1) {
-  const target = Math.max(
-    0,
-    Math.min(state.layout.height - viewHeight, state.player.y - viewHeight * 0.57),
-  )
+function followCamera(state: GameState, viewHeight: number, blend: number, platform?: Platform) {
+  const { layout, player } = state
+  let target = player.y - viewHeight * 0.57
+  if (platform?.billboards?.length) {
+    const boardTop = platform.billboards[0].y
+    const firstWorkRow = boardTop === layout.billboards[0]?.y
+    const preferredTop = firstWorkRow ? (layout.workTop ?? boardTop) : boardTop
+    const earliest = platform.y + 6 - viewHeight
+    if (earliest <= boardTop - layout.ceiling) {
+      // Show the Work sign with the first row when the sign, row and player fit together.
+      const latest = Math.max(earliest, preferredTop - layout.ceiling)
+      target = Math.min(latest, Math.max(earliest, target))
+    }
+  }
+  target = Math.max(0, Math.min(layout.height - viewHeight, target))
   state.camera += (target - state.camera) * blend
 }
 
@@ -262,6 +273,7 @@ export function stepGame(state: GameState, input: Controls, dt: number, viewHeig
   p.x = Math.max(12, Math.min(state.width - PLAYER_WIDTH - 12, p.x + p.vx * dt))
   p.y += p.vy * dt
   p.grounded = false
+  let standingOn: Platform | undefined
 
   if (p.y < state.layout.ceiling) {
     p.y = state.layout.ceiling
@@ -278,6 +290,7 @@ export function stepGame(state: GameState, input: Controls, dt: number, viewHeig
         p.y = platform.y - PLAYER_HEIGHT
         p.vy = 0
         p.grounded = true
+        standingOn = platform
         break
       }
     }
@@ -288,5 +301,5 @@ export function stepGame(state: GameState, input: Controls, dt: number, viewHeig
     p.vy = 0
     p.grounded = true
   }
-  followCamera(state, viewHeight, 1 - Math.exp(-dt * 6))
+  followCamera(state, viewHeight, 1 - Math.exp(-dt * 6), standingOn)
 }

@@ -174,7 +174,7 @@ export function TechStackCarousel({ stack }: { stack: TechStack }) {
       data-rotating={rotating ? 'true' : 'false'}
       data-browse={browse ? 'true' : undefined}
     >
-      <div className="order-last mt-3">
+      <div className="tech-categories order-last mt-3">
         <SectionTabs
           choices={stack.groups.map((group) => ({
             id: group.id,

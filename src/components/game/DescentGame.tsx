@@ -225,6 +225,9 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     const state = createGame(1200)
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
     const touch = window.matchMedia('(pointer: coarse)')
+    const horizontalTouchPad = window.matchMedia(
+      '(orientation: landscape) and (min-width: 560px) and (max-height: 550px)',
+    )
     let scale = 1
     let viewHeight = 800
     let viewportWidth = 0
@@ -242,10 +245,12 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     let visibility = 1
     let showTouchPad = false
     let workLedge: Platform | undefined
+    let workRowHeight = 0
     let contactFloor: Platform | undefined
     let contactApproachHeight = 0
     let interactionTargets: Billboard[] = []
     let crossingTops: CrossingTops | undefined
+    let framedDestination: 'work' | 'skills' | undefined
     let travel: {
       destination: Destination
       source: number
@@ -285,10 +290,13 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       const inset = contactPrompt ? 110 : 78
       const aboveTouchPad =
         showTouchPad && (viewportWidth < 700 || touch.matches) && promptY > viewportHeight - 132
-      const x = Math.max(
-        inset,
-        Math.min(viewportWidth - inset, aboveTouchPad ? Math.max(208, besidePlayer) : besidePlayer),
-      )
+      let promptX = besidePlayer
+      if (aboveTouchPad) {
+        promptX = horizontalTouchPad.matches
+          ? Math.min(viewportWidth - 208, promptX)
+          : Math.max(208, promptX)
+      }
+      const x = Math.max(inset, Math.min(viewportWidth - inset, promptX))
       const y = Math.max(90, Math.min(viewportHeight - 26, promptY))
       const transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`
       if (transform !== promptTransform.current) {
@@ -344,10 +352,12 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       const y = (element: HTMLElement) => worldY(element.getBoundingClientRect().top)
       const guideBottom = guide.getBoundingClientRect().bottom
       guidePadY = guidePad.getBoundingClientRect().top - bounds.top
-      const roof =
-        (Math.max(hero.getBoundingClientRect().bottom - 10, guideBottom + (compact ? 50 : 76)) -
-          bounds.top) /
-        scale
+      const roof = worldY(
+        Math.min(
+          Math.max(hero.getBoundingClientRect().bottom - 10, guideBottom + (compact ? 50 : 76)),
+          skills.getBoundingClientRect().top - 8,
+        ),
+      )
       const measure = (element: HTMLElement, id: string): Billboard => {
         const rect = element.getBoundingClientRect()
         return {
@@ -384,13 +394,22 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         width: firstContact?.width ?? 0,
       }
       const first = billboards[0]
+      const workTop = y(work)
+      const firstRowBottom = first
+        ? Math.max(
+            ...billboards
+              .filter((board) => board.y === first.y)
+              .map((board) => board.y + board.height),
+          )
+        : workTop
+      workRowHeight = (firstRowBottom - workTop) * scale
       const firstLedge = first && {
         x: first.x,
-        y: billboardFloorY(first.y + first.height),
+        y: billboardFloorY(firstRowBottom),
         width: first.width,
       }
       const workAwning =
-        firstLedge && (firstLedge.y - y(work)) * scale + headerHeight + 51 > viewportHeight
+        firstLedge && (firstLedge.y - workTop) * scale + headerHeight + 51 > viewportHeight
           ? { ...firstLedge, y: first.y - 9 }
           : undefined
       workLedge = workAwning ?? firstLedge
@@ -400,12 +419,18 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         ceiling: (headerHeight + 10) / scale,
         roof,
         ...districtStarts,
+        workTop,
         workAwning,
         skillsBillboard,
         billboards,
       }
       fitCity(state, width, layout)
-      if (onContactFloor) {
+      const expectedScroll = Math.min(scrollTop, scroller.scrollHeight - viewportHeight)
+      if (Math.abs(scroller.scrollTop - expectedScroll) > 0.5) framedDestination = undefined
+      if (framedDestination) {
+        writeScroll(targetScroll(framedDestination))
+        landAtSection(framedDestination)
+      } else if (onContactFloor) {
         const link = contactTargets.find((target) => target.id === lastNearby)
         const center = state.player.x + PLAYER_WIDTH / 2
         const keepLink = link && (center < link.x + 1 || center > link.x + link.width - 1)
@@ -438,18 +463,25 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     }
     const targetScroll = (destination: Destination) => {
       if (destination === 'top') return 0
-      const offset =
-        sections[destination].getBoundingClientRect().top - scroller.getBoundingClientRect().top
-      const anchor = scroller.scrollTop + offset - headerHeight - 24
+      const section = sections[destination].getBoundingClientRect()
+      const origin = scroller.scrollTop - scroller.getBoundingClientRect().top
+      const top = origin + section.top
+      const anchor = top - headerHeight - 24
       const feet = arrivalLedge(destination)?.y
       const landingInset = destination === 'contact' ? contactLandingInset() : 27
       const showLanding = feet === undefined ? 0 : feet * scale - viewportHeight + landingInset
       const rooftop = (state.layout.roof - PLAYER_HEIGHT) * scale - headerHeight - 8
-      const target =
+      const preferred =
         destination === 'skills' ? Math.min(anchor, rooftop) : Math.max(anchor, showLanding)
+      const bottom = destination === 'work' ? top + workRowHeight : origin + section.bottom
+      // Keep the heading clear even when a short viewport needs scrolling to see the whole board.
+      const target =
+        destination === 'contact'
+          ? preferred
+          : Math.min(top - headerHeight - 8, Math.max(preferred, bottom - viewportHeight + 8))
       return Math.max(0, Math.min(scroller.scrollHeight - viewportHeight, target))
     }
-    const arrive = (destination: Destination) => {
+    const landAtSection = (destination: Destination) => {
       paintedCamera = -1
       const ledge = arrivalLedge(destination)
       if (destination === 'top' || !ledge) {
@@ -460,10 +492,16 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         landPlayer(state, ledge.x + ledge.width / 2, ledge.y)
         state.started = true
       }
+    }
+    const arrive = (destination: Destination) => {
+      landAtSection(destination)
+      framedDestination =
+        destination === 'skills' || destination === 'work' ? destination : undefined
       sections[destination].querySelector<HTMLElement>('h1, h2')?.focus({ preventScroll: true })
     }
     navigateRef.current = (destination) => {
       following = false
+      framedDestination = undefined
       controls.reset()
       if (motion.matches) {
         travel = null
@@ -527,6 +565,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         else landPlayer(state, state.width * 0.81, state.camera + viewHeight * 0.56)
       }
       following = true
+      framedDestination = undefined
       state.started = true
       controls.press(source, direction, at, touch)
     }
@@ -631,6 +670,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       previous = now
       if ((travel && selectedRef.current) || Math.abs(scroller.scrollTop - scrollTop) > 0.5) {
         following = false
+        framedDestination = undefined
         travel = null
         visibility = 1
         controls.reset()

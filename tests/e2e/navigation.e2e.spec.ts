@@ -524,6 +524,95 @@ test('animates navigation and lands beside the selected section', async ({ page 
   await expect(city).toHaveAttribute('data-player-y', initialY!)
 })
 
+test('fits the full Skills billboard in the opening view on desktop, laptop and phone', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  for (const viewport of [
+    { width: 1512, height: 808 },
+    { width: 1366, height: 650 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport)
+    await page.goto('/')
+    await expect(page.getByRole('tablist', { name: 'Skill sections' })).toBeInViewport({
+      ratio: 1,
+    })
+    await expect(page.locator('#skills')).toBeInViewport({ ratio: 1 })
+  }
+})
+
+test('keeps the Work sign above the first row and clear of the header while walking', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1512, height: 808 })
+  await installPausedClock(page)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  await page.getByRole('link', { name: 'View work', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Work', exact: true })).toBeFocused()
+  await page.keyboard.down('ArrowRight')
+  await page.clock.runFor(800)
+  await page.keyboard.up('ArrowRight')
+  await page.clock.runFor(1200)
+  await expect(page.locator('.descent-page')).toHaveAttribute('data-nearby', 'pangea-chat')
+  const header = (await page.getByRole('banner').boundingBox())!
+  const sign = (await page.locator('.descent-work-sign').boundingBox())!
+  expect(sign.y).toBeGreaterThanOrEqual(header.y + header.height)
+  await expect(page.locator('.descent-project-row').first()).toBeInViewport({ ratio: 1 })
+})
+
+test('refits Work and Skills after resizing a direct section link', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  for (const section of ['Work', 'Skills']) {
+    await page.setViewportSize({ width: 1512, height: 808 })
+    await page.goto('/#' + section.toLowerCase())
+    const heading = page.getByRole('heading', { name: section, exact: true })
+    await expect(heading).toBeFocused()
+    for (const viewport of [
+      { width: 1280, height: 515 },
+      { width: 390, height: 844 },
+    ]) {
+      await page.setViewportSize(viewport)
+      const header = (await page.getByRole('banner').boundingBox())!
+      await expect.poll(async () => (await heading.boundingBox())!.y).toBeGreaterThan(header.height)
+      const billboard =
+        section === 'Work' ? page.locator('.descent-project').first() : page.locator('#skills')
+      await expect(billboard).toBeInViewport({ ratio: 1 })
+    }
+  }
+})
+
+test('keeps the billboards and category controls clear of the touch pad in short landscape', async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    viewport: { width: 844, height: 390 },
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: 'reduce',
+  })
+  try {
+    const page = await context.newPage()
+    const pad = page.locator('.descent-touch-pad')
+    await page.goto('/#skills')
+    const skills = page.locator('#skills')
+    await expect(skills).toBeInViewport({ ratio: 1 })
+    await expect(pad).toBeVisible()
+    const skillsBounds = (await skills.boundingBox())!
+    expect((await pad.boundingBox())!.x).toBeGreaterThan(skillsBounds.x + skillsBounds.width)
+    const frontend = page.getByRole('tab', { name: 'Frontend', exact: true })
+    await frontend.tap({ trial: true })
+    await page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }).tap()
+    const row = page.locator('.descent-project-row').first()
+    await expect(row).toBeInViewport({ ratio: 1 })
+    const workBounds = (await row.boundingBox())!
+    expect((await pad.boundingBox())!.x).toBeGreaterThan(workBounds.x + workBounds.width)
+  } finally {
+    await context.close()
+  }
+})
+
 test('repositions the project prompt on render frames between status updates', async ({ page }) => {
   await installPausedClock(page)
   await page.emulateMedia({ reducedMotion: 'reduce' })
