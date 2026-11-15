@@ -524,6 +524,149 @@ test('animates navigation and lands beside the selected section', async ({ page 
   await expect(city).toHaveAttribute('data-player-y', initialY!)
 })
 
+test('eases wheel scrolling and lands on the platform in the settled viewport', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await installPausedClock(page)
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await page.evaluate(() => document.fonts.ready)
+  await scroller.focus()
+  await page.clock.runFor(32)
+
+  const initialY = await city.getAttribute('data-player-y')
+  const { target, landingY } = await scroller.evaluate((element) => {
+    const world = element.querySelector('.descent-world')!.getBoundingClientRect()
+    const row = element.querySelector('.descent-project-row')!.getBoundingClientRect()
+    const headerHeight = document.querySelector('.descent-header')!.getBoundingClientRect().height
+    const scale = world.width / 1200
+    const landingY = (row.bottom - world.top) / scale + 6
+    return {
+      target: Math.round((landingY + 22) * scale - (element.clientHeight + headerHeight) / 2),
+      landingY: Math.round(landingY),
+    }
+  })
+  const scrollTop = () => scroller.evaluate((element) => element.scrollTop)
+  const wheel = (deltaY: number) => scroller.dispatchEvent('wheel', { deltaY, cancelable: true })
+  const firstStep = Math.floor(target / 2)
+  await wheel(firstStep)
+  await page.clock.runFor(64)
+  const intermediate = await scrollTop()
+  expect(intermediate).toBeGreaterThan(0)
+  expect(intermediate).toBeLessThan(firstStep)
+  await page.clock.runFor(580)
+  expect(await scrollTop()).toBe(firstStep)
+  await expect(city).toHaveAttribute('data-player-y', initialY!)
+
+  await wheel(target - firstStep)
+  await page.clock.runFor(450)
+  expect(await scrollTop()).toBe(target)
+  await expect(city).toHaveAttribute('data-player-y', initialY!)
+  await page.clock.runFor(450)
+  await expect(city).toHaveAttribute('data-player-y', String(landingY))
+  expect(await scrollTop()).toBe(target)
+  await expect(scroller).toBeFocused()
+
+  await page.keyboard.press('Space')
+  await page.clock.runFor(160)
+  expect(Number(await city.getAttribute('data-player-y'))).toBeLessThan(landingY - 10)
+})
+
+test('restarts the 500 ms landing delay after each native scroll', async ({ page }) => {
+  await installPausedClock(page)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await page.evaluate(() => document.fonts.ready)
+
+  await scroller.evaluate((element) => (element.scrollTop = 450))
+  await page.clock.runFor(450)
+  await expect(city).toHaveAttribute('data-started', 'false')
+  await scroller.evaluate((element) => (element.scrollTop = 600))
+  await page.clock.runFor(480)
+  await expect(city).toHaveAttribute('data-started', 'false')
+  await page.clock.runFor(50)
+  await expect(city).toHaveAttribute('data-started', 'true')
+})
+
+test('keeps a scroll landing on a platform after switching to a phone viewport', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await installPausedClock(page)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await page.evaluate(() => document.fonts.ready)
+  await page.clock.runFor(64)
+  const phoneRoof = await city.getAttribute('data-player-y')
+
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.clock.runFor(64)
+  await scroller.evaluate((element) => (element.scrollTop = 15))
+  await page.clock.runFor(550)
+  await expect(city).toHaveAttribute('data-started', 'true')
+  await expect(city).not.toHaveAttribute('data-player-y', phoneRoof!)
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.clock.runFor(64)
+  await expect(city).toHaveAttribute('data-player-y', phoneRoof!)
+  expect(await scroller.evaluate((element) => element.scrollTop)).toBe(15)
+})
+
+test('lands beside the touch controls when they overlap the nearest floor', async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 650, height: 390 },
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: 'reduce',
+  })
+  try {
+    const page = await context.newPage()
+    await installPausedClock(page)
+    await page.goto('/')
+    const city = page.locator('.descent-page')
+    const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+    await expect(city).toHaveAttribute('data-ready', 'true')
+    await page.evaluate(() => document.fonts.ready)
+    await scroller.focus()
+    await page.keyboard.down('ArrowRight')
+    await page.clock.runFor(800)
+    await page.keyboard.up('ArrowRight')
+    const pad = page.locator('.descent-touch-pad')
+    await expect(pad).toBeVisible()
+    const padX = (await pad.boundingBox())!.x
+    const scale = 650 / 600
+    expect(Number(await city.getAttribute('data-player-x')) * scale).toBeGreaterThan(padX)
+
+    const { landingY, target } = await scroller.evaluate((element, scale) => {
+      const world = element.querySelector('.descent-world')!.getBoundingClientRect()
+      const contact = element.querySelector('.descent-contact')!
+      const gap = Number.parseFloat(
+        getComputedStyle(contact).getPropertyValue('--contact-floor-gap'),
+      )
+      const feet = contact.getBoundingClientRect().bottom - world.top + gap
+      const target = Math.round(feet - element.clientHeight + 26)
+      element.scrollTop = target
+      return { landingY: Math.round(feet / scale - 44), target }
+    }, scale)
+    await page.clock.runFor(550)
+    await expect(city).toHaveAttribute('data-player-y', String(landingY))
+    expect((Number(await city.getAttribute('data-player-x')) + 28) * scale).toBeLessThan(padX)
+    expect(await scroller.evaluate((element) => element.scrollTop)).toBe(target)
+  } finally {
+    await context.close()
+  }
+})
+
 test('fits the full Skills billboard in the opening view on desktop, laptop and phone', async ({
   page,
 }) => {
@@ -787,7 +930,7 @@ test('uses the keyboard to jump and activate the jetpack', async ({ page }) => {
   await expect(city).toHaveAttribute('data-jetpack', 'false')
 })
 
-test('Shift+Space scrolls up while the character stays idle', async ({ page }) => {
+test('Shift+Space scrolls up before landing the character', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   const city = page.locator('.descent-page')
@@ -804,6 +947,7 @@ test('Shift+Space scrolls up while the character stays idle', async ({ page }) =
     .poll(() => scroller.evaluate((element) => element.scrollTop))
     .toBeLessThan(initialScroll - 100)
   await expect(city).toHaveAttribute('data-started', 'false')
+  await expect(city).toHaveAttribute('data-started', 'true')
 })
 
 test('Space jumps without scrolling and a held second press flies', async ({ page }) => {

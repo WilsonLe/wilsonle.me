@@ -8,7 +8,9 @@ import {
   INITIAL_CITY,
   landPlayer,
   nearbyBillboard,
+  nearestLandingInView,
   PLAYER_HEIGHT,
+  PLAYER_WIDTH,
   stepGame,
   zoneAt,
   type Controls,
@@ -27,6 +29,26 @@ const frame = 1 / 120
 const tick = (state: ReturnType<typeof createGame>, change: Partial<Controls> = {}, frames = 1) => {
   for (let i = 0; i < frames; i++) stepGame(state, { ...idle, ...change }, frame, 800)
 }
+
+test('a scroll landing chooses the closest visible platform and keeps its horizontal position', () => {
+  const state = createGame(1200)
+  assert.deepEqual(nearestLandingInView(state, 500, 1280), {
+    center: state.player.x + PLAYER_WIDTH / 2,
+    feet: state.layout.streets + 148,
+    shift: 0,
+  })
+})
+
+test('a scroll landing between floors picks the ledge requiring the least camera movement', () => {
+  const state = createGame(1200)
+  state.player.x = 100
+
+  assert.deepEqual(nearestLandingInView(state, 600, 760), {
+    center: state.width * 0.74 + PLAYER_WIDTH / 2,
+    feet: state.layout.streets + 148,
+    shift: 48,
+  })
+})
 
 test('the city starts at rest and a first Space press can jump', () => {
   const state = createGame(1200)

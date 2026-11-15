@@ -9,6 +9,7 @@ export type Platform = { x: number; y: number; width: number; billboards?: Billb
 export type Zone = 'skyline' | 'streets' | 'transit' | 'sewers' | 'reactor'
 
 const PLATFORM_OVERLAP_INSET = 3
+const PLAYER_SIDE_INSET = 12
 
 export type CityLayout = {
   height: number
@@ -126,6 +127,58 @@ export function landPlayer(state: GameState, center: number, feet: number) {
   })
 }
 
+export function nearestLandingInView(
+  state: GameState,
+  top: number,
+  bottom: number,
+  obstruction?: { left: number; right: number; top: number },
+) {
+  const halfWidth = PLAYER_WIDTH / 2
+  const halfHeight = PLAYER_HEIGHT / 2
+  const centerX = state.player.x + halfWidth
+  const centerY = (top + bottom) / 2
+  let nearest: { center: number; feet: number; shift: number; distance: number } | undefined
+
+  const consider = (center: number, feet: number, bottomLimit: number) => {
+    if (bottomLimit - top < PLAYER_HEIGHT) return
+    const shift = Math.max(feet - bottomLimit, Math.min(0, feet - PLAYER_HEIGHT - top))
+    const distance = (center - centerX) ** 2 + (feet - halfHeight - centerY) ** 2
+
+    // Prefer a fully visible landing. Otherwise minimize the scroll needed to reveal it.
+    if (
+      !nearest ||
+      Math.abs(shift) < Math.abs(nearest.shift) ||
+      (Math.abs(shift) === Math.abs(nearest.shift) && distance < nearest.distance)
+    ) {
+      nearest = { center, feet, shift, distance }
+    }
+  }
+
+  for (const platform of state.platforms) {
+    const minX = Math.max(PLAYER_SIDE_INSET, platform.x) + halfWidth
+    const maxX = Math.min(state.width - PLAYER_SIDE_INSET, platform.x + platform.width) - halfWidth
+    if (maxX < minX || platform.y - PLAYER_HEIGHT < state.layout.ceiling) continue
+    const center = Math.max(minX, Math.min(maxX, centerX))
+
+    if (
+      obstruction &&
+      center + halfWidth > obstruction.left &&
+      center - halfWidth < obstruction.right
+    ) {
+      consider(center, platform.y, obstruction.top)
+      const left = obstruction.left - halfWidth
+      const right = obstruction.right + halfWidth
+      if (left >= minX) consider(left, platform.y, bottom)
+      if (right <= maxX) consider(right, platform.y, bottom)
+    } else {
+      consider(center, platform.y, bottom)
+    }
+  }
+
+  if (!nearest) return
+  return { center: nearest.center, feet: nearest.feet, shift: nearest.shift }
+}
+
 export function createGame(width: number, layout: CityLayout = INITIAL_CITY): GameState {
   return {
     width,
@@ -168,7 +221,10 @@ export function fitCity(state: GameState, width: number, layout: CityLayout) {
   const anchor = floor?.billboards?.reduce((nearest, board) =>
     horizontalDistance(board, center) < horizontalDistance(nearest, center) ? board : nearest,
   )
-  player.x = Math.max(12, Math.min(width - PLAYER_WIDTH - 12, (player.x / state.width) * width))
+  player.x = Math.max(
+    PLAYER_SIDE_INSET,
+    Math.min(width - PLAYER_WIDTH - PLAYER_SIDE_INSET, (player.x / state.width) * width),
+  )
   player.y = Math.max(layout.ceiling, Math.min(floorY(layout) - PLAYER_HEIGHT, player.y))
   state.width = width
   state.layout = layout
@@ -274,7 +330,10 @@ export function stepGame(state: GameState, input: Controls, dt: number, viewHeig
   p.vx += (move * speed - p.vx) * (1 - Math.exp(-dt * 16))
 
   p.vy = p.jetpack ? Math.max(-380, p.vy - 560 * dt) : Math.min(670, p.vy + 1160 * dt)
-  p.x = Math.max(12, Math.min(state.width - PLAYER_WIDTH - 12, p.x + p.vx * dt))
+  p.x = Math.max(
+    PLAYER_SIDE_INSET,
+    Math.min(state.width - PLAYER_WIDTH - PLAYER_SIDE_INSET, p.x + p.vx * dt),
+  )
   p.y += p.vy * dt
   p.grounded = false
   let standingOn: Platform | undefined
