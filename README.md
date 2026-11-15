@@ -20,8 +20,9 @@ jump key and hold the second press to fly with the jetpack. Down or S drops
 through small ledges. Walk into the alternating floor openings to descend past
 the billboards. On a touchscreen, tap or hold the on-screen controls to move,
 or swipe to scroll through the portfolio. Double-tap the up control and hold
-the second tap to fly. Wheel scrolling eases through the city. After scrolling
-stops for half a second, the character teleports to the nearest platform in view.
+the second tap to fly. Use the same gesture on either empty corner beside Up
+to fly diagonally. Wheel scrolling eases through the city. After scrolling stops
+for half a second, the character teleports to the nearest platform in view.
 
 Press **E** beside a project billboard, or click or tap a billboard, to see the
 project and its screenshots. On the reactor floor, walk under a link on the
@@ -32,7 +33,8 @@ Without JavaScript, the static portfolio still exposes the project descriptions,
 screenshots, skills, résumé and contact links.
 
 Focused checks: `pnpm exec tsx --test src/components/game/descent-engine.test.ts`.
-The controls currently use the same English fallback as the Vietnamese homepage.
+The diagonal buttons have English and Vietnamese accessible labels. The control
+guide and project dialogs use English labels on both routes.
 
 Production: <https://wilsonle.me>
 

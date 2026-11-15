@@ -5,7 +5,7 @@ import { ProjectsSection } from '@/components/sections/ProjectsSection'
 import { descentContent } from '@/content/en/descent'
 import { privacyLink } from '@/content/privacy'
 import type { HomeContent } from '@/content/types'
-import { getLocaleFromPathname } from '@/lib/i18n'
+import { descentContent as viDescentContent } from '@/content/vi/descent'
 import { buildAbsoluteUrl, getSocialLinks } from '@/site-config'
 
 interface HomePageViewProps {
@@ -33,8 +33,8 @@ export function HomePageView({ canonicalPath, content, routeBasePath }: HomePage
       />
       <DescentGame
         content={content}
-        copy={descentContent}
-        privacy={privacyLink(getLocaleFromPathname(canonicalPath))}
+        copy={content.locale === 'vi' ? viDescentContent : descentContent}
+        privacy={privacyLink(content.locale)}
       />
       <noscript>
         <style>{'.descent-page[data-ready]{display:none}'}</style>

@@ -168,6 +168,21 @@ test('a touch tap moves for a short step and releases without sticking', () => {
   assert.equal(input.next(240).left, false)
 })
 
+test('a diagonal touch adds a direction while Up is held and only releases its own input', () => {
+  const input = createControls()
+  input.press('ArrowUp', 'up', 100)
+  input.next(100)
+  input.press('pointer:1', 'up-left', 200, true)
+  assert.deepEqual(input.next(200), { ...idle, up: true, left: true })
+  input.release('pointer:1')
+  assert.deepEqual(input.next(320), { ...idle, up: true })
+  input.release('ArrowUp')
+  input.press('pointer:2', 'up-right', 330, true)
+  assert.deepEqual(input.next(330), { ...idle, up: true, right: true, boost: true })
+  input.reset()
+  assert.deepEqual(input.next(340), idle)
+})
+
 test('a billboard floor selects the nearest project and holds through repeated Down presses', () => {
   const layout = {
     ...INITIAL_CITY,
