@@ -160,6 +160,13 @@ pnpm build
 The public site is deployed by Vercel from GitHub's `main` branch. Use the
 Production deployment status and the public domain to verify a release.
 
+For pageview analytics, set `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` on the Vercel
+Production environment before building. The token comes from
+`/providers/posthog/WILSONLE_POSTHOG_PROJECT_TOKEN` in Infisical. PostHog US
+receives pageviews from the public portfolio domains. The site drops URL query
+strings and fragments and keeps its anonymous session state in memory. Remove
+the build variable and rebuild to disable collection.
+
 The repository also includes a `Dockerfile` and `docker-compose.yml` for
 standalone development.
 

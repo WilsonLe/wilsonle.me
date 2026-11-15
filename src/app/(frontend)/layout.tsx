@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { PortfolioAnalytics } from '@/app/(frontend)/PortfolioAnalytics'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { HtmlLangSync } from '@/components/HtmlLangSync'
@@ -86,6 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${inter.className} bg-ink text-paper antialiased`}>
         <HtmlLangSync />
+        <PortfolioAnalytics />
         <Header siteSettings={siteSettings} />
         <main className="min-h-screen">{children}</main>
         <Footer siteSettings={siteSettings} />
