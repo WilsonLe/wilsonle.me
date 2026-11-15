@@ -8,26 +8,15 @@ async function installPausedClock(page: import('@playwright/test').Page) {
 }
 
 async function holdSecondTap(button: Locator) {
-  const { x, y, width, height } = (await button.boundingBox())!
   const page = button.page()
   const cdp = await page.context().newCDPSession(page)
-  const touchPoints = [{ x: x + width / 2, y: y + height / 2 }]
-  // Keep the gesture timing independent of delays sending events to the browser.
-  const firstTapAt = Date.now() / 1000
+  await button.tap()
+  // Advance the paused page clock so dispatch latency cannot change the tap interval.
+  await page.clock.runFor(150)
+  const { x, y, width, height } = (await button.boundingBox())!
   await cdp.send('Input.dispatchTouchEvent', {
     type: 'touchStart',
-    touchPoints,
-    timestamp: firstTapAt,
-  })
-  await cdp.send('Input.dispatchTouchEvent', {
-    type: 'touchEnd',
-    touchPoints: [],
-    timestamp: firstTapAt + 0.05,
-  })
-  await cdp.send('Input.dispatchTouchEvent', {
-    type: 'touchStart',
-    touchPoints,
-    timestamp: firstTapAt + 0.15,
+    touchPoints: [{ x: x + width / 2, y: y + height / 2 }],
   })
   return cdp
 }
@@ -1145,7 +1134,7 @@ test('supports touch movement, a held jetpack and a tap-to-open billboard', asyn
   })
   try {
     const page = await context.newPage()
-    await page.clock.install()
+    await installPausedClock(page)
     await page.goto('/')
     const city = page.locator('.descent-page')
     const guide = page.getByLabel('City controls')
@@ -1164,16 +1153,16 @@ test('supports touch movement, a held jetpack and a tap-to-open billboard', asyn
     await page.emulateMedia({ reducedMotion: 'reduce' })
     const x = Number(await city.getAttribute('data-player-x'))
     await guide.getByRole('button', { name: 'Move left', exact: true }).tap()
-    await expect
-      .poll(async () => Number(await city.getAttribute('data-player-x')))
-      .toBeLessThan(x - 9)
+    await page.clock.runFor(160)
+    expect(Number(await city.getAttribute('data-player-x'))).toBeLessThan(x - 9)
     const cdp = await holdSecondTap(up)
+    await page.clock.runFor(160)
     await expect(city).toHaveAttribute('data-jetpack', 'true')
     const y = Number(await city.getAttribute('data-player-y'))
-    await expect
-      .poll(async () => Number(await city.getAttribute('data-player-y')))
-      .toBeLessThan(y - 75)
+    await page.clock.runFor(280)
+    expect(Number(await city.getAttribute('data-player-y'))).toBeLessThan(y - 75)
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    await page.clock.runFor(160)
     await expect(city).toHaveAttribute('data-jetpack', 'false')
     await page.getByRole('banner').getByRole('link', { name: 'Work', exact: true }).tap()
     const workTitle = page.getByRole('heading', { name: 'Work', exact: true })
