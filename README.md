@@ -33,7 +33,8 @@ Without JavaScript, the static portfolio still exposes the project descriptions,
 screenshots, skills, résumé and contact links.
 
 Focused checks: `pnpm exec tsx --test src/components/game/descent-engine.test.ts`.
-The controls currently use the same English fallback as the Vietnamese homepage.
+The diagonal buttons have English and Vietnamese accessible labels. The control
+guide and project dialogs use English labels on both routes.
 
 Production: <https://wilsonle.me>
 

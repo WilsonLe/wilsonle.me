@@ -305,6 +305,9 @@
   .descent-scrollport {
     -webkit-user-select: none;
     user-select: none;
+  }
+  .descent-page button,
+  .descent-jetpack-keys {
     -webkit-touch-callout: none;
   }
   .descent-page :focus-visible {
