@@ -9,6 +9,7 @@ export type Platform = { x: number; y: number; width: number; billboards?: Billb
 export type Zone = 'skyline' | 'streets' | 'transit' | 'sewers' | 'reactor'
 
 const PLATFORM_OVERLAP_INSET = 3
+const PLAYER_SIDE_INSET = 12
 
 export type CityLayout = {
   height: number
@@ -126,6 +127,37 @@ export function landPlayer(state: GameState, center: number, feet: number) {
   })
 }
 
+export function landPlayerNearView(state: GameState, top: number, bottom: number) {
+  const halfWidth = PLAYER_WIDTH / 2
+  const halfHeight = PLAYER_HEIGHT / 2
+  const centerX = state.player.x + halfWidth
+  const centerY = (top + bottom) / 2
+  let nearest: { center: number; feet: number; overflow: number; distance: number } | undefined
+
+  for (const platform of state.platforms) {
+    const minX = Math.max(PLAYER_SIDE_INSET, platform.x) + halfWidth
+    const maxX = Math.min(state.width - PLAYER_SIDE_INSET, platform.x + platform.width) - halfWidth
+    const head = platform.y - PLAYER_HEIGHT
+    if (maxX < minX || head < state.layout.ceiling) continue
+    const center = Math.max(minX, Math.min(maxX, centerX))
+    const overflow = Math.max(top - head, platform.y - bottom, 0)
+    const distance = (center - centerX) ** 2 + (platform.y - halfHeight - centerY) ** 2
+
+    // Prefer a fully visible landing. Otherwise minimize the scroll needed to reveal it.
+    if (
+      !nearest ||
+      overflow < nearest.overflow ||
+      (overflow === nearest.overflow && distance < nearest.distance)
+    ) {
+      nearest = { center, feet: platform.y, overflow, distance }
+    }
+  }
+
+  if (!nearest) return false
+  landPlayer(state, nearest.center, nearest.feet)
+  return true
+}
+
 export function createGame(width: number, layout: CityLayout = INITIAL_CITY): GameState {
   return {
     width,
@@ -168,7 +200,10 @@ export function fitCity(state: GameState, width: number, layout: CityLayout) {
   const anchor = floor?.billboards?.reduce((nearest, board) =>
     horizontalDistance(board, center) < horizontalDistance(nearest, center) ? board : nearest,
   )
-  player.x = Math.max(12, Math.min(width - PLAYER_WIDTH - 12, (player.x / state.width) * width))
+  player.x = Math.max(
+    PLAYER_SIDE_INSET,
+    Math.min(width - PLAYER_WIDTH - PLAYER_SIDE_INSET, (player.x / state.width) * width),
+  )
   player.y = Math.max(layout.ceiling, Math.min(floorY(layout) - PLAYER_HEIGHT, player.y))
   state.width = width
   state.layout = layout
@@ -274,7 +309,10 @@ export function stepGame(state: GameState, input: Controls, dt: number, viewHeig
   p.vx += (move * speed - p.vx) * (1 - Math.exp(-dt * 16))
 
   p.vy = p.jetpack ? Math.max(-380, p.vy - 560 * dt) : Math.min(670, p.vy + 1160 * dt)
-  p.x = Math.max(12, Math.min(state.width - PLAYER_WIDTH - 12, p.x + p.vx * dt))
+  p.x = Math.max(
+    PLAYER_SIDE_INSET,
+    Math.min(state.width - PLAYER_WIDTH - PLAYER_SIDE_INSET, p.x + p.vx * dt),
+  )
   p.y += p.vy * dt
   p.grounded = false
   let standingOn: Platform | undefined

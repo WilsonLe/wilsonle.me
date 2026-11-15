@@ -20,7 +20,8 @@ jump key and hold the second press to fly with the jetpack. Down or S drops
 through small ledges. Walk into the alternating floor openings to descend past
 the billboards. On a touchscreen, tap or hold the on-screen controls to move,
 or swipe to scroll through the portfolio. Double-tap the up control and hold
-the second tap to fly.
+the second tap to fly. Wheel scrolling eases through the city. After scrolling
+stops for half a second, the character teleports to the nearest platform in view.
 
 Press **E** beside a project billboard, or click or tap a billboard, to see the
 project and its screenshots. On the reactor floor, walk under a link on the

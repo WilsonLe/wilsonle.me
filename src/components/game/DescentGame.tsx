@@ -21,6 +21,7 @@ import {
   createGame,
   fitCity,
   landPlayer,
+  landPlayerNearView,
   nearbyBillboard,
   stepGame,
   zoneAt,
@@ -61,6 +62,7 @@ const INITIAL: Snapshot = {
 type Destination = 'top' | 'work' | 'contact' | 'skills'
 const FADE_MS = 180
 const SCROLL_MS = 440
+const SCROLL_IDLE_MS = 500
 const WORK_DISTRICTS = ['streets', 'transit', 'sewers'] as const
 
 const DIRECTIONS = [
@@ -237,6 +239,8 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     let guidePadY = 0
     let following = false
     let scrollTop = scroller.scrollTop
+    let wheelScroll: { position: number; target: number } | undefined
+    let landAfterScroll: number | undefined
     let paintedCamera = -1
     let paintedVisibility = -1
     let paintedMotion = motion.matches
@@ -309,6 +313,19 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       scroller.scrollTop = top
       scrollTop = scroller.scrollTop
     }
+    const clampScroll = (top: number) =>
+      Math.max(0, Math.min(scroller.scrollHeight - viewportHeight, top))
+    const cancelScrollLanding = () => {
+      wheelScroll = undefined
+      landAfterScroll = undefined
+    }
+    const stopForManualScroll = () => {
+      following = false
+      framedDestination = undefined
+      travel = null
+      visibility = 1
+      controls.reset()
+    }
     const contactLandingInset = () => {
       const preferred = viewportWidth < 700 || touch.matches ? 130 : 27
       const approachHeight = Math.max(contactApproachHeight, PLAYER_HEIGHT * scale)
@@ -332,12 +349,30 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         setSnapshot(next)
       }
     }
+    const landInView = () => {
+      const top = state.camera + headerHeight / scale
+      const bottom = state.camera + viewHeight
+      if (!landPlayerNearView(state, top, bottom)) return
+
+      if (!playerVisible()) {
+        const head = state.player.y * scale
+        const minScroll = Math.ceil(head + PLAYER_HEIGHT * scale - viewportHeight)
+        const maxScroll = Math.floor(head - headerHeight)
+        writeScroll(Math.max(minScroll, Math.min(maxScroll, scrollTop)))
+        state.camera = scrollTop / scale
+      }
+      state.started = true
+      paintedCamera = -1
+      publish()
+    }
     const resize = () => {
       if (scroller.clientWidth <= 0 || scroller.clientHeight <= 0) return
       const onContactFloor =
         state.started &&
         state.player.grounded &&
         !travel &&
+        !wheelScroll &&
+        landAfterScroll === undefined &&
         playerVisible() &&
         contactFloor !== undefined &&
         Math.abs(state.player.y + PLAYER_HEIGHT - contactFloor.y) < 1
@@ -450,6 +485,10 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         element.dataset.district = zoneAt(layout, board.y + board.height / 2)
       })
       scrollTop = scroller.scrollTop
+      if (wheelScroll) {
+        wheelScroll.position = scrollTop
+        wheelScroll.target = clampScroll(wheelScroll.target)
+      }
       state.camera = scrollTop / scale
       for (const layer of [canvas, foreground]) {
         if (layer.width !== width) layer.width = width
@@ -484,7 +523,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         destination === 'contact'
           ? preferred
           : Math.min(top - headerHeight - 8, Math.max(preferred, bottom - viewportHeight + 8))
-      return Math.max(0, Math.min(scroller.scrollHeight - viewportHeight, target))
+      return clampScroll(target)
     }
     const landAtSection = (destination: Destination) => {
       paintedCamera = -1
@@ -505,6 +544,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       sections[destination].querySelector<HTMLElement>('h1, h2')?.focus({ preventScroll: true })
     }
     navigateRef.current = (destination) => {
+      cancelScrollLanding()
       following = false
       framedDestination = undefined
       controls.reset()
@@ -560,14 +600,11 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       if (active instanceof HTMLAnchorElement && contactAnchors.includes(active)) {
         scroller.focus({ preventScroll: true })
       }
-      if (!following && !playerVisible()) {
-        const top = state.camera + (headerHeight + 12) / scale
-        const bottom = state.camera + viewHeight - 75 / scale
-        const ledge = state.platforms.find(
-          (platform) => platform.y - PLAYER_HEIGHT >= top && platform.y <= bottom,
-        )
-        if (ledge) landPlayer(state, ledge.x + ledge.width / 2, ledge.y)
-        else landPlayer(state, state.width * ROOFTOP_PLAYER_X, state.camera + viewHeight * 0.56)
+      cancelScrollLanding()
+      if (!following || scroller.scrollTop !== scrollTop) {
+        scrollTop = scroller.scrollTop
+        state.camera = scrollTop / scale
+        if (!playerVisible()) landInView()
       }
       following = true
       framedDestination = undefined
@@ -643,11 +680,40 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       }
     }
     const onKeyUp = (event: KeyboardEvent) => controls.release(event.code)
+    const onWheel = (event: WheelEvent) => {
+      if (
+        selectedRef.current ||
+        motion.matches ||
+        !event.cancelable ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.altKey ||
+        event.shiftKey
+      )
+        return
+
+      const mode = event.deltaMode
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return
+      const unit =
+        mode === WheelEvent.DOM_DELTA_LINE
+          ? 16
+          : mode === WheelEvent.DOM_DELTA_PAGE
+            ? viewportHeight
+            : 1
+      const position = scroller.scrollTop
+      const previousTarget = wheelScroll?.target ?? position
+      const target = clampScroll(previousTarget + event.deltaY * unit)
+      event.preventDefault()
+      if (target === previousTarget) return
+      if (!wheelScroll) stopForManualScroll()
+      wheelScroll = { position: wheelScroll?.position ?? position, target }
+    }
     const clearInput = () => controls.reset()
     const observer = new ResizeObserver(resize)
     for (const element of [scroller, world, header, hero, guide, skills, work, contact])
       observer.observe(element)
     resize()
+    scroller.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('pointerdown', onPointerDown, true)
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
@@ -667,19 +733,27 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
     let previous = performance.now()
     let accumulator = 0
     const render = (now: number) => {
-      // A viewport resize can clamp scroll before ResizeObserver delivers the new layout.
-      if (scroller.clientWidth !== viewportWidth || scroller.clientHeight !== viewportHeight) {
+      // The browser can clamp scroll as the world shrinks before ResizeObserver runs.
+      const observedScroll = scroller.scrollTop
+      if (
+        scroller.clientWidth !== viewportWidth ||
+        scroller.clientHeight !== viewportHeight ||
+        (observedScroll < scrollTop && Math.abs(observedScroll - clampScroll(scrollTop)) < 0.5)
+      ) {
         resize()
       }
       const dt = Math.min((now - previous) / 1000, 0.045)
       previous = now
-      if ((travel && selectedRef.current) || Math.abs(scroller.scrollTop - scrollTop) > 0.5) {
-        following = false
-        framedDestination = undefined
-        travel = null
-        visibility = 1
-        controls.reset()
-        scrollTop = scroller.scrollTop
+      const actualScroll = scroller.scrollTop
+      if (actualScroll !== scrollTop) {
+        stopForManualScroll()
+        wheelScroll = undefined
+        scrollTop = actualScroll
+        landAfterScroll = now + SCROLL_IDLE_MS
+      }
+      if (selectedRef.current) {
+        cancelScrollLanding()
+        if (travel) stopForManualScroll()
       }
       if (travel) {
         accumulator = 0
@@ -706,7 +780,23 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
         }
         state.camera = scrollTop / scale
       } else if (!following) {
-        state.camera = scroller.scrollTop / scale
+        if (wheelScroll) {
+          const { position, target } = wheelScroll
+          const distance = target - position
+          wheelScroll.position =
+            motion.matches || Math.abs(distance) <= 1
+              ? target
+              : position + distance * (1 - Math.exp(-dt * 22))
+          const previousScroll = scrollTop
+          writeScroll(wheelScroll.position)
+          if (scrollTop !== previousScroll) landAfterScroll = now + SCROLL_IDLE_MS
+          if (wheelScroll.position === target) wheelScroll = undefined
+        }
+        state.camera = scrollTop / scale
+        if (!wheelScroll && landAfterScroll !== undefined && now >= landAfterScroll) {
+          landAfterScroll = undefined
+          if (ctx && foregroundCtx) landInView()
+        }
         accumulator = 0
       } else if (!selectedRef.current) {
         accumulator += dt
@@ -760,6 +850,7 @@ export function DescentGame({ content, copy }: { content: HomeContent; copy: Des
       pressRef.current = null
       cancelAnimationFrame(frame)
       observer.disconnect()
+      scroller.removeEventListener('wheel', onWheel)
       window.removeEventListener('pointerdown', onPointerDown, true)
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)

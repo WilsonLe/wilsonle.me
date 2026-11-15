@@ -7,6 +7,7 @@ import {
   floorY,
   INITIAL_CITY,
   landPlayer,
+  landPlayerNearView,
   nearbyBillboard,
   PLAYER_HEIGHT,
   stepGame,
@@ -27,6 +28,29 @@ const frame = 1 / 120
 const tick = (state: ReturnType<typeof createGame>, change: Partial<Controls> = {}, frames = 1) => {
   for (let i = 0; i < frames; i++) stepGame(state, { ...idle, ...change }, frame, 800)
 }
+
+test('a scroll landing chooses the closest visible platform and stops airborne movement', () => {
+  const state = createGame(1200)
+  const x = state.player.x
+  Object.assign(state.player, { grounded: false, vx: 200, vy: -50, jetpack: true })
+
+  assert.equal(landPlayerNearView(state, 500, 1280), true)
+  assert.equal(state.player.y + PLAYER_HEIGHT, state.layout.streets + 148)
+  assert.equal(state.player.x, x)
+  assert.equal(state.player.grounded, true)
+  assert.equal(state.player.vx, 0)
+  assert.equal(state.player.vy, 0)
+  assert.equal(state.player.jetpack, false)
+})
+
+test('a scroll landing between floors picks the ledge requiring the least camera movement', () => {
+  const state = createGame(1200)
+  state.player.x = 100
+
+  assert.equal(landPlayerNearView(state, 600, 760), true)
+  assert.equal(state.player.y + PLAYER_HEIGHT, state.layout.streets + 148)
+  assert.equal(state.player.x, state.width * 0.74)
+})
 
 test('the city starts at rest and a first Space press can jump', () => {
   const state = createGame(1200)
