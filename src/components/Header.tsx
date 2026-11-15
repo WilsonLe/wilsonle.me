@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import { trackPortfolio } from '@/analytics/portfolio-events'
 import type { SiteSettings } from '@/content/types'
 import { getPathnameBasePath } from '@/lib/i18n'
 
@@ -18,17 +19,22 @@ export function Header({ siteSettings }: HeaderProps) {
   const navigation = siteSettings.navigation
 
   const navLinks = [
-    { href: `${homepagePath}#work`, label: navigation.work },
+    { href: `${homepagePath}#work`, label: navigation.work, target: 'work' },
     { href: siteSettings.resumeUrl, label: navigation.resume, featured: true, download: true },
-    { href: `${homepagePath}#contact`, label: navigation.contact },
+    { href: `${homepagePath}#contact`, label: navigation.contact, target: 'contact' },
   ]
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-rule bg-ink text-paper">
+    <header
+      className="fixed inset-x-0 top-0 z-50 border-b border-rule bg-ink text-paper"
+      data-portfolio-surface="site_header"
+    >
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between gap-6">
           <Link
             href={homepagePath}
+            data-portfolio-action="navigation_clicked"
+            data-portfolio-target="top"
             className="shrink-0 text-base font-semibold tracking-[-0.02em] text-paper transition-colors hover:text-signal"
           >
             {siteSettings.name}
@@ -40,6 +46,8 @@ export function Header({ siteSettings }: HeaderProps) {
                 key={link.href}
                 href={link.href}
                 download={link.download}
+                data-portfolio-action={link.download ? 'resume_clicked' : 'navigation_clicked'}
+                data-portfolio-target={link.target}
                 className={`font-label text-[0.7rem] font-semibold uppercase tracking-[0.12em] transition-colors ${
                   link.featured
                     ? 'border border-signal px-3 py-2 text-signal hover:bg-signal hover:text-ink'
@@ -54,7 +62,10 @@ export function Header({ siteSettings }: HeaderProps) {
 
           <button
             type="button"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={() => {
+              trackPortfolio('menu_toggled', { target: isMenuOpen ? 'closed' : 'opened' })
+              setIsMenuOpen(!isMenuOpen)
+            }}
             className="grid h-11 w-11 place-items-center border border-rule text-paper-muted hover:border-paper-muted hover:text-paper lg:hidden"
             aria-label={navigation.menuLabel}
             aria-expanded={isMenuOpen}
@@ -97,6 +108,8 @@ export function Header({ siteSettings }: HeaderProps) {
                   key={link.href}
                   href={link.href}
                   download={link.download}
+                  data-portfolio-action={link.download ? 'resume_clicked' : 'navigation_clicked'}
+                  data-portfolio-target={link.target}
                   onClick={() => setIsMenuOpen(false)}
                   className={`font-label bg-ink px-4 py-4 text-xs font-semibold uppercase tracking-[0.12em] transition-colors hover:bg-ink-raised ${
                     link.featured ? 'text-signal' : 'text-paper-muted hover:text-paper'

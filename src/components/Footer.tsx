@@ -16,18 +16,20 @@ export function Footer({ siteSettings }: FooterProps) {
   const currentYear = new Date().getFullYear()
   const navigation = siteSettings.navigation
   const navLinks = [
-    { href: `${homepagePath}#work`, label: navigation.work },
+    { href: `${homepagePath}#work`, label: navigation.work, target: 'work' },
     { href: siteSettings.resumeUrl, label: navigation.resume, download: true },
-    { href: `${homepagePath}#contact`, label: navigation.contact },
+    { href: `${homepagePath}#contact`, label: navigation.contact, target: 'contact' },
   ]
 
   return (
-    <footer className="bg-ink text-paper">
+    <footer className="bg-ink text-paper" data-portfolio-surface="site_footer">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
         <div className="flex flex-col justify-between gap-6 pb-8 md:flex-row md:items-center md:gap-10">
           <div>
             <Link
               href={homepagePath}
+              data-portfolio-action="navigation_clicked"
+              data-portfolio-target="top"
               className="font-display inline-flex py-1 text-3xl font-medium tracking-[-0.03em] transition-colors hover:text-signal"
             >
               {siteSettings.name}
@@ -42,6 +44,8 @@ export function Footer({ siteSettings }: FooterProps) {
                   key={link.href}
                   href={link.href}
                   download={link.download}
+                  data-portfolio-action={link.download ? 'resume_clicked' : 'navigation_clicked'}
+                  data-portfolio-target={link.target}
                   className="font-label inline-flex min-h-11 items-center gap-2 text-xs transition-colors hover:text-signal"
                 >
                   {link.label}
