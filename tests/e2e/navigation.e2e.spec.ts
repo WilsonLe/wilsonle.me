@@ -1,10 +1,35 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Locator } from '@playwright/test'
 import { projectChoices } from './helpers/work'
 
 async function installPausedClock(page: import('@playwright/test').Page) {
   await page.clock.install({ time: new Date('2026-11-13T00:00:00Z') })
   // Pause before navigation so a running clock tick cannot race the carousel's rAF loop.
   await page.clock.pauseAt(new Date('2026-11-13T00:00:01Z'))
+}
+
+async function holdSecondTap(button: Locator) {
+  const { x, y, width, height } = (await button.boundingBox())!
+  const page = button.page()
+  const cdp = await page.context().newCDPSession(page)
+  const touchPoints = [{ x: x + width / 2, y: y + height / 2 }]
+  // Keep the gesture timing independent of delays sending events to the browser.
+  const firstTapAt = Date.now() / 1000
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints,
+    timestamp: firstTapAt,
+  })
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchEnd',
+    touchPoints: [],
+    timestamp: firstTapAt + 0.05,
+  })
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints,
+    timestamp: firstTapAt + 0.15,
+  })
+  return cdp
 }
 
 async function leadingSkill(page: import('@playwright/test').Page) {
@@ -433,6 +458,7 @@ test('reveals shaded edge chevrons on hover, keyboard focus or a touch tap', asy
     reducedMotion: 'reduce',
   })
   const mobile = await context.newPage()
+  await installPausedClock(mobile)
   await mobile.goto('/#skills')
   const viewport = mobile.locator('.tech-viewport')
   const mobileNext = mobile.getByRole('button', { name: 'Next skill' })
@@ -441,8 +467,8 @@ test('reveals shaded edge chevrons on hover, keyboard focus or a touch tap', asy
   await expect(mobileNext).toHaveCSS('opacity', '1')
   await mobileNext.tap()
   await expect.poll(() => leadingSkill(mobile)).toBe('CSS')
-  await mobile.clock.install()
   await mobile.emulateMedia({ reducedMotion: 'no-preference' })
+  await mobile.clock.runFor(1100)
   const mobileCarousel = mobile.getByRole('region', { name: 'Skills', exact: true })
   await expect(mobileCarousel).toHaveAttribute('data-rotating', 'true')
   await viewport.tap()
@@ -1141,13 +1167,7 @@ test('supports touch movement, a held jetpack and a tap-to-open billboard', asyn
     await expect
       .poll(async () => Number(await city.getAttribute('data-player-x')))
       .toBeLessThan(x - 9)
-    await up.tap()
-    const bounds = (await up.boundingBox())!
-    const cdp = await context.newCDPSession(page)
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchStart',
-      touchPoints: [{ x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 }],
-    })
+    const cdp = await holdSecondTap(up)
     await expect(city).toHaveAttribute('data-jetpack', 'true')
     const y = Number(await city.getAttribute('data-player-y'))
     await expect
@@ -1193,37 +1213,36 @@ test.describe('mobile diagonal jetpack controls', () => {
     { side: 'left', horizontal: -1, stop: 'touchEnd' },
     { side: 'right', horizontal: 1, stop: 'touchCancel' },
   ] as const) {
-    test(`flies up-${side} by double-tapping and holding an invisible corner`, async ({
-      page,
-      context,
-    }) => {
+    test(`flies up-${side} by double-tapping and holding an invisible corner`, async ({ page }) => {
+      await installPausedClock(page)
       await page.emulateMedia({ reducedMotion: 'reduce' })
       await page.goto('/#work')
       const city = page.locator('.descent-page')
+      await expect(city).toHaveAttribute('data-ready', 'true')
+      await page.clock.runFor(100)
       const corner = page
         .locator('.descent-touch-pad')
         .getByRole('button', { name: `Jump or fly up-${side}`, exact: true })
       await expect(corner).toHaveCSS('opacity', '0')
-      const bounds = (await corner.boundingBox())!
-      const cdp = await context.newCDPSession(page)
       const position = () =>
         city.evaluate((element: HTMLElement) => ({
           x: Number(element.dataset.playerX),
           y: Number(element.dataset.playerY),
         }))
       const start = await position()
-      await corner.tap()
-      await cdp.send('Input.dispatchTouchEvent', {
-        type: 'touchStart',
-        touchPoints: [{ x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 }],
-      })
+      const cdp = await holdSecondTap(corner)
+      await page.clock.runFor(240)
       await expect(city).toHaveAttribute('data-jetpack', 'true')
-      await expect
-        .poll(async () => horizontal * ((await position()).x - start.x))
-        .toBeGreaterThan(15)
-      await expect.poll(async () => (await position()).y).toBeLessThan(start.y - 75)
+      const first = await position()
+      expect(horizontal * (first.x - start.x)).toBeGreaterThan(15)
+      expect(first.y).toBeLessThan(start.y)
+      await page.clock.runFor(240)
+      const second = await position()
+      expect(horizontal * (second.x - first.x)).toBeGreaterThan(15)
+      expect(second.y).toBeLessThan(first.y - 40)
 
       await cdp.send('Input.dispatchTouchEvent', { type: stop, touchPoints: [] })
+      await page.clock.runFor(240)
       await expect(city).toHaveAttribute('data-jetpack', 'false')
     })
   }

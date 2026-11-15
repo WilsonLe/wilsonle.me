@@ -33,6 +33,7 @@ test('keeps the rooftop guide clear of the character in short windows', async ({
             const y = Math.floor((rect.top - bounds.top) * yScale)
             const width = Math.ceil(rect.width * xScale)
             const height = Math.ceil(rect.height * yScale)
+            if (width === 0 || height === 0) return true
             return !hasPaint(context.getImageData(x, y, width, height).data)
           })
         }),
