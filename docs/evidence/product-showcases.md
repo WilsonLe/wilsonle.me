@@ -20,6 +20,8 @@ The Habby dialog opens with Live Activities on the Lock Screen, Dynamic Island, 
 
 Eight WebPs are byte-for-byte copies of the app screenshots published on [Habby's site](https://usehabby.com/) on 16 November 2026. The Today, water and week screenshots map to `/images/app/2026-11-16-{today,water,week}.webp`. The other five website images keep their source filenames after the local `habby-` prefix. Each screenshot links to its full-size copy.
 
+The compact and expanded Dynamic Island images use the published versions with the timer's running progress track.
+
 `habby-sleep-preview.webp` preserves the full 1206 × 2622 iPhone 17 Pro simulator capture from Habby development revision `13d6a271`. It shows a sample manual bedtime check-in, which the gallery labels as a preview. Decoded pixels match the original PNG.
 
 ### CYOBot robot overlays

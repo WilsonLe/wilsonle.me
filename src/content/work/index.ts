@@ -400,12 +400,12 @@ export const works: Work[] = [
         layout: 'feature',
         image: {
           src: '/work/screenshots/habby-dynamic-island-expanded.webp',
-          alt: 'An expanded Walk timer in the Dynamic Island with Pause, Finish and Skip buttons.',
+          alt: 'An expanded Walk timer in the Dynamic Island with a progress track and Pause, Finish and Skip buttons.',
           width: 804,
           height: 298,
         },
         callout: {
-          description: 'See your Walk timer at a glance. Touch and hold it for controls.',
+          description: 'Watch your Walk timer fill as you go. Touch and hold it for controls.',
         },
       },
       {
@@ -483,12 +483,12 @@ export const works: Work[] = [
         title: 'Timer in the Dynamic Island',
         image: {
           src: '/work/screenshots/habby-dynamic-island-compact.webp',
-          alt: 'The Habby mascot and a running timer in the iPhone’s compact Dynamic Island.',
+          alt: 'Habby’s mascot and a timer with a partially filled progress track in the compact Dynamic Island.',
           width: 804,
           height: 152,
         },
         callout: {
-          description: 'Glance at a running habit timer while using your iPhone.',
+          description: 'See your timer and its progress at a glance while using your iPhone.',
         },
       },
       {
