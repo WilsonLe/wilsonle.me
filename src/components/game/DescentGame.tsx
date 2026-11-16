@@ -1103,7 +1103,7 @@ export function DescentGame({
         text: nearbyContact.text,
         label: nearbyContact.text + ' (E)',
       }
-  const projectsPerDistrict = Math.ceil(content.projects.items.length / WORK_DISTRICTS.length)
+  const districtCount = WORK_DISTRICTS.length
   const billboards = content.projects.items.map((item) => {
     const work = works.find((entry) => entry.projectId === item.id)
     const screen = work?.screens[0]
@@ -1120,7 +1120,14 @@ export function DescentGame({
           <i />
           <i />
         </div>
-        {screen && <Image {...screen.image} alt={screen.image.alt} unoptimized />}
+        {screen && (
+          <Image
+            {...screen.image}
+            alt={screen.image.alt}
+            className={screen.portrait ? 'object-[center_14%]' : undefined}
+            unoptimized
+          />
+        )}
         <div className="descent-billboard-copy">
           <h3>
             <a
@@ -1313,8 +1320,8 @@ export function DescentGame({
                   )}
                   <div className="descent-project-row">
                     {billboards.slice(
-                      index * projectsPerDistrict,
-                      (index + 1) * projectsPerDistrict,
+                      Math.floor((index * billboards.length) / districtCount),
+                      Math.floor(((index + 1) * billboards.length) / districtCount),
                     )}
                   </div>
                 </Fragment>

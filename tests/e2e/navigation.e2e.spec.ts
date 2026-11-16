@@ -1245,6 +1245,7 @@ test('preserves project and feature deep links, locale URLs and browser history'
     ['/#pangea-chat', 'Pangea Chat', ''],
     ['/en#localcut-webmcp', 'LocalCut', 'localcut-webmcp'],
     ['/vi#vulcan-augmetics-access-control', 'Vulcan Augmetics', 'vulcan-augmetics-access-control'],
+    ['/vi#habby-today', 'Habby', 'habby-today'],
   ]) {
     await page.goto(route)
     const dialog = page.getByRole('dialog', { name, exact: true })
@@ -1315,6 +1316,16 @@ test('keeps work, technologies and contact available without JavaScript', async 
     await work.getByRole('link', { name: 'Pangea Chat', exact: true }).click()
     await expect(page).toHaveURL(/#pangea-chat$/)
     await expect(page.locator('#pangea-chat')).toBeVisible()
+    await expect(work.getByRole('link', { name: 'Habby', exact: true })).toHaveAttribute(
+      'href',
+      '#habby',
+    )
+    const habby = page.getByRole('article', { name: 'Habby', exact: true })
+    await expect(habby.getByRole('img')).toHaveCount(8)
+    await expect(habby.getByRole('link', { name: 'Open Habby' })).toHaveAttribute(
+      'href',
+      'https://usehabby.com/',
+    )
     await expect(page.getByRole('link', { name: 'Download résumé' }).first()).toHaveAttribute(
       'href',
       '/wilson-le-resume.pdf',

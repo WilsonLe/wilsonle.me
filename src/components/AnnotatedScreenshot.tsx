@@ -5,7 +5,9 @@ export function AnnotatedScreenshot({ screen, id }: { screen: WorkScreen; id: st
   const { image, callout } = screen
   return (
     <figure id={id} className="work-capture work-feature" aria-labelledby={`${id}-title`}>
-      <div className="work-image-mat">
+      <div
+        className={screen.portrait ? 'work-image-mat mx-auto w-full max-w-64' : 'work-image-mat'}
+      >
         <div className="relative">
           <div className="work-shot-view">
             <a

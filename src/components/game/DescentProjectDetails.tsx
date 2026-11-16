@@ -41,38 +41,42 @@ export function DescentProjectDetails({
           </a>
         )}
       </section>
-      {work?.screens.map((screen) => (
-        <figure
-          key={screen.id}
-          id={'descent-' + projectScreenId(work, screen)}
-          className="descent-dialog-screen"
-          data-portfolio-view="screenshot"
-          data-portfolio-target={screen.id}
-          data-portfolio-project={project.id}
-        >
-          <figcaption>
-            <h3>{screen.title}</h3>
-            <p>{screen.callout.description}</p>
-          </figcaption>
-          <div className="relative">
-            <a
-              className="block"
-              href={screen.image.src}
-              target="_blank"
-              rel="noreferrer"
-              data-portfolio-action="screenshot_clicked"
+      {work && (
+        <div className="grid grid-cols-1 md:grid-cols-3 md:gap-x-5">
+          {work.screens.map((screen) => (
+            <figure
+              key={screen.id}
+              id={'descent-' + projectScreenId(work, screen)}
+              className={`descent-dialog-screen ${screen.portrait ? 'flex flex-col' : 'md:col-span-3'}`}
+              data-portfolio-view="screenshot"
               data-portfolio-target={screen.id}
               data-portfolio-project={project.id}
-              aria-label={`Open full screenshot: ${screen.title}`}
             >
-              <Image {...screen.image} alt={screen.image.alt} unoptimized />
-            </a>
-            {screen.robot && (
-              <RobotOverlay robot={screen.robot} projectId={project.id} screenId={screen.id} />
-            )}
-          </div>
-        </figure>
-      ))}
+              <figcaption>
+                <h3>{screen.title}</h3>
+                <p>{screen.callout.description}</p>
+              </figcaption>
+              <div className="relative mt-auto">
+                <a
+                  className={screen.portrait ? 'mx-auto block max-w-64' : 'block'}
+                  href={screen.image.src}
+                  target="_blank"
+                  rel="noreferrer"
+                  data-portfolio-action="screenshot_clicked"
+                  data-portfolio-target={screen.id}
+                  data-portfolio-project={project.id}
+                  aria-label={`Open full screenshot: ${screen.title}`}
+                >
+                  <Image {...screen.image} alt={screen.image.alt} unoptimized />
+                </a>
+                {screen.robot && (
+                  <RobotOverlay robot={screen.robot} projectId={project.id} screenId={screen.id} />
+                )}
+              </div>
+            </figure>
+          ))}
+        </div>
+      )}
     </>
   )
 }
