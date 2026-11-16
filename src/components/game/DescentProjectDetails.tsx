@@ -81,10 +81,15 @@ export function DescentProjectDetails({
         </div>
       )}
       {work && (
-        <div className="grid grid-cols-1 md:grid-cols-6 md:gap-x-5">
+        <div className="grid grid-cols-1 md:grid-cols-12 md:gap-x-5">
           {work.screens.map((screen) => {
             const featured = screen.layout === 'feature'
             const portrait = screen.layout === 'portrait'
+            const columns = featured
+              ? 'md:col-span-6 md:[@media(max-height:960px)]:col-span-3'
+              : portrait
+                ? 'md:col-span-4'
+                : 'md:col-span-12'
             const { width, height } = screen.image
             const imageFit =
               height > width
@@ -96,7 +101,7 @@ export function DescentProjectDetails({
               <figure
                 key={screen.id}
                 id={'descent-' + projectScreenId(work, screen)}
-                className={`descent-dialog-screen ${featured ? 'flex flex-col md:col-span-3' : portrait ? 'flex flex-col md:col-span-2' : 'md:col-span-6'}`}
+                className={`descent-dialog-screen ${columns}${featured || portrait ? ' flex flex-col' : ''}`}
                 data-portfolio-view="screenshot"
                 data-portfolio-target={screen.id}
                 data-portfolio-project={project.id}

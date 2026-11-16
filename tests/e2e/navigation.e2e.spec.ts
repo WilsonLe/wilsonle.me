@@ -1370,6 +1370,11 @@ test('keeps work, technologies and contact available without JavaScript', async 
       'https://calendly.com/wilson-lyratechnologies/30min',
     )
     await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0)
+    await page.setViewportSize({ width: 320, height: 680 })
+    await page.goto('/vi#habby-sleep')
+    const sleep = page.locator('#habby-sleep')
+    await expect(sleep.getByText(/Development preview/)).toBeInViewport()
+    await expect(sleep.getByRole('img')).toBeInViewport()
   } finally {
     await context.close()
   }

@@ -16,7 +16,7 @@ Original screenshots are preserved in local task evidence. Raster conversion and
 
 ### Habby screenshots
 
-The Habby dialog opens with Live Activities on the Lock Screen, Dynamic Island, Sleep tracking and Walk tracking. Desktop arranges the four images in a two-by-two grid. Phone visitors can jump to each feature from the top of the panel.
+The Habby dialog opens with Live Activities on the Lock Screen, Dynamic Island, Sleep tracking and Walk tracking. Desktop uses two rows in tall windows and one row in shorter windows. Phone visitors can jump to each feature from the top of the panel. The narrow static gallery places the Sleep preview label above its image.
 
 Eight WebPs are byte-for-byte copies of the app screenshots published on [Habby's site](https://usehabby.com/) on 16 November 2026. The Today, water and week screenshots map to `/images/app/2026-11-16-{today,water,week}.webp`. The other five website images keep their source filenames after the local `habby-` prefix. Each screenshot links to its full-size copy.
 

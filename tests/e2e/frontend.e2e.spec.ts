@@ -127,6 +127,9 @@ test.describe('Frontend', () => {
     expect((await habby.locator('figcaption h3').allTextContents()).slice(0, 4)).toEqual(featured)
     for (const name of featured) {
       await expect(habby.getByRole('heading', { name, exact: true })).toBeInViewport()
+      await expect(
+        habby.getByRole('link', { name: `Open full screenshot: ${name}`, exact: true }),
+      ).toBeInViewport({ ratio: 0.95 })
     }
     await expect(
       habby.getByRole('link', { name: 'Open full screenshot: Sleep tracking' }),
