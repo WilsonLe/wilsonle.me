@@ -2,7 +2,7 @@ export interface WorkScreen {
   id: string
   title: string
   image: { src: string; alt: string; width: number; height: number }
-  portrait?: boolean
+  layout?: 'feature' | 'portrait'
   robot?: { src: string; poster: string; alt: string; width: number; height: number }
   callout: { description: string }
 }
@@ -19,6 +19,7 @@ export interface Work {
   summary: string
   contributions?: string[]
   features?: string[]
+  coverScreenId?: string
   screens: WorkScreen[]
 }
 
@@ -377,16 +378,68 @@ export const works: Work[] = [
     projectId: 'habby',
     name: 'Habby',
     summary: 'A habit tracker for iPhone.',
-    features: [
-      'Log daily habits with a tap and review your weekly progress.',
-      'Use Live Activities to follow timers and log progress from your Lock Screen.',
-      'Connect Apple Health for steps and sleep, and use Screen Time for screen-free routines.',
-    ],
+    coverScreenId: 'today',
     screens: [
+      {
+        id: 'lock-screen-water',
+        title: 'Live Activities',
+        layout: 'feature',
+        image: {
+          src: '/work/screenshots/habby-lock-screen-water.webp',
+          alt: 'A water-tracking Live Activity with a daily count and buttons to add a serving or skip the habit.',
+          width: 804,
+          height: 466,
+        },
+        callout: {
+          description: 'Log a serving of water from a reminder on the Lock Screen.',
+        },
+      },
+      {
+        id: 'dynamic-island-expanded',
+        title: 'Dynamic Island',
+        layout: 'feature',
+        image: {
+          src: '/work/screenshots/habby-dynamic-island-expanded.webp',
+          alt: 'An expanded Walk timer in the Dynamic Island with Pause, Finish and Skip buttons.',
+          width: 804,
+          height: 298,
+        },
+        callout: {
+          description: 'See your Walk timer at a glance. Touch and hold it for controls.',
+        },
+      },
+      {
+        id: 'sleep',
+        title: 'Sleep tracking',
+        layout: 'feature',
+        image: {
+          src: '/work/screenshots/habby-sleep-preview.webp',
+          alt: 'Sleep preview showing a 10 PM to 7 AM schedule and a sample bedtime marked complete.',
+          width: 1206,
+          height: 2622,
+        },
+        callout: {
+          description: 'Development preview of bedtime check-ins with optional Apple Health.',
+        },
+      },
+      {
+        id: 'apple-health-steps',
+        title: 'Walk tracking',
+        layout: 'feature',
+        image: {
+          src: '/work/screenshots/habby-apple-health-steps.webp',
+          alt: 'Walk habit with an hourly bar chart of example step counts.',
+          width: 804,
+          height: 740,
+        },
+        callout: {
+          description: 'Count Apple Health steps toward your walking goal and see them by hour.',
+        },
+      },
       {
         id: 'today',
         title: 'Today',
-        portrait: true,
+        layout: 'portrait',
         image: {
           src: '/work/screenshots/habby-today.webp',
           alt: 'Habby Today screen with a plant companion, daily progress and a list of habits.',
@@ -400,7 +453,7 @@ export const works: Work[] = [
       {
         id: 'water',
         title: 'Log a glass of water',
-        portrait: true,
+        layout: 'portrait',
         image: {
           src: '/work/screenshots/habby-water.webp',
           alt: 'Drink water drawer with a progress ring and a control for logging another serving.',
@@ -414,7 +467,7 @@ export const works: Work[] = [
       {
         id: 'week',
         title: 'Last 7 days',
-        portrait: true,
+        layout: 'portrait',
         image: {
           src: '/work/screenshots/habby-week.webp',
           alt: 'Weekly view with a daily activity chart and a breakdown of progress by habit.',
@@ -436,45 +489,6 @@ export const works: Work[] = [
         },
         callout: {
           description: 'Glance at a running habit timer while using your iPhone.',
-        },
-      },
-      {
-        id: 'dynamic-island-expanded',
-        title: 'Expanded timer controls',
-        image: {
-          src: '/work/screenshots/habby-dynamic-island-expanded.webp',
-          alt: 'An expanded Walk timer in the Dynamic Island with Pause, Finish and Skip buttons.',
-          width: 804,
-          height: 298,
-        },
-        callout: {
-          description: 'Expand the timer to pause, finish or skip the activity.',
-        },
-      },
-      {
-        id: 'lock-screen-water',
-        title: 'Log from the Lock Screen',
-        image: {
-          src: '/work/screenshots/habby-lock-screen-water.webp',
-          alt: 'A water-tracking Live Activity with a daily count and buttons to add a serving or skip the habit.',
-          width: 804,
-          height: 466,
-        },
-        callout: {
-          description: 'Add another serving or skip today directly from the Live Activity.',
-        },
-      },
-      {
-        id: 'apple-health-steps',
-        title: 'Steps from Apple Health',
-        image: {
-          src: '/work/screenshots/habby-apple-health-steps.webp',
-          alt: 'Walk habit with an hourly bar chart of example step counts.',
-          width: 804,
-          height: 740,
-        },
-        callout: {
-          description: 'See when you took steps, using activity imported from Apple Health.',
         },
       },
       {

@@ -79,7 +79,6 @@ const projectItems: Project[] = [
     id: 'habby',
     name: 'Habby',
     summary: 'A habit tracker for iPhone.',
-    contribution: 'An iPhone app for tracking daily habits and reviewing progress over time.',
     url: 'https://usehabby.com/',
     linkLabel: 'Open Habby',
   },

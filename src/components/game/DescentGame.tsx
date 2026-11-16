@@ -1106,7 +1106,8 @@ export function DescentGame({
   const districtCount = WORK_DISTRICTS.length
   const billboards = content.projects.items.map((item) => {
     const work = works.find((entry) => entry.projectId === item.id)
-    const screen = work?.screens[0]
+    const screen =
+      work?.screens.find((entry) => entry.id === work.coverScreenId) ?? work?.screens[0]
     const name = work?.name || item.name
     return (
       <article
@@ -1124,7 +1125,7 @@ export function DescentGame({
           <Image
             {...screen.image}
             alt={screen.image.alt}
-            className={screen.portrait ? 'object-[center_14%]' : undefined}
+            className={screen.layout === 'portrait' ? 'object-[center_14%]' : undefined}
             unoptimized
           />
         )}

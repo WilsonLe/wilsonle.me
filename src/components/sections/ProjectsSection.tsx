@@ -60,27 +60,29 @@ export function ProjectsSection({ projects }: { projects: Projects }) {
                       </a>
                     )}
                   </header>
-                  <dl>
-                    <dt className="font-label text-[0.65rem] uppercase tracking-[0.1em] text-ink/65">
-                      {work?.features ? projects.featuresLabel : projects.contributionLabel}
-                    </dt>
-                    <dd className="mt-3 text-sm leading-7 text-ink/80">
-                      {highlights ? (
-                        <ul className="space-y-1">
-                          {highlights.map((bullet) => (
-                            <li key={bullet} className="flex gap-3">
-                              <span aria-hidden="true" className="text-signal-deep">
-                                ↳
-                              </span>
-                              <span>{bullet}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        project.contribution
-                      )}
-                    </dd>
-                  </dl>
+                  {(highlights || project.contribution) && (
+                    <dl>
+                      <dt className="font-label text-[0.65rem] uppercase tracking-[0.1em] text-ink/65">
+                        {work?.features ? projects.featuresLabel : projects.contributionLabel}
+                      </dt>
+                      <dd className="mt-3 text-sm leading-7 text-ink/80">
+                        {highlights ? (
+                          <ul className="space-y-1">
+                            {highlights.map((bullet) => (
+                              <li key={bullet} className="flex gap-3">
+                                <span aria-hidden="true" className="text-signal-deep">
+                                  ↳
+                                </span>
+                                <span>{bullet}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          project.contribution
+                        )}
+                      </dd>
+                    </dl>
+                  )}
                 </div>
                 {work && (
                   <div className="work-features" aria-label={`${work.name} screenshots`}>

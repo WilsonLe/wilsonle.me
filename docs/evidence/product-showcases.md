@@ -1,6 +1,6 @@
 # Product showcases
 
-Work presents seven projects and twenty-six feature images on `/`, `/en` and `/vi`. The city billboards open the project galleries, and the static Work section exposes the same images without JavaScript. Habby follows LocalDesign in the sewers district. The Vietnamese route uses the existing English fallback.
+Work presents seven projects and twenty-seven feature images on `/`, `/en` and `/vi`. The city billboards open the project galleries, and the static Work section exposes the same images without JavaScript. Habby follows LocalDesign in the sewers district. The Vietnamese route uses the existing English fallback.
 
 ## Content and ownership
 
@@ -16,7 +16,11 @@ Original screenshots are preserved in local task evidence. Raster conversion and
 
 ### Habby screenshots
 
-The eight `habby-*.webp` files are byte-for-byte copies of the app screenshots published on [Habby's site](https://usehabby.com/) on 16 November 2026. The Today, water and week screenshots map to `/images/app/2026-11-16-{today,water,week}.webp`. The other five keep their source filenames after the local `habby-` prefix. The project dialog puts the three full phone screens in one row on desktop and stacks them on phones. Each screenshot links to its full-size copy.
+The Habby dialog opens with Live Activities on the Lock Screen, Dynamic Island, Sleep tracking and Walk tracking. Desktop arranges the four images in a two-by-two grid. Phone visitors can jump to each feature from the top of the panel.
+
+Eight WebPs are byte-for-byte copies of the app screenshots published on [Habby's site](https://usehabby.com/) on 16 November 2026. The Today, water and week screenshots map to `/images/app/2026-11-16-{today,water,week}.webp`. The other five website images keep their source filenames after the local `habby-` prefix. Each screenshot links to its full-size copy.
+
+`habby-sleep-preview.webp` preserves the full 1206 × 2622 iPhone 17 Pro simulator capture from Habby development revision `13d6a271`. It shows a sample manual bedtime check-in, which the gallery labels as a preview. Decoded pixels match the original PNG.
 
 ### CYOBot robot overlays
 

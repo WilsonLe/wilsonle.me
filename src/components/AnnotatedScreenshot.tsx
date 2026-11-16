@@ -3,11 +3,10 @@ import type { WorkScreen } from '@/content/work'
 
 export function AnnotatedScreenshot({ screen, id }: { screen: WorkScreen; id: string }) {
   const { image, callout } = screen
+  const fullPhone = image.height > image.width * 2
   return (
     <figure id={id} className="work-capture work-feature" aria-labelledby={`${id}-title`}>
-      <div
-        className={screen.portrait ? 'work-image-mat mx-auto w-full max-w-64' : 'work-image-mat'}
-      >
+      <div className={fullPhone ? 'work-image-mat mx-auto w-full max-w-64' : 'work-image-mat'}>
         <div className="relative">
           <div className="work-shot-view">
             <a

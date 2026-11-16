@@ -44,13 +44,15 @@ test.describe('Frontend', () => {
     const work = page.getByRole('region', { name: 'Work', exact: true })
     await expect(work.getByRole('article')).toHaveCount(projectChoices.length)
     await expect(work.getByRole('img')).toHaveCount(projectChoices.length)
-    const figures = [2, 4, 3, 3, 3, 3, 8]
+    const figures = [2, 4, 3, 3, 3, 3, 9]
     for (const [index, project] of projectChoices.entries()) {
       const dialog = await selectProject(page, project.id)
       await expect(dialog.locator('figure')).toHaveCount(figures[index])
-      await expect(
-        dialog.getByRole('heading', { name: index >= 4 ? 'Features' : 'My part', exact: true }),
-      ).toBeVisible()
+      if (project.id !== 'habby') {
+        await expect(
+          dialog.getByRole('heading', { name: index >= 4 ? 'Features' : 'My part', exact: true }),
+        ).toBeVisible()
+      }
       for (const screenshot of await dialog
         .getByRole('link', { name: /Open full screenshot/ })
         .all()) {
@@ -121,6 +123,14 @@ test.describe('Frontend', () => {
       'href',
       'https://usehabby.com/',
     )
+    const featured = ['Live Activities', 'Dynamic Island', 'Sleep tracking', 'Walk tracking']
+    expect((await habby.locator('figcaption h3').allTextContents()).slice(0, 4)).toEqual(featured)
+    for (const name of featured) {
+      await expect(habby.getByRole('heading', { name, exact: true })).toBeInViewport()
+    }
+    await expect(
+      habby.getByRole('link', { name: 'Open full screenshot: Sleep tracking' }),
+    ).toHaveAttribute('href', '/work/screenshots/habby-sleep-preview.webp')
     await expect(habby.getByRole('link', { name: 'Open full screenshot: Today' })).toHaveAttribute(
       'href',
       '/work/screenshots/habby-today.webp',
