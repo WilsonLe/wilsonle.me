@@ -7,6 +7,7 @@ export const projectChoices = [
   { id: 'vulcan-augmetics', name: 'Vulcan Augmetics' },
   { id: 'localcut', name: 'LocalCut' },
   { id: 'localdesign', name: 'LocalDesign' },
+  { id: 'habby', name: 'Habby' },
 ]
 
 export async function selectProject(page: Page, id: string) {
@@ -15,7 +16,9 @@ export async function selectProject(page: Page, id: string) {
   if (await open.isVisible()) {
     await open.getByRole('button', { name: 'Close project' }).click()
     await expect(open).toBeHidden()
-    await expect(page).not.toHaveURL(/#[^#]*(localcut|localdesign|cyobot|vulcan|pangea|kalibr)/)
+    await expect(page).not.toHaveURL(
+      /#[^#]*(localcut|localdesign|cyobot|vulcan|pangea|kalibr|habby)/,
+    )
   }
   await page
     .getByRole('region', { name: 'Work', exact: true })

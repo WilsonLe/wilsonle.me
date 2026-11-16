@@ -72,7 +72,7 @@ export interface Project {
   id: string
   name: string
   summary: string
-  contribution: string
+  contribution?: string
   url?: string
   linkLabel?: string
 }

@@ -1245,6 +1245,8 @@ test('preserves project and feature deep links, locale URLs and browser history'
     ['/#pangea-chat', 'Pangea Chat', ''],
     ['/en#localcut-webmcp', 'LocalCut', 'localcut-webmcp'],
     ['/vi#vulcan-augmetics-access-control', 'Vulcan Augmetics', 'vulcan-augmetics-access-control'],
+    ['/vi#habby-today', 'Habby', 'habby-today'],
+    ['/vi#habby-sleep', 'Habby', 'habby-sleep'],
   ]) {
     await page.goto(route)
     const dialog = page.getByRole('dialog', { name, exact: true })
@@ -1295,6 +1297,29 @@ test('keeps the mobile dialog close control visible on a deep-linked screenshot'
   await expect(page).toHaveURL('/en?source=portfolio#work')
 })
 
+test('jumps to Habby’s featured screenshots on a phone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/#habby')
+  const dialog = page.getByRole('dialog', { name: 'Habby', exact: true })
+  const shortcuts = dialog.getByRole('group', { name: 'Features' })
+  for (const [name, id] of [
+    ['Live Activities', 'lock-screen-water'],
+    ['Dynamic Island', 'dynamic-island-expanded'],
+    ['Sleep tracking', 'sleep'],
+    ['Walk tracking', 'apple-health-steps'],
+  ]) {
+    const shortcut = shortcuts.getByRole('button', { name, exact: true })
+    await shortcut.press('Enter')
+    await expect(dialog.locator('#descent-habby-' + id)).toBeFocused()
+    await expect(dialog.getByRole('heading', { name, exact: true })).toBeInViewport()
+    await expect(page).toHaveURL('/#habby')
+  }
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  await expect(page).toHaveURL('/#work')
+})
+
 test('keeps work, technologies and contact available without JavaScript', async ({ browser }) => {
   const context = await browser.newContext({
     javaScriptEnabled: false,
@@ -1315,6 +1340,17 @@ test('keeps work, technologies and contact available without JavaScript', async 
     await work.getByRole('link', { name: 'Pangea Chat', exact: true }).click()
     await expect(page).toHaveURL(/#pangea-chat$/)
     await expect(page.locator('#pangea-chat')).toBeVisible()
+    await expect(work.getByRole('link', { name: 'Habby', exact: true })).toHaveAttribute(
+      'href',
+      '#habby',
+    )
+    const habby = page.getByRole('article', { name: 'Habby', exact: true })
+    await expect(habby.getByRole('img')).toHaveCount(9)
+    await expect(habby.locator('#habby-sleep')).toContainText('Development preview')
+    await expect(habby.getByRole('link', { name: 'Open Habby' })).toHaveAttribute(
+      'href',
+      'https://usehabby.com/',
+    )
     await expect(page.getByRole('link', { name: 'Download résumé' }).first()).toHaveAttribute(
       'href',
       '/wilson-le-resume.pdf',
@@ -1334,6 +1370,11 @@ test('keeps work, technologies and contact available without JavaScript', async 
       'https://calendly.com/wilson-lyratechnologies/30min',
     )
     await expect(page.locator('a[href^="mailto:"]')).toHaveCount(0)
+    await page.setViewportSize({ width: 320, height: 680 })
+    await page.goto('/vi#habby-sleep')
+    const sleep = page.locator('#habby-sleep')
+    await expect(sleep.getByText(/Development preview/)).toBeInViewport()
+    await expect(sleep.getByRole('img')).toBeInViewport()
   } finally {
     await context.close()
   }

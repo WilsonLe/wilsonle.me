@@ -2,6 +2,7 @@ export interface WorkScreen {
   id: string
   title: string
   image: { src: string; alt: string; width: number; height: number }
+  layout?: 'feature' | 'portrait'
   robot?: { src: string; poster: string; alt: string; width: number; height: number }
   callout: { description: string }
 }
@@ -18,6 +19,7 @@ export interface Work {
   summary: string
   contributions?: string[]
   features?: string[]
+  coverScreenId?: string
   screens: WorkScreen[]
 }
 
@@ -367,6 +369,140 @@ export const works: Work[] = [
         callout: {
           description:
             'Use WebMCP tools to create and refine frames, layers and text with an external agent. Keep the canvas visible alongside the conversation and adjust the result in the editor.',
+        },
+      },
+    ],
+  },
+  {
+    slug: 'habby',
+    projectId: 'habby',
+    name: 'Habby',
+    summary: 'A habit tracker for iPhone.',
+    coverScreenId: 'today',
+    screens: [
+      {
+        id: 'lock-screen-water',
+        title: 'Live Activities',
+        layout: 'feature',
+        image: {
+          src: '/work/screenshots/habby-lock-screen-water.webp',
+          alt: 'A water-tracking Live Activity with a daily count and buttons to add a serving or skip the habit.',
+          width: 804,
+          height: 466,
+        },
+        callout: {
+          description: 'Log a serving of water from a reminder on the Lock Screen.',
+        },
+      },
+      {
+        id: 'dynamic-island-expanded',
+        title: 'Dynamic Island',
+        layout: 'feature',
+        image: {
+          src: '/work/screenshots/habby-dynamic-island-expanded.webp',
+          alt: 'An expanded Walk timer in the Dynamic Island with a progress track and Pause, Finish and Skip buttons.',
+          width: 804,
+          height: 298,
+        },
+        callout: {
+          description: 'Watch your Walk timer fill as you go. Touch and hold it for controls.',
+        },
+      },
+      {
+        id: 'sleep',
+        title: 'Sleep tracking',
+        layout: 'feature',
+        image: {
+          src: '/work/screenshots/habby-sleep-preview.webp',
+          alt: 'Sleep preview showing a 10 PM to 7 AM schedule and a sample bedtime marked complete.',
+          width: 1206,
+          height: 2622,
+        },
+        callout: {
+          description: 'Development preview of bedtime check-ins with optional Apple Health.',
+        },
+      },
+      {
+        id: 'apple-health-steps',
+        title: 'Walk tracking',
+        layout: 'feature',
+        image: {
+          src: '/work/screenshots/habby-apple-health-steps.webp',
+          alt: 'Walk habit with an hourly bar chart of example step counts.',
+          width: 804,
+          height: 740,
+        },
+        callout: {
+          description: 'Count Apple Health steps toward your walking goal and see them by hour.',
+        },
+      },
+      {
+        id: 'today',
+        title: 'Today',
+        layout: 'portrait',
+        image: {
+          src: '/work/screenshots/habby-today.webp',
+          alt: 'Habby Today screen with a plant companion, daily progress and a list of habits.',
+          width: 804,
+          height: 1748,
+        },
+        callout: {
+          description: 'See what’s due today and check in on your habits and your plant companion.',
+        },
+      },
+      {
+        id: 'water',
+        title: 'Log a glass of water',
+        layout: 'portrait',
+        image: {
+          src: '/work/screenshots/habby-water.webp',
+          alt: 'Drink water drawer with a progress ring and a control for logging another serving.',
+          width: 804,
+          height: 1748,
+        },
+        callout: {
+          description: 'Tap to add a serving and see how much of your daily goal you’ve reached.',
+        },
+      },
+      {
+        id: 'week',
+        title: 'Last 7 days',
+        layout: 'portrait',
+        image: {
+          src: '/work/screenshots/habby-week.webp',
+          alt: 'Weekly view with a daily activity chart and a breakdown of progress by habit.',
+          width: 804,
+          height: 1748,
+        },
+        callout: {
+          description: 'Review daily activity and see how each habit is going.',
+        },
+      },
+      {
+        id: 'dynamic-island-compact',
+        title: 'Timer in the Dynamic Island',
+        image: {
+          src: '/work/screenshots/habby-dynamic-island-compact.webp',
+          alt: 'Habby’s mascot and a timer with a partially filled progress track in the compact Dynamic Island.',
+          width: 804,
+          height: 152,
+        },
+        callout: {
+          description: 'See your timer and its progress at a glance while using your iPhone.',
+        },
+      },
+      {
+        id: 'screen-time-window',
+        title: 'A screen-free evening',
+        image: {
+          src: '/work/screenshots/habby-screen-time-window.webp',
+          alt: 'Screen-free evening editor with a 10 PM to 6 AM window and a Select apps button.',
+          width: 804,
+          height: 740,
+        },
+        callout: {
+          description:
+            'Choose your quiet hours and the apps to include in the Screen Time routine.',
         },
       },
     ],

@@ -28,7 +28,7 @@ function contrastRatio(firstColor: string, secondColor: string): number {
 }
 
 test.describe('Frontend', () => {
-  test('shows six project billboards with complete project dialogs', async ({ page }) => {
+  test('shows project billboards with complete project dialogs', async ({ page }) => {
     await page.goto('/')
     await expect(page).toHaveTitle('Wilson Le | Forward Deployed Engineer at Lyra')
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
@@ -42,15 +42,17 @@ test.describe('Frontend', () => {
       '#work',
     )
     const work = page.getByRole('region', { name: 'Work', exact: true })
-    await expect(work.getByRole('article')).toHaveCount(6)
-    await expect(work.getByRole('img')).toHaveCount(6)
-    const figures = [2, 4, 3, 3, 3, 3]
+    await expect(work.getByRole('article')).toHaveCount(projectChoices.length)
+    await expect(work.getByRole('img')).toHaveCount(projectChoices.length)
+    const figures = [2, 4, 3, 3, 3, 3, 9]
     for (const [index, project] of projectChoices.entries()) {
       const dialog = await selectProject(page, project.id)
       await expect(dialog.locator('figure')).toHaveCount(figures[index])
-      await expect(
-        dialog.getByRole('heading', { name: index >= 4 ? 'Features' : 'My part', exact: true }),
-      ).toBeVisible()
+      if (project.id !== 'habby') {
+        await expect(
+          dialog.getByRole('heading', { name: index >= 4 ? 'Features' : 'My part', exact: true }),
+        ).toBeVisible()
+      }
       for (const screenshot of await dialog
         .getByRole('link', { name: /Open full screenshot/ })
         .all()) {
@@ -63,12 +65,6 @@ test.describe('Frontend', () => {
         await expect(image).toHaveCSS('transform', 'none')
       }
     }
-    await expect(
-      page.getByRole('dialog').getByRole('link', { name: 'Open LocalDesign' }),
-    ).toHaveAttribute('href', 'https://wilsonle.github.io/LocalApps/LocalDesign/')
-    await expect(
-      page.getByRole('dialog').getByRole('heading', { name: 'Design with an external agent.' }),
-    ).toBeVisible()
     await expect(page.locator('#about, #experience, #education, #approach, #now')).toHaveCount(0)
   })
 
@@ -114,6 +110,34 @@ test.describe('Frontend', () => {
     await expect(fullImage).toHaveAttribute('href', '/work/screenshots/localcut-webmcp.webp')
     await expect(fullImage.getByRole('img')).toHaveJSProperty('naturalWidth', 1844)
     await expect(fullImage.getByRole('img')).toHaveJSProperty('naturalHeight', 934)
+    const localdesign = await selectProject(page, 'localdesign')
+    await expect(localdesign.getByRole('link', { name: 'Open LocalDesign' })).toHaveAttribute(
+      'href',
+      'https://wilsonle.github.io/LocalApps/LocalDesign/',
+    )
+    await expect(
+      localdesign.getByRole('heading', { name: 'Design with an external agent.' }),
+    ).toBeVisible()
+    const habby = await selectProject(page, 'habby')
+    await expect(habby.getByRole('link', { name: 'Open Habby' })).toHaveAttribute(
+      'href',
+      'https://usehabby.com/',
+    )
+    const featured = ['Live Activities', 'Dynamic Island', 'Sleep tracking', 'Walk tracking']
+    expect((await habby.locator('figcaption h3').allTextContents()).slice(0, 4)).toEqual(featured)
+    for (const name of featured) {
+      await expect(habby.getByRole('heading', { name, exact: true })).toBeInViewport()
+      await expect(
+        habby.getByRole('link', { name: `Open full screenshot: ${name}`, exact: true }),
+      ).toBeInViewport({ ratio: 0.95 })
+    }
+    await expect(
+      habby.getByRole('link', { name: 'Open full screenshot: Sleep tracking' }),
+    ).toHaveAttribute('href', '/work/screenshots/habby-sleep-preview.webp')
+    await expect(habby.getByRole('link', { name: 'Open full screenshot: Today' })).toHaveAttribute(
+      'href',
+      '/work/screenshots/habby-today.webp',
+    )
   })
 
   test('pauses CYOBot demos and honors reduced motion', async ({ page }) => {

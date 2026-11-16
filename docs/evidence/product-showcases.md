@@ -1,6 +1,6 @@
 # Product showcases
 
-Work presents six projects and eighteen feature images on `/`, `/en` and `/vi`, in this order: Kalibr, Pangea Chat, CYOBot, Vulcan Augmetics, LocalCut and LocalDesign. Twelve horizontal rules separate adjacent features, alongside six project boundaries. The existing English fallback supplies Vietnamese content. Existing project anchors and the four Pangea row anchors remain stable.
+Work presents seven projects and twenty-seven feature images on `/`, `/en` and `/vi`. The city billboards open the project galleries, and the static Work section exposes the same images without JavaScript. Habby follows LocalDesign in the sewers district. The Vietnamese route uses the existing English fallback.
 
 ## Content and ownership
 
@@ -13,6 +13,16 @@ LocalCut and LocalDesign are feature-led, fully open-source browser applications
 ## Image provenance
 
 Original screenshots are preserved in local task evidence. Raster conversion and deterministic cropping use installed Sharp, without resampling, upscaling or reconstructed UI. Decoded RGBA equality is checked against the corresponding source region. Images are served directly rather than through an additional optimizer derivative. An image establishes appearance; it does not establish source-app acceptance, live model generation or successful export.
+
+### Habby screenshots
+
+The Habby dialog opens with Live Activities on the Lock Screen, Dynamic Island, Sleep tracking and Walk tracking. Desktop uses two rows in tall windows and one row in shorter windows. Phone visitors can jump to each feature from the top of the panel. The narrow static gallery places the Sleep preview label above its image.
+
+Eight WebPs are byte-for-byte copies of the app screenshots published on [Habby's site](https://usehabby.com/) on 16 November 2026. The Today, water and week screenshots map to `/images/app/2026-11-16-{today,water,week}.webp`. The other five website images keep their source filenames after the local `habby-` prefix. Each screenshot links to its full-size copy.
+
+The compact and expanded Dynamic Island images use the published versions with the timer's running progress track.
+
+`habby-sleep-preview.webp` preserves the full 1206 × 2622 iPhone 17 Pro simulator capture from Habby development revision `13d6a271`. It shows a sample manual bedtime check-in, which the gallery labels as a preview. Decoded pixels match the original PNG.
 
 ### CYOBot robot overlays
 
@@ -44,7 +54,7 @@ The hosted LocalCut demo project (`a0bb2ce1-333c-4524-abd8-417b426b36b8`) and Lo
 
 The new Kalibr harness serves only local fixture data. It does not weaken an application authorization path or alter a production account, collection policy, analytics provider or saved record. Its owned local server is stopped after capture.
 
-## Project navigation and static entrances
+## Project navigation and static entrances before the city layout
 
 Work is server-rendered for all six projects. After JavaScript enhancement, synchronized labelled tabs show one selected project. The top selector sticks below the fixed header and uses a horizontally scrollable single row, including with enlarged text. Its native scrollbar is hidden; shaded left/right chevrons appear only when the tabs overflow, with each end disabled at its boundary. Chevrons scroll the row without changing the selected project or page position. Resize and font changes refresh the overflow state; keyboard selection and native swipe/trackpad scrolling remain available. Selecting a project reveals its introduction with smooth movement, or instant positioning under reduced motion. Bottom selection preserves that selector's viewport position and focus when project heights differ; it does not return the visitor to the top. Keyboard controls use Left/Right/Home/End and Enter/Space.
 

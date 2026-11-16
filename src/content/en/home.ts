@@ -75,6 +75,13 @@ const projectItems: Project[] = [
     url: 'https://wilsonle.github.io/LocalApps/LocalDesign/',
     linkLabel: 'Open LocalDesign',
   },
+  {
+    id: 'habby',
+    name: 'Habby',
+    summary: 'A habit tracker for iPhone.',
+    url: 'https://usehabby.com/',
+    linkLabel: 'Open Habby',
+  },
 ]
 
 const projects: Projects = {

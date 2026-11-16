@@ -3,9 +3,25 @@ import type { WorkScreen } from '@/content/work'
 
 export function AnnotatedScreenshot({ screen, id }: { screen: WorkScreen; id: string }) {
   const { image, callout } = screen
+  const fullPhone = image.height > image.width * 2
+  const featured = screen.layout === 'feature'
+  const caption = (
+    <figcaption className={featured ? 'work-callout min-[900px]:order-1' : 'work-callout'}>
+      <div className="work-callout-copy">
+        <h4
+          id={`${id}-title`}
+          className="font-display text-3xl leading-tight tracking-[-0.025em] sm:text-4xl"
+        >
+          {screen.title}
+        </h4>
+        <p className="mt-4 max-w-sm text-sm leading-7 text-ink/75">{callout.description}</p>
+      </div>
+    </figcaption>
+  )
   return (
     <figure id={id} className="work-capture work-feature" aria-labelledby={`${id}-title`}>
-      <div className="work-image-mat">
+      {featured && caption}
+      <div className={fullPhone ? 'work-image-mat mx-auto w-full max-w-64' : 'work-image-mat'}>
         <div className="relative">
           <div className="work-shot-view">
             <a
@@ -32,17 +48,7 @@ export function AnnotatedScreenshot({ screen, id }: { screen: WorkScreen; id: st
           )}
         </div>
       </div>
-      <figcaption className="work-callout">
-        <div className="work-callout-copy">
-          <h4
-            id={`${id}-title`}
-            className="font-display text-3xl leading-tight tracking-[-0.025em] sm:text-4xl"
-          >
-            {screen.title}
-          </h4>
-          <p className="mt-4 max-w-sm text-sm leading-7 text-ink/75">{callout.description}</p>
-        </div>
-      </figcaption>
+      {!featured && caption}
     </figure>
   )
 }
