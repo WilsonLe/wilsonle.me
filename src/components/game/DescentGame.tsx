@@ -41,6 +41,7 @@ import {
   drawGame,
   drawForeground,
   type CrossingTops,
+  type PortalFrame,
 } from '@/components/game/descent-renderer'
 
 type Snapshot = {
@@ -62,10 +63,14 @@ const INITIAL: Snapshot = {
 
 type Destination = 'top' | 'work' | 'contact' | 'skills'
 type Landing = NonNullable<ReturnType<typeof nearestLandingInView>>
-const FADE_MS = 180
+const PORTAL_DEPARTURE_MS = 240
+const PORTAL_ARRIVAL_MS = 360
 const SCROLL_MS = 440
 const SCROLL_IDLE_MS = 500
 const WORK_DISTRICTS = ['streets', 'transit', 'sewers'] as const
+const phaseProgress = (elapsed: number, duration: number) =>
+  Math.max(0, Math.min(1, elapsed / duration))
+const materialized = (progress: number) => phaseProgress(progress - 0.25, 0.5)
 
 function fragment() {
   try {
@@ -279,7 +284,7 @@ export function DescentGame({
       opacity: number
       landed: boolean
     } | null = null
-    let landingFade: { start: number; from: number; to: 0 | 1 } | undefined
+    let landingPortal: (Omit<PortalFrame, 'progress'> & { start: number }) | undefined
     let lastPublish = 0
     let lastSnapshot = INITIAL
     let lastNearby: string | undefined
@@ -290,6 +295,10 @@ export function DescentGame({
       const spriteTop = state.player.y - state.camera
       return spriteTop < viewHeight && spriteTop + PLAYER_HEIGHT > headerHeight / scale
     }
+    const portalOrigin = () => ({
+      x: state.player.x + PLAYER_WIDTH / 2,
+      y: state.player.y + PLAYER_HEIGHT / 2,
+    })
     const inspectable = () =>
       ctx && foregroundCtx && !travel && state.started && playerVisible()
         ? nearbyBillboard(state, interactionTargets)
@@ -337,17 +346,29 @@ export function DescentGame({
       wheelScroll = undefined
       scrollLanding = undefined
     }
-    const revealLanding = (now: number, from: number) => {
-      visibility = motion.matches ? 1 : from
-      landingFade = visibility < 1 ? { start: now, from, to: 1 } : undefined
+    const revealLanding = (now: number, progress = 0) => {
+      visibility = motion.matches ? 1 : materialized(progress)
+      landingPortal =
+        motion.matches || progress >= 1
+          ? undefined
+          : { phase: 'arrival', start: now - progress * PORTAL_ARRIVAL_MS, ...portalOrigin() }
+    }
+    const reverseDeparture = (now: number) => {
+      if (landingPortal?.phase !== 'departure') return
+      const progress = phaseProgress(now - landingPortal.start, PORTAL_DEPARTURE_MS)
+      // The aperture and avatar bands use the same timing in reverse.
+      revealLanding(now, 1 - progress)
     }
     const stopForManualScroll = () => {
       cancelScrollLanding()
       following = false
       framedDestination = undefined
+      const wasTraveling = travel !== null
       travel = null
-      if (landingFade?.to === 0) revealLanding(performance.now(), visibility)
-      else if (!landingFade) visibility = 1
+      if (landingPortal?.phase === 'departure') reverseDeparture(performance.now())
+      else if (wasTraveling && playerOnScreen() && visibility < 1)
+        revealLanding(performance.now(), visibility ? 0.25 + visibility / 2 : 0)
+      else if (!landingPortal) visibility = 1
       controls.reset()
     }
     const contactLandingInset = () => {
@@ -405,8 +426,8 @@ export function DescentGame({
       publish()
     }
     const landAfterScroll = (now: number, resizing?: true) => {
-      const departing = landingFade?.to === 0
-      if (departing && visibility > 0) return
+      const departure = landingPortal?.phase === 'departure' ? landingPortal : undefined
+      if (departure && !motion.matches && now - departure.start < PORTAL_DEPARTURE_MS) return
 
       const landing = findLandingInView()
       const teleports =
@@ -415,18 +436,18 @@ export function DescentGame({
         (landing.shift !== 0 ||
           Math.round(landing.center - PLAYER_WIDTH / 2) !== Math.round(state.player.x) ||
           Math.round(landing.feet - PLAYER_HEIGHT) !== Math.round(state.player.y))
-      if (teleports && playerOnScreen() && !motion.matches && !departing && visibility > 0) {
-        landingFade = { start: now, from: visibility, to: 0 }
+      if (teleports && playerOnScreen() && !motion.matches && !departure && visibility > 0) {
+        landingPortal = { phase: 'departure', start: now, ...portalOrigin() }
         return
       }
 
       if (landing) applyLanding(landing)
       scrollLanding = landing ? 'landed' : undefined
-      if (teleports) revealLanding(now, 0)
-      else if (departing) revealLanding(now, visibility)
+      if (teleports || departure) revealLanding(now)
     }
     const resize = () => {
       if (scroller.clientWidth <= 0 || scroller.clientHeight <= 0) return
+      const oldPortalOrigin = landingPortal && portalOrigin()
       const onContactFloor =
         state.started &&
         state.player.grounded &&
@@ -560,6 +581,11 @@ export function DescentGame({
           scrollLanding = { at: performance.now() + SCROLL_IDLE_MS, resizing: true }
         }
       }
+      if (landingPortal && oldPortalOrigin) {
+        const { x, y } = portalOrigin()
+        landingPortal.x += x - oldPortalOrigin.x
+        landingPortal.y += y - oldPortalOrigin.y
+      }
       for (const layer of [canvas, foreground]) {
         if (layer.width !== width) layer.width = width
         if (layer.height !== Math.ceil(viewHeight)) layer.height = Math.ceil(viewHeight)
@@ -615,7 +641,7 @@ export function DescentGame({
     }
     navigateRef.current = (destination) => {
       cancelScrollLanding()
-      landingFade = undefined
+      landingPortal = undefined
       following = false
       framedDestination = undefined
       controls.reset()
@@ -627,7 +653,7 @@ export function DescentGame({
         visibility = 1
       } else {
         const source = scroller.scrollTop
-        const departure = playerOnScreen() ? FADE_MS * visibility : 0
+        const departure = playerOnScreen() ? PORTAL_DEPARTURE_MS * visibility : 0
         const duration = Math.abs(source - targetScroll(destination)) < 2 ? 0 : SCROLL_MS
         travel = {
           destination,
@@ -673,7 +699,7 @@ export function DescentGame({
         scroller.focus({ preventScroll: true })
       }
       cancelScrollLanding()
-      if (landingFade?.to === 0) revealLanding(performance.now(), visibility)
+      reverseDeparture(performance.now())
       if (!following || scroller.scrollTop !== scrollTop) {
         scrollTop = scroller.scrollTop
         state.camera = scrollTop / scale
@@ -681,7 +707,7 @@ export function DescentGame({
           const landing = findLandingInView()
           if (landing) {
             applyLanding(landing)
-            revealLanding(performance.now(), 0)
+            revealLanding(performance.now())
           }
         }
       }
@@ -839,22 +865,27 @@ export function DescentGame({
       if (selectedRef.current) {
         if (scrollLanding !== 'landed') cancelScrollLanding()
         if (travel) stopForManualScroll()
-        if (landingFade) {
-          landingFade = undefined
+        if (landingPortal) {
+          landingPortal = undefined
           visibility = 1
         }
       }
-      if (landingFade) {
-        const { start, from, to } = landingFade
-        const progress = motion.matches ? 1 : Math.max(0, Math.min(1, (now - start) / FADE_MS))
-        visibility = from + (to - from) * progress
-        if (progress === 1 && to === 1) landingFade = undefined
+      let portalFrame: PortalFrame | undefined
+      if (landingPortal) {
+        const { start, phase, x, y } = landingPortal
+        const duration = phase === 'departure' ? PORTAL_DEPARTURE_MS : PORTAL_ARRIVAL_MS
+        const progress = motion.matches ? 1 : phaseProgress(now - start, duration)
+        visibility = phase === 'departure' ? 1 - materialized(progress) : materialized(progress)
+        portalFrame = { phase, progress, x, y }
+        if (progress === 1 && phase === 'arrival') landingPortal = undefined
       }
       if (travel) {
         accumulator = 0
-        const elapsed = Math.max(0, now - travel.start)
+        const elapsed = motion.matches ? Infinity : Math.max(0, now - travel.start)
         if (elapsed < travel.departure) {
-          visibility = travel.opacity * (1 - elapsed / travel.departure)
+          const progress = elapsed / travel.departure
+          visibility = travel.opacity * (1 - materialized(progress))
+          portalFrame = { phase: 'departure', progress, ...portalOrigin() }
         } else if (elapsed < travel.arrival) {
           visibility = 0
           const progress = (elapsed - travel.departure) / travel.duration
@@ -867,8 +898,10 @@ export function DescentGame({
             arrive(travel.destination)
             travel.landed = true
           }
-          visibility = Math.min(1, (elapsed - travel.arrival) / FADE_MS)
-          if (visibility === 1) {
+          const progress = phaseProgress(elapsed - travel.arrival, PORTAL_ARRIVAL_MS)
+          visibility = materialized(progress)
+          portalFrame = { phase: 'arrival', progress, ...portalOrigin() }
+          if (progress === 1) {
             travel = null
             publish()
           }
@@ -906,7 +939,7 @@ export function DescentGame({
         }
         writeScroll(state.camera * scale)
       } else accumulator = 0
-      const animating = travel || (following && !selectedRef.current)
+      const animating = portalFrame || travel || (following && !selectedRef.current)
       const reducedMotion = motion.matches
       const cameraChanged = state.camera !== paintedCamera
       // Keep the last visible pose when reduced motion is turned on.
@@ -928,7 +961,15 @@ export function DescentGame({
           (!reducedMotion && now - lastPublish > 65) ||
           animating)
       ) {
-        drawForeground(foregroundCtx, state, viewHeight, now / 1000, reducedMotion, visibility)
+        drawForeground(
+          foregroundCtx,
+          state,
+          viewHeight,
+          now / 1000,
+          reducedMotion,
+          visibility,
+          portalFrame,
+        )
       }
       paintedCamera = state.camera
       paintedVisibility = visibility

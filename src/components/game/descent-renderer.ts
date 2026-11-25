@@ -1,6 +1,8 @@
 import {
   billboardFloorY,
   floorY,
+  PLAYER_HEIGHT,
+  PLAYER_WIDTH,
   zoneAt,
   type CityLayout,
   type GameState,
@@ -22,6 +24,12 @@ export const CROSSINGS = ['streets', 'transit', 'sewers', 'reactor'] as const sa
 >[]
 type Crossing = (typeof CROSSINGS)[number]
 export type CrossingTops = Record<Crossing, number>
+export type PortalFrame = {
+  phase: 'departure' | 'arrival'
+  progress: number
+  x: number
+  y: number
+}
 
 function block(ctx: Canvas, x: number, y: number, w: number, h: number, color: string) {
   ctx.fillStyle = color
@@ -703,6 +711,47 @@ export function drawGame(
   ctx.restore()
 }
 
+function drawPortal(ctx: Canvas, portal: PortalFrame, camera: number) {
+  const { phase, progress, x, y } = portal
+  if (progress <= 0 || progress >= 1) return
+  const opening = Math.min(1, progress * 4, (1 - progress) * 4)
+  const radiusX = 5 + 25 * opening
+  const radiusY = 10 + 25 * Math.sqrt(opening)
+  const innerRadius = Math.max(0, radiusX - 7)
+  const brightness = Math.min(1, opening * 2.5)
+  ctx.save()
+  ctx.translate(Math.round(x), Math.round(y - camera))
+  ctx.globalAlpha = brightness
+  disk(ctx, 0, 0, radiusX + 8, radiusY + 4, '#3787bd55')
+  disk(ctx, 0, 0, radiusX + 3, radiusY + 2, '#3f88b7')
+  disk(ctx, 0, 0, radiusX, radiusY, '#a2f4ff')
+  disk(ctx, 0, 0, radiusX - 4, radiusY - 4, '#131f40ed')
+  disk(ctx, 0, 0, innerRadius, radiusY - 9, '#21647b')
+
+  // Sweep a few horizontal lines through the aperture as the rim opens and closes.
+  for (let i = 0; i < 5; i++) {
+    const offset = loop(progress * 1.6 + i * 0.19, 1) * 2 - 1
+    const halfWidth = innerRadius * Math.sqrt(1 - offset ** 2) * 0.85
+    block(ctx, -halfWidth, offset * (radiusY - 9), halfWidth * 2, 2, '#9cf5ff58')
+  }
+
+  const drift = phase === 'arrival' ? progress : 1 - progress
+  for (let i = 0; i < 18; i++) {
+    const turn = noise(i * 19 + 3) * Math.PI * 2 + progress * 0.8
+    const spread = 4 + drift * (8 + 24 * noise(i * 31 + 9))
+    const size = i % 5 === 0 ? 4 : 2
+    block(
+      ctx,
+      Math.cos(turn) * (radiusX + spread),
+      Math.sin(turn) * (radiusY + spread),
+      size,
+      2,
+      i % 3 === 0 ? PAPER : CYAN,
+    )
+  }
+  ctx.restore()
+}
+
 export function drawForeground(
   ctx: Canvas,
   state: GameState,
@@ -710,15 +759,22 @@ export function drawForeground(
   clock: number,
   reducedMotion: boolean,
   visibility: number,
+  portal?: PortalFrame,
 ) {
   const time = reducedMotion ? 0 : clock
   const p = state.player
   ctx.clearRect(0, 0, state.width, height + 1)
+  if (portal && !reducedMotion) drawPortal(ctx, portal, state.camera)
   if (visibility === 0) return
+  const visibleFrom = Math.ceil(((1 - visibility) * PLAYER_HEIGHT) / 2) * 2
   ctx.save()
-  ctx.globalAlpha = visibility
-  ctx.translate(Math.round(p.x + 14), Math.round(p.y - state.camera))
+  ctx.translate(Math.round(p.x + PLAYER_WIDTH / 2), Math.round(p.y - state.camera))
   ctx.scale(p.facing, 1)
+  if (visibleFrom) {
+    ctx.beginPath()
+    ctx.rect(-40, visibleFrom, 80, PLAYER_HEIGHT + 24)
+    ctx.clip()
+  }
   // Twin thruster nozzles and a stepped exhaust make the jetpack readable at sprite size.
   block(ctx, -20, 17, 9, 19, '#486b80')
   block(ctx, -22, 20, 4, 14, '#a0bec9')
@@ -741,19 +797,14 @@ export function drawForeground(
   })
   block(ctx, -10, 16, 18, 3, '#e09883')
   block(ctx, -22 - Math.sin(time * 6) * 2, 17, 11, 3, '#e09883')
-  if (visibility < 1) {
-    ctx.globalAlpha = Math.sin(visibility * Math.PI) * 0.8
-    const spread = (1 - visibility) * 35
-    for (let i = 0; i < 14; i++) {
-      const x = (noise(i * 17) - 0.5) * (24 + spread * 2)
-      const y = noise(i * 29 + 1) * 39 - spread
-      block(ctx, x, y, i % 4 === 0 ? 4 : 2, 2, i % 3 ? CYAN : PAPER)
-    }
+  if (visibleFrom && visibleFrom < PLAYER_HEIGHT) {
+    block(ctx, -12, visibleFrom, 24, 2, '#9cf5ff')
+    block(ctx, -7, visibleFrom, 14, 1, PAPER)
   }
   ctx.restore()
 
-  if (!state.started && visibility === 1) {
-    const x = Math.round(p.x + 14)
+  if (!state.started && visibility === 1 && (!portal || portal.progress >= 1)) {
+    const x = Math.round(p.x + PLAYER_WIDTH / 2)
     const y = Math.round(p.y - state.camera)
     block(ctx, x - 4, y - 17, 8, 2, CYAN)
     block(ctx, x - 2, y - 15, 4, 3, CYAN)
