@@ -121,10 +121,14 @@ Open <http://localhost:3000>. The Payload admin lives at
 
 All home locales download `public/wilson-le-resume.pdf` directly. The former
 `/resume`, `/en/resume`, and `/vi/resume` pages have been removed.
-The English PDF uses the existing facts in `src/content/en/resume.ts` and
-site contact details. After an approved content change, regenerate it with
-`pnpm generate:resume` (requires the Playwright Chromium browser), then render
-and inspect the PDF before committing.
+
+Export the approved Google Docs résumé as a PDF and replace
+`public/wilson-le-resume.pdf` with the export. Render the PDF and check its page
+count and layout before committing.
+
+The optional `pnpm generate:resume` command renders `src/content/en/resume.ts`
+and the site contact details with Playwright Chromium. It overwrites the same
+download file.
 
 ### Before committing
 
