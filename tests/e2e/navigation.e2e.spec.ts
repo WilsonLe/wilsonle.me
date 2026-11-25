@@ -644,6 +644,35 @@ test('fades out at the old position and fades in on the new platform', async ({ 
   expect(await avatarAlpha(destination)).toBe(255)
 })
 
+test('moves a partly visible avatar from its current platform when interrupted', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 1100 })
+  await installPausedClock(page)
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await page.evaluate(() => document.fonts.ready)
+  await page.clock.runFor(64)
+
+  const initialX = Number(await city.getAttribute('data-player-x'))
+  const initialY = Number(await city.getAttribute('data-player-y'))
+  await scroller.evaluate((element, y) => {
+    const canvas = document.querySelector<HTMLCanvasElement>('.descent-foreground')!
+    const header = document.querySelector('.descent-header')!.getBoundingClientRect()
+    // Clip the top of the avatar behind the header while leaving its body on-screen.
+    element.scrollTop = Math.round((y * element.clientWidth) / canvas.width - header.bottom + 12)
+  }, initialY)
+  await page.clock.runFor(64)
+  await page.keyboard.down('ArrowLeft')
+  await page.clock.runFor(160)
+  await page.keyboard.up('ArrowLeft')
+  expect(Number(await city.getAttribute('data-player-x'))).toBeLessThan(initialX - 10)
+  expect(Number(await city.getAttribute('data-player-y'))).toBe(initialY)
+})
+
 test('restarts the 500 ms landing delay after each native scroll', async ({ page }) => {
   await installPausedClock(page)
   await page.emulateMedia({ reducedMotion: 'reduce' })

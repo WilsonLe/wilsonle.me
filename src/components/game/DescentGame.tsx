@@ -286,6 +286,10 @@ export function DescentGame({
     const playerVisible = () =>
       state.player.y - state.camera >= headerHeight / scale &&
       state.player.y + PLAYER_HEIGHT - state.camera <= viewHeight
+    const playerOnScreen = () => {
+      const spriteTop = state.player.y - state.camera
+      return spriteTop < viewHeight && spriteTop + PLAYER_HEIGHT > headerHeight / scale
+    }
     const inspectable = () =>
       ctx && foregroundCtx && !travel && state.started && playerVisible()
         ? nearbyBillboard(state, interactionTargets)
@@ -411,9 +415,7 @@ export function DescentGame({
         (landing.shift !== 0 ||
           Math.round(landing.center - PLAYER_WIDTH / 2) !== Math.round(state.player.x) ||
           Math.round(landing.feet - PLAYER_HEIGHT) !== Math.round(state.player.y))
-      const spriteTop = state.player.y - state.camera
-      const onScreen = spriteTop < viewHeight && spriteTop + PLAYER_HEIGHT > headerHeight / scale
-      if (teleports && onScreen && !motion.matches && !departing && visibility > 0) {
+      if (teleports && playerOnScreen() && !motion.matches && !departing && visibility > 0) {
         landingFade = { start: now, from: visibility, to: 0 }
         return
       }
@@ -625,7 +627,7 @@ export function DescentGame({
         visibility = 1
       } else {
         const source = scroller.scrollTop
-        const departure = playerVisible() ? FADE_MS * visibility : 0
+        const departure = playerOnScreen() ? FADE_MS * visibility : 0
         const duration = Math.abs(source - targetScroll(destination)) < 2 ? 0 : SCROLL_MS
         travel = {
           destination,
@@ -675,7 +677,7 @@ export function DescentGame({
       if (!following || scroller.scrollTop !== scrollTop) {
         scrollTop = scroller.scrollTop
         state.camera = scrollTop / scale
-        if (!playerVisible()) {
+        if (!playerOnScreen()) {
           const landing = findLandingInView()
           if (landing) {
             applyLanding(landing)
