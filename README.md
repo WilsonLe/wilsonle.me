@@ -22,7 +22,8 @@ the billboards. On a touchscreen, tap or hold the on-screen controls to move,
 or swipe to scroll through the portfolio. Double-tap the up control and hold
 the second tap to fly. Use the same gesture on either empty corner beside Up
 to fly diagonally. Wheel scrolling eases through the city. After scrolling stops
-for half a second, the character teleports to the nearest platform in view.
+for half a second, the character teleports to the nearest platform in view with
+a pixel fade at departure and arrival. Reduced motion skips the fade.
 
 Press **E** beside a project billboard, or click or tap a billboard, to see the
 project and its screenshots. On the reactor floor, walk under a link on the

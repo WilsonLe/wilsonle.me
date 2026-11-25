@@ -591,6 +591,59 @@ test('eases wheel scrolling and lands on the platform in the settled viewport', 
   expect(Number(await city.getAttribute('data-player-y'))).toBeLessThan(landingY - 10)
 })
 
+test('fades out at the old position and fades in on the new platform', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 1100 })
+  await installPausedClock(page)
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await page.evaluate(() => document.fonts.ready)
+  await page.clock.runFor(64)
+
+  const avatarPosition = () =>
+    city.evaluate((element) => ({
+      x: Number(element.getAttribute('data-player-x')),
+      y: Number(element.getAttribute('data-player-y')),
+    }))
+  const avatarAlpha = (position: { x: number; y: number }) =>
+    scroller.evaluate((element, { x, y }) => {
+      const canvas = element
+        .closest('.descent-page')!
+        .querySelector<HTMLCanvasElement>('.descent-foreground')!
+      const camera = (element.scrollTop * canvas.width) / element.clientWidth
+      // Sample the middle of the helmet on the otherwise transparent avatar layer.
+      return canvas.getContext('2d')!.getImageData(x + 14, Math.round(y - camera) + 7, 1, 1).data[3]
+    }, position)
+
+  const source = await avatarPosition()
+  await scroller.evaluate((element) => {
+    // Favor the Skills platform while the rooftop avatar is still visible.
+    element.scrollTop = 125
+  })
+  await page.clock.runFor(480)
+  expect(await avatarAlpha(source)).toBe(255)
+
+  await page.clock.runFor(120)
+  expect(await avatarPosition()).toEqual(source)
+  const departing = await avatarAlpha(source)
+  expect(departing).toBeGreaterThan(0)
+  expect(departing).toBeLessThan(255)
+
+  await page.clock.runFor(180)
+  const destination = await avatarPosition()
+  expect(destination.y).not.toBe(source.y)
+  expect(await avatarAlpha(source)).toBe(0)
+  const arriving = await avatarAlpha(destination)
+  expect(arriving).toBeGreaterThan(0)
+  expect(arriving).toBeLessThan(255)
+
+  await page.clock.runFor(140)
+  expect(await avatarPosition()).toEqual(destination)
+  expect(await avatarAlpha(destination)).toBe(255)
+})
+
 test('restarts the 500 ms landing delay after each native scroll', async ({ page }) => {
   await installPausedClock(page)
   await page.emulateMedia({ reducedMotion: 'reduce' })
