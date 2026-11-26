@@ -591,6 +591,132 @@ test('eases wheel scrolling and lands on the platform in the settled viewport', 
   expect(Number(await city.getAttribute('data-player-y'))).toBeLessThan(landingY - 10)
 })
 
+test('opens a particle portal before materializing the avatar on the new platform', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 1100 })
+  await installPausedClock(page)
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await page.evaluate(() => document.fonts.ready)
+  await page.clock.runFor(64)
+
+  const avatarPosition = () =>
+    city.evaluate((element) => ({
+      x: Number(element.getAttribute('data-player-x')),
+      y: Number(element.getAttribute('data-player-y')),
+    }))
+  const avatarFrame = (position: { x: number; y: number }) =>
+    scroller.evaluate((element, { x, y }) => {
+      const canvas = element
+        .closest('.descent-page')!
+        .querySelector<HTMLCanvasElement>('.descent-foreground')!
+      const camera = (element.scrollTop * canvas.width) / element.clientWidth
+      const width = 120
+      const top = Math.round(y - camera)
+      const pixels = canvas.getContext('2d')!.getImageData(x + 14 - 60, top - 48, width, 140).data
+      const pixel = (dx: number, dy: number) => {
+        const index = ((dy + 48) * width + dx + 60) * 4
+        return Array.from(pixels.subarray(index, index + 4))
+      }
+      let visiblePixels = 0
+      let surroundingPixels = 0
+      let outerParticles = 0
+      for (let i = 3; i < pixels.length; i += 4) {
+        if (!pixels[i]) continue
+        visiblePixels++
+        const index = (i - 3) / 4
+        const dx = (index % width) - 60
+        const dy = Math.floor(index / width) - 48 - 22
+        if (Math.abs(dx) > 25) surroundingPixels++
+        // Count bright pixels beyond the outside edge of the aperture.
+        if (pixels[i] > 180 && (dx / 39) ** 2 + (dy / 40) ** 2 > 1) outerParticles++
+      }
+      return {
+        helmet: pixel(0, 3),
+        boots: pixel(0, 37),
+        visiblePixels,
+        surroundingPixels,
+        outerParticles,
+      }
+    }, position)
+
+  const source = await avatarPosition()
+  await scroller.evaluate((element) => {
+    // Favor the Skills platform while the rooftop avatar is still visible.
+    element.scrollTop = 125
+  })
+  await page.clock.runFor(480)
+  const standing = await avatarFrame(source)
+  expect(standing.helmet[3]).toBe(255)
+  expect(standing.boots[3]).toBe(255)
+  expect(standing.surroundingPixels).toBe(0)
+
+  await page.clock.runFor(130)
+  expect(await avatarPosition()).toEqual(source)
+  const departing = await avatarFrame(source)
+  expect(departing.helmet).not.toEqual(standing.helmet)
+  expect(departing.boots).toEqual(standing.boots)
+  expect(departing.surroundingPixels).toBeGreaterThan(100)
+  expect(departing.outerParticles).toBeGreaterThan(0)
+
+  await page.clock.runFor(210)
+  const destination = await avatarPosition()
+  expect(destination.y).not.toBe(source.y)
+  expect((await avatarFrame(source)).helmet[3]).toBe(0)
+  const portal = await avatarFrame(destination)
+  expect(portal.visiblePixels).toBeGreaterThan(standing.visiblePixels)
+  expect(portal.helmet).not.toEqual(standing.helmet)
+  expect(portal.boots).not.toEqual(standing.boots)
+
+  await page.clock.runFor(125)
+  const materializing = await avatarFrame(destination)
+  expect(materializing.surroundingPixels).toBeGreaterThan(100)
+  expect(materializing.helmet).not.toEqual(standing.helmet)
+  expect(materializing.boots).toEqual(standing.boots)
+
+  await page.clock.runFor(210)
+  expect(await avatarPosition()).toEqual(destination)
+  expect(await avatarFrame(destination)).toMatchObject({
+    helmet: standing.helmet,
+    boots: standing.boots,
+    surroundingPixels: 0,
+    outerParticles: 0,
+  })
+})
+
+test('moves a partly visible avatar from its current platform when interrupted', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 1100 })
+  await installPausedClock(page)
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  const city = page.locator('.descent-page')
+  const scroller = page.getByRole('region', { name: /^Interactive portfolio/ })
+  await expect(city).toHaveAttribute('data-ready', 'true')
+  await page.evaluate(() => document.fonts.ready)
+  await page.clock.runFor(64)
+
+  const initialX = Number(await city.getAttribute('data-player-x'))
+  const initialY = Number(await city.getAttribute('data-player-y'))
+  await scroller.evaluate((element, y) => {
+    const canvas = document.querySelector<HTMLCanvasElement>('.descent-foreground')!
+    const header = document.querySelector('.descent-header')!.getBoundingClientRect()
+    // Clip the top of the avatar behind the header while leaving its body on-screen.
+    element.scrollTop = Math.round((y * element.clientWidth) / canvas.width - header.bottom + 12)
+  }, initialY)
+  await page.clock.runFor(64)
+  await page.keyboard.down('ArrowLeft')
+  await page.clock.runFor(160)
+  await page.keyboard.up('ArrowLeft')
+  expect(Number(await city.getAttribute('data-player-x'))).toBeLessThan(initialX - 10)
+  expect(Number(await city.getAttribute('data-player-y'))).toBe(initialY)
+})
+
 test('restarts the 500 ms landing delay after each native scroll', async ({ page }) => {
   await installPausedClock(page)
   await page.emulateMedia({ reducedMotion: 'reduce' })
